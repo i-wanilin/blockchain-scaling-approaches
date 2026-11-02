@@ -1,0 +1,158 @@
+================================================================================
+!! CONCLUSION 1 BELOW IS WRONG - SUPERSEDED 2026-09-08 !!
+================================================================================
+  The MEASUREMENTS in this file are valid. The INTERPRETATION is not.
+
+  This run claimed 4 tx/s is a "per-account limit". It is not. A later run with
+  the concurrency defect fixed got 113.80 tx/s FROM A SINGLE ACCOUNT
+  (arbitrum-single-account-2026-09-08.txt).
+
+  The real relationship is:  throughput = concurrency / submission latency.
+  4 tx/s is simply ONE in-flight request divided by ONE 250 ms block interval.
+
+  Why this run got it wrong: the probe used one thread per ACCOUNT, and since
+  eth_sendRawTransaction blocks, that thread serialised its own sends. The
+  `depth` column therefore never varied real concurrency - a defect this file
+  already documents below, but whose implication was missed.
+
+  See README.md for the corrected picture.
+================================================================================
+
+================================================================================
+ARBITRUM NITRO — THROUGHPUT CEILING PROBE — 2026-09-08
+================================================================================
+
+WHAT WAS RUN
+  nitro-testnode @ 62f6cae, node image v3.9.6-91bf578, contracts v3.1.0,
+  token-bridge v1.2.5. Chain 412346. Sequencer RPC 127.0.0.1:8547.
+  Host: workstation, i7-10700K (16 threads), WSL2, 15 GB RAM visible.
+  Background traffic generators STOPPED before the run (see TROUBLE 3).
+  Plain ETH transfers, 21000 gas, value 1 wei, to a burn address. NOT ERC-20.
+
+--------------------------------------------------------------------------------
+WHAT EACH NUMBER MEANS
+--------------------------------------------------------------------------------
+
+The life of one transaction in this probe:
+
+  step 0  sign it                      <- done BEFORE timing starts (pre-signed,
+                                          so ECDSA cost cannot inflate results)
+  step 1  call eth_sendRawTransaction  <- TIMER STARTS
+  step 2  sequencer receives + queues it
+  step 3  sequencer seals a block      <- ~every 250 ms, but ONLY if something
+                                          is queued (this chain has no clock;
+                                          idle = zero blocks, verified)
+  step 4  the send call returns        <- it BLOCKS until step 3. This is the
+                                          key property of this node.
+  step 5  poll eth_getTransactionReceipt until it appears
+  step 6  receipt in hand              <- TIMER STOPS
+
+  sub_ms    steps 1->4.  How long eth_sendRawTransaction blocks for.
+            Measured ~244 ms in EVERY cell. Because the call is synchronous,
+            this is really "how long until my transaction was sealed".
+
+  e2e_mean  steps 1->6.  Submission plus fetching the receipt.
+  e2e_med   same, median.
+  e2e_p90   same, 90th percentile.
+
+  span_s    wall time, first send starting to last receipt arriving.
+  sub_tps   transactions ACCEPTED per second (steps 1->4 completing).
+  inc_tps   transactions CONFIRMED IN A BLOCK per second (steps 1->6).
+            This is the throughput figure that matters.
+  ok/sent   receipts obtained / submissions accepted. err = failures.
+
+WHY sub_ms AND e2e_mean ARE NEARLY EQUAL AT depth=1
+  244.6 vs 246.5 ms. Because the send call already waited for sealing, the
+  receipt is available almost immediately afterwards. Nearly all the latency
+  is in step 3 - waiting for the sequencer to seal - not in step 5.
+
+WHY inc_tps == 1 / sub_ms PER ACCOUNT
+  1 / 0.244 s = 4.10 /s, and every single-account cell measured 3.98-4.06 /s.
+  A synchronous, nonce-ordered submit means an account can have only ONE
+  transaction in flight at the sequencer. Its rate is therefore pinned at
+  1/(submission latency). Adding accounts adds parallel submitters, so the
+  aggregate scales linearly. Confirmed by block contents: blocks during the
+  8-account phase held 9 transactions each, so the sequencer does batch.
+
+--------------------------------------------------------------------------------
+RESULTS
+--------------------------------------------------------------------------------
+acct  depth     ok/sent  span_s   sub_tps   inc_tps   sub_ms  e2e_mean  e2e_med  e2e_p90  err
+   1      1   120/120     29.58       4.1      4.06    244.6     246.5    250.6    251.4    0
+   1      4   120/120     29.59       4.1      4.06    244.7     984.1   1002.7   1003.6    0
+   1     16   120/120     29.61       4.1      4.05    244.9    3755.3   4010.7   4012.7    0
+   2      1   120/120     14.80       8.1      8.11    243.8     246.6    250.6    252.3    0
+   2      4   120/120     15.05       8.0      7.97    244.0     971.8   1002.7   1005.0    0
+   2     16   120/120     15.06       8.0      7.97    244.4    3505.4   4007.7   4013.7    0
+   4      1   120/120      7.53      15.9     15.94    240.4     246.8    250.6    253.1    0
+   4      4   120/120      7.54      15.9     15.91    240.9     949.9   1002.6   1008.5    0
+   4     16   120/120      7.57      15.9     15.85    243.5    3016.3   3769.1   4017.0    0
+   8      1   120/120      3.77      31.8     31.81    230.8     243.2    250.6    258.3    0
+   8      4   120/120      3.81      31.8     31.52    237.8     904.5   1002.0   1017.3    0
+   8     16   120/120      3.91      31.8     30.71    246.7    2063.0   2079.6   3527.6    0
+
+--------------------------------------------------------------------------------
+READING THE TABLE
+--------------------------------------------------------------------------------
+
+  accounts:   1 -> 2 -> 4 -> 8
+  inc_tps:  4.06 -> 8.11 -> 15.94 -> 31.81      linear, x2.00 / x1.97 / x2.00
+  per acct: 4.06 -> 4.06 -> 3.99  -> 3.98       constant
+
+  CONCLUSION 1  *** WITHDRAWN *** This run concluded that 4 tx/s is a
+                PER-ACCOUNT limit. That is FALSE. One account reaches 113.8 tx/s
+                given 32 concurrent in-flight transactions. 4 tx/s is one
+                in-flight request per 250 ms block interval - a property of the
+                CLIENT's concurrency, not of the account. See README.md.
+
+                What survives: the node reached 31.8 tx/s here with zero errors
+                at load average 0.39, i.e. nowhere near saturated. Later runs
+                took it to 251 tx/s on the same node.
+
+  CONCLUSION 2  NO CEILING WAS FOUND. Scaling was still perfectly linear at the
+                top of the sweep. 31.8 tx/s is a LOWER BOUND on this node, not
+                its maximum. Finding the real ceiling needs more accounts.
+
+  CONCLUSION 3  The spike's explanation was wrong. RESULTS.md attributes its
+                249.3 ms to "the testnode sequencer's ~250 ms block cadence".
+                There is no block cadence: with no transactions this chain
+                produced 0 blocks in 15 s. The 244 ms is a per-submission
+                sealing delay, not a clock.
+
+--------------------------------------------------------------------------------
+KNOWN DEFECT IN THIS RUN - the depth column measures nothing
+--------------------------------------------------------------------------------
+
+  The `depth` axis was meant to test whether one account can pipeline several
+  transactions. IT DID NOT TEST THAT.
+
+  The probe runs one thread per ACCOUNT. Since eth_sendRawTransaction blocks
+  for ~244 ms, that single thread serialises its own sends: 16 sends take
+  16 x 244 ms = 3.9 s. That is exactly the e2e_mean of 3755 ms at depth=16.
+
+  So the rising e2e latencies down each depth column are THE PROBE'S OWN QUEUE,
+  not the node's behaviour. The tell is that inc_tps stayed flat (4.06, 4.06,
+  4.05) across all three depths - the node never noticed.
+
+  To test pipelining properly: one thread per IN-FLIGHT SLOT, not per account.
+
+  Consequence: it is NOT yet proven that a single account cannot exceed ~4 tx/s.
+  Strongly suggested, not established.
+
+  RESOLVED 2026-09-08: it was disproved. With one thread per IN-FLIGHT SLOT
+  instead of per account, a single account scales linearly with concurrency all
+  the way to 113.80 tx/s at 32 in flight, zero errors. The "strong suggestion"
+  above was an artifact of the defect described in this very section.
+
+--------------------------------------------------------------------------------
+SCOPE - what these numbers are not
+--------------------------------------------------------------------------------
+
+  This is a local development testnode, not Arbitrum One. Production Arbitrum
+  operates orders of magnitude above these figures and its sequencer does not
+  block for 244 ms on submission. These numbers characterise THIS DEPLOYMENT.
+  What transfers is the mechanism and the cost structure, never the rate.
+
+  Also: 120 tx per cell is a probe, not an n=3 measurement run. Generator and
+  node share one host, so a plateau must always be checked against CPU load
+  (it was 0.25-0.94 throughout here, so the linear scaling is genuine).

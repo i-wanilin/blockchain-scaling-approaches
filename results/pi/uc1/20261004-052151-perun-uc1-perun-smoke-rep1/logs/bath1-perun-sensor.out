@@ -1,0 +1,8 @@
+pkg/test: using rootSeed 1791084390888603054
+uc1-sensor ready: 0x8C3229EC621644789d7F61FAa82c6d0E5F97d43D control=http://0.0.0.0:8090 wire=192.168.178.211:9000 customers=5 strict=true persist=true
+uc1-sensor: registered customer-101 0x9586A4833970847aef259aD5BFB7aa8901DDf746 at 192.168.178.212:9000
+uc1-sensor: registered customer-104 0x9c79357189d6aF261691ECF48de9A6bbF30438Fc at 192.168.178.215:9000
+uc1-sensor: registered customer-102 0x0e9971c0005D91336c1441b8F03c1C4fe5FB4584 at 192.168.178.213:9000
+uc1-sensor: registered customer-103 0xC4c81D5C1851702d27d602aA8ff830A7689F17cc at 192.168.178.214:9000
+uc1-sensor: registered customer-105 0xd96Eb0f2e106eA7c0a939e9C460a17ace65FeCFF at 192.168.178.216:9000
+uc1-sensor: settled, wrote /tmp/m-20261004-052151-perun-uc1-perun-smoke-rep1/ps/sensor-result.json (complete=true)

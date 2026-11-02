@@ -1,0 +1,8 @@
+---
+# Optional WAN emulation on the real LAN (mirrors emulation/profiles/*.env).
+# Applied on EGRESS of the Pi's primary interface -> pairwise RTT = sum of
+# both ends, exactly like the Docker emulation.
+netem_iface: eth0
+netem_delay: ""      # e.g. "25ms"  — empty = role clears any existing qdisc
+netem_jitter: ""     # e.g. "5ms"
+netem_loss: ""       # e.g. "0.5%"

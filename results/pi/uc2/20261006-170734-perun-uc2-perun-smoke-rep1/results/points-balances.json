@@ -1,0 +1,15 @@
+{
+ "players": {
+  "p0": 9662,
+  "p1": 9925,
+  "p2": 9844,
+  "p3": 9837,
+  "p4": 10000,
+  "p5": 9919
+ },
+ "arena": 813,
+ "hub_balance": 51213,
+ "hub_minted": 50400,
+ "token": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
+ "chain": "L1 (Anvil)"
+}

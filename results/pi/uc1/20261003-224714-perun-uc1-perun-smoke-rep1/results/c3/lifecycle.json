@@ -1,0 +1,74 @@
+{
+ "system": "perun",
+ "account": 103,
+ "complete": true,
+ "max_in_flight": 64,
+ "max_queue": 10000,
+ "drain_s": 60.0,
+ "duplicates": 0,
+ "late": 0,
+ "open": {
+  "op": "open",
+  "ok": true,
+  "t_start": 1791060759.5876644,
+  "t_funded": 1791060760.9259667,
+  "channel_id": "0xfd9a6184ddbdbe86a395daf72636e9b806f00ab19b98ab1c5a9053aae191d022",
+  "l1_gas_used": 45801,
+  "l1_fee_wei": "45801000320607",
+  "txs": 1
+ },
+ "ready_at": 1791060760.9772801,
+ "ended_at": 1791060866.2854686,
+ "quiesce": {
+  "dropped": 0,
+  "version": 60
+ },
+ "channel_before_close": {
+  "version": 60,
+  "balances_wei": [
+   "999940000000000000",
+   "60000000000000"
+  ],
+  "broken": false
+ },
+ "reconciliation": {
+  "succeeded_wei": 60000000000000,
+  "observed_wei": 60000000000000,
+  "difference_wei": 0,
+  "counts": {
+   "generated": 0,
+   "queued": 0,
+   "submitted": 0,
+   "succeeded": 60,
+   "failed": 0,
+   "unresolved": 0
+  },
+  "observed_source": "channel"
+ },
+ "close": {
+  "op": "close",
+  "ok": true,
+  "t_start": 1791060866.3434732,
+  "t_finalized": 1791060866.3739095,
+  "t_withdrawn": 1791060869.0889454,
+  "final_version": 61,
+  "final_balances_wei": [
+   "999940000000000000",
+   "60000000000000"
+  ],
+  "l1_gas_used": 213796,
+  "l1_fee_wei": "213796001496572",
+  "txs": 2,
+  "by_contract": {
+   "adjudicator": {
+    "gas": 170948,
+    "txs": 1
+   },
+   "asset holder": {
+    "gas": 42848,
+    "txs": 1
+   }
+  }
+ },
+ "sidecar_rc": 0
+}

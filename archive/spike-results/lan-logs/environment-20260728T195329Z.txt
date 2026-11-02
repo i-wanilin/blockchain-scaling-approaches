@@ -1,0 +1,71 @@
+### captured 2026-07-28T19:53:29Z
+
+## laptop / bob (laptop)
+CPU(s):                                  8
+Model name:                              Intel(R) Core(TM) i5-8250U CPU @ 1.60GHz
+Thread(s) per core:                      2
+Core(s) per socket:                      4
+CPU(s) scaling MHz:                      89%
+CPU max MHz:                             3400,0000
+CPU min MHz:                             400,0000
+L1d cache:                               128 KiB (4 instances)
+L1i cache:                               128 KiB (4 instances)
+L2 cache:                                1 MiB (4 instances)
+L3 cache:                                6 MiB (1 instance)
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       5,1Gi       892Mi       317Mi        10Gi        10Gi
+yes:home-wifi:69:270 Mbit/s:5600 MHz
+governor: powersave
+commit: 0f3def2838820f29e017f9189794d0fc22f43f90
+-- ping 192.168.178.22 (50) --
+50 packets transmitted, 50 received, 0% packet loss, time 9844ms
+rtt min/avg/max/mdev = 1.791/6.473/167.983/23.105 ms
+-- ping 192.168.178.35 (50) --
+50 packets transmitted, 50 received, 0% packet loss, time 9842ms
+rtt min/avg/max/mdev = 1.733/8.342/197.968/27.768 ms
+
+## PC
+
+
+Name                      : Intel(R) Core(TM) i7-10700K CPU @ 3.80GHz
+NumberOfCores             : 8
+NumberOfLogicalProcessors : 16
+MaxClockSpeed             : 3792
+
+
+
+34185216000
+d7c374d63190df172f36cdfa96199a78f83c3abc
+
+    SSID                   : home-wifi
+    AP BSSID               : 02:00:00:00:00:02
+    Band                   : 5 GHz
+    Channel                : 120
+    Receive rate (Mbps)    : 2162
+    Transmit rate (Mbps)   : 2042
+    Signal                 : 93% 
+
+
+
+## G16
+
+
+Name                      : Intel(R) Core(TM) Ultra 7 155H
+NumberOfCores             : 16
+NumberOfLogicalProcessors : 22
+MaxClockSpeed             : 3800
+
+
+
+16556097536
+d7c374d63190df172f36cdfa96199a78f83c3abc
+
+    SSID                   : home-wifi
+    AP BSSID               : 02:00:00:00:00:02
+    Band                   : 5 GHz
+    Channel                : 120
+    Receive rate (Mbps)    : 1441
+    Transmit rate (Mbps)   : 1201
+    Signal                 : 95% 
+
+

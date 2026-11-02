@@ -1,0 +1,1655 @@
+#!/usr/bin/env bash
+# cluster — drive the Pi cluster from the workstation (cluster spec §5).
+# Usage: deploy/cluster sync|up arbitrum|zksync|perun|down|status|preflight|idle-temps|run <experiment> [--reps N]
+#
+# Every wait has a deadline. A failed repetition writes RUN_FAILED into its run
+# folder, still collects what exists, still brings the cluster down, and stops
+# (no further repetitions on a broken state).
+set -euo pipefail
+REPO="$(cd "$(dirname "$0")/.." && pwd)"
+ALL_BOARDS=(bath0 bath1 bath2 bath3 bath4 bath5 bath6 bath7)
+BOARDS=("${ALL_BOARDS[@]}")                            # minus IDLE_BOARDS (apply_idle; R9)
+CUSTOMERS=(bath2 bath4 bath5 bath6 bath7)            # customers 1..5 (bath3 dead since 2026-10-05); every
+                                                     # experiment file sets its own CUSTOMERS
+SENSOR_BOARD=bath1; SENSOR_IP=192.168.178.211; SENSOR_PORT=7000
+LPY=${LPY:-"$REPO/.venv/bin/python"}                 # workstation python (repo venv; LPY=... overrides, e.g. in a git worktree)
+# shellcheck disable=SC2088  # the tilde is expanded on the board, not here
+RPY='~/venv/bin/python -u'                           # board python (created by sync)
+CAST=${CAST:-$HOME/.foundry/bin/cast}
+STACK_IP=192.168.178.210
+# Per-stack endpoints, set by stack_endpoints (in `up` and after the experiment env is sourced):
+# L1 HTTP, L2 WebSocket (payments), L2 HTTP (never derived from the WS URL), L2 WS port.
+L1=""; L2_WS=""; L2_HTTP=""; L2_WS_PORT=""
+stack_endpoints() {
+  case "$1" in
+    arbitrum) L1=http://$STACK_IP:8545; L2_WS=ws://$STACK_IP:8548; L2_HTTP=http://$STACK_IP:8547; L2_WS_PORT=8548 ;;
+    zksync)   L1=http://$STACK_IP:8945; L2_WS=ws://$STACK_IP:3051; L2_HTTP=http://$STACK_IP:3050; L2_WS_PORT=3051 ;;
+    # Perun has no L2: payments are off-chain channel updates. Anvil is its only chain (HTTP and WS on 8545).
+    perun)    L1=http://$STACK_IP:8545; L2_WS=""; L2_HTTP=""; L2_WS_PORT="" ;;
+    *) die "unknown stack '$1'" ;;
+  esac
+}
+# zkSync on bath0 (facts file archive/bench-workstation/results/zksync-uc1-facts-2026-10-01.md, F1-F6).
+ZK_HOME=/home/i_wanilin/zksync-ecosystem                    # F1
+ZK_BIN=/home/i_wanilin/zksync/bin/zksync_server             # F1 (sha256 e77b1cc8...); the .a72 build next to it is not used
+ZK_PAT="^$ZK_BIN( |\$)"                                     # pgrep -f: the measured binary only, never zksync_server.a72
+ZK_SNAP=/home/i_wanilin/snap                                # F5 (+ postgres-vol.tgz, Q6 a, Task 5)
+ZK_ERA_ARTIFACTS_SHA=bd2ffe0cda8e526f81fc9c46d914eb12fcd506f9d3ac7d4ad4ef9f7adb71afc6   # F5: not in bath0's SHA256SUMS
+ZK_COMPOSE="$ZK_HOME/thesis_local"                          # F3
+ZK_PROJECT=thesis_local                                     # F3
+ZK_CHAIN="$ZK_HOME/thesis_local/chains/thesis_chain"        # F2: configs/ and the RocksDB db/
+ZK_CWD="$ZK_HOME/zksync-era"                                # F2: the server reads the compiled contracts from here
+ZK_RUN=/home/i_wanilin/zk-run                               # server log, pid and config record of the current up
+# Stop the zkSync server first (it must not lose its database while running): TERM, up to 60 s, then KILL.
+ZK_STOP="if pgrep -f '$ZK_PAT' >/dev/null; then
+      pkill -TERM -f '$ZK_PAT'; for i in \$(seq 60); do pgrep -f '$ZK_PAT' >/dev/null || break; sleep 1; done
+      pkill -KILL -f '$ZK_PAT' 2>/dev/null; true
+    fi"
+# Perun on bath0 (perun-uc1-measurement-path plan, Global Constraints; Task 1/2 facts): a fresh Anvil every run,
+# the two contracts deployed by anvilKeys[0] at nonces 0 and 1, so their addresses are fixed (perun/hub-demo/uc1.go).
+ANVIL_BIN=/home/i_wanilin/bin/anvil                         # Anvil 1.7.1 on bath0 (Task 2)
+PERUN_CHAIN_ID=31337
+PERUN_CHAIN_WS=ws://$STACK_IP:8545
+PERUN_ADJ=0x5FbDB2315678afecb367f032d93F642f64180aa3        # uc1ExpectedAdjudicator
+PERUN_AH=0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512         # uc1ExpectedAssetHolder
+PERUN_DIST="$REPO/deploy/dist"                              # git-ignored: sync's builds, up's contracts.json
+PERUN_CONTRACTS="$PERUN_DIST/perun-contracts.json"
+# shellcheck disable=SC2088  # the tilde is expanded on the board, not here
+PERUN_BIN_REMOTE='~/measure-code/bin/perun-node'
+PERUN_CONTROL_PORT=8090; PERUN_WIRE_PORT=9000               # sensor control HTTP on bath1; Perun wire on the sensor and every customer
+# Gas measured in Task 1 (customer side): open 45 801 (one deposit), close conclude ~170 900 + withdraw ~42 800.
+PERUN_OPEN_GAS=45801; PERUN_CLOSE_GAS=213700
+PERUN_TERM_GRACE_S=${PERUN_TERM_GRACE_S:-90}  # finish_run: a payclient's quiesce + close + sidecar stop takes up to ~45 s
+SETTLE_WAIT_S=${SETTLE_WAIT_S:-600}          # after the payment clients completed: the sensor node settles and exits
+ARB_VOLUMES=(config seqdata l1data l1keystore tokenbridge-data)   # bath0:~/arbitrum/<v>.tgz -> volume arbitrum_<v>
+GESL_SIG=${GESL_SIG:-6063}                 # decided 2026-09-30: most complete and the only 15-minute recording
+RPC_WAIT_S=${RPC_WAIT_S:-300}; READY_WAIT_S=${READY_WAIT_S:-300}; SENSOR_WAIT_S=${SENSOR_WAIT_S:-180}
+COMPLETE_EXTRA_S=${COMPLETE_EXTRA_S:-400}   # Arbitrum: Close's 300 s receipt wait + payclient's 30 s admission
+                                           # wait + 30 s post-Close settle + RPC retries (fix-close-nonce)
+CLOSE_MARGIN_S=${CLOSE_MARGIN_S:-300}      # time around Close besides its receipt wait (reads, send, write-out)
+# complete_extra_s — the wait after DURATION_S + DRAIN_S for the payment clients to finish: COMPLETE_EXTRA_S,
+# raised to CLOSE_TIMEOUT_S + CLOSE_MARGIN_S when the env sets a Close timeout (zkSync: 1800 s), so that
+# timeout is reachable (CLOSE_MARGIN_S also covers the two 30 s waits around Close). Arbitrum envs set no
+# CLOSE_TIMEOUT_S: COMPLETE_EXTRA_S = 400 s.
+complete_extra_s() {
+  local x=$COMPLETE_EXTRA_S
+  if [ -n "${CLOSE_TIMEOUT_S:-}" ] && [ $((CLOSE_TIMEOUT_S + CLOSE_MARGIN_S)) -gt "$x" ]; then
+    x=$((CLOSE_TIMEOUT_S + CLOSE_MARGIN_S))
+  fi
+  echo "$x"
+}
+# Safe kill pattern: the bracket keeps it from matching the command line that carries it.
+# perun-node by its full deployed path as argv[0] (PERUN_BIN_REMOTE, the tilde expanded on the board) and its
+# UC1 mode, never as a substring (final review T7-5): an editor, a log or a probe binary elsewhere is not it.
+# UC2 adds the hub and the player sidecar (uc2-hub, uc2-player) and the game node (arena.node).
+PERUN_PROC='^/[^ ]*/measure-code/bin/[p]erun-node -mode uc(1-(customer|sensor)|2-(hub|player))( |$)'
+PERUN_SENSOR_PROC='^/[^ ]*/measure-code/bin/[p]erun-node -mode uc1-sensor( |$)'
+PERUN_HUB_PROC='^/[^ ]*/measure-code/bin/[p]erun-node -mode uc2-hub( |$)'
+LEFTOVERS="[m]easure\\.(payclient|sensor|customer)|[a]rena\\.node|[r]ecorder\\.sh|[z]k-sampler\\.sh|$PERUN_PROC"
+SSH_OPTS=(-o ConnectTimeout=8 -o BatchMode=yes -o ServerAliveInterval=10 -o ServerAliveCountMax=3)
+
+# on_once HOST CMD — one ssh attempt, killed after T seconds (default 60).
+on_once() { local h=$1; shift; timeout "${T:-60}" ssh -n "${SSH_OPTS[@]}" "$h" "$@"; }
+# retry_255 LABEL CMD... — run CMD; only when it exits 255 (ssh/scp's own connection error, never a remote
+# command's exit status) try again: 3 attempts in all, 2 s and 5 s apart, each retry logged to stderr.
+RETRY_BACKOFF=(2 5)
+retry_255() {
+  local label=$1 a=0 rc; shift
+  while :; do
+    rc=0; "$@" || rc=$?
+    [ "$rc" -eq 255 ] && [ "$a" -lt "${#RETRY_BACKOFF[@]}" ] || return "$rc"
+    echo "ssh: connection to $label failed (exit 255), retry $((a + 1))/${#RETRY_BACKOFF[@]} in ${RETRY_BACKOFF[a]} s" >&2
+    sleep "${RETRY_BACKOFF[a]}"; a=$((a + 1))
+  done
+}
+# on HOST CMD — run CMD on HOST, killed after T seconds (default 60); retried on connection errors only.
+# Safe for read-only and idempotent commands. Launching commands go through bg, which does not use this.
+on() { retry_255 "$1" on_once "$@"; }
+# scp_try SECONDS SCP_ARGS... — scp with the same timeout wrapper and 255-retry (the host for the log is taken from the HOST:PATH argument).
+scp_try() {
+  local t=$1 a host=scp; shift
+  for a in "$@"; do case $a in *:*) host=${a%%:*}; break ;; esac; done
+  retry_255 "$host" timeout "$t" scp "${SSH_OPTS[@]}" "$@"
+}
+# bg HOST LOG CMD — start CMD detached on HOST in ~/measure-code, stdout+stderr to LOG.
+# The `cd || exit` must not be joined with && to the background job: `a && b &` backgrounds
+# the whole list in a subshell that keeps ssh's stdout open, so ssh would not return.
+# launch_guarded HOST PGREP_PATTERN REMOTE_CMD — start a detached job over ssh, safely against 255.
+# Not idempotent by itself, so it must not be retried blindly: ssh may exit 255 after the remote shell
+# already started the job. Before every retry it asks the board (pgrep with a bracketed, self-safe
+# pattern) whether the job runs, and launches again only if it does not.
+launch_guarded() {
+  local h=$1 pat=$2 cmd=$3 a=0 rc
+  while :; do
+    rc=0; on_once "$h" "$cmd" || rc=$?
+    [ "$rc" -eq 255 ] || return "$rc"
+    while :; do            # ssh failed: never relaunch before knowing whether the first launch got through
+      [ "$a" -lt "${#RETRY_BACKOFF[@]}" ] || return 255
+      echo "ssh: connection to $h failed (exit 255) launching $pat, retry $((a + 1))/${#RETRY_BACKOFF[@]} in ${RETRY_BACKOFF[a]} s" >&2
+      sleep "${RETRY_BACKOFF[a]}"; a=$((a + 1))
+      rc=0; T=20 on_once "$h" "pgrep -f '$pat' > /dev/null" || rc=$?
+      if [ "$rc" -eq 0 ]; then echo "$pat already running on $h, not launching again" >&2; return 0; fi
+      [ "$rc" -eq 1 ] && break         # pgrep says: not running, launch again
+    done                               # 255 (or timeout): board still unreachable, ask again
+  done
+}
+# bg HOST LOG CMD — start CMD detached on HOST in ~/measure-code, stdout+stderr to LOG.
+# The `cd || exit` must not be joined with && to the background job: `a && b &` backgrounds
+# the whole list in a subshell that keeps ssh's stdout open, so ssh would not return.
+# The already-running check is on the module name from `-m measure.<module>`.
+bg() {
+  local h=$1 log=$2 mod; shift 2
+  mod=$(sed -n 's/.*-m measure\.\([a-z_]*\).*/\1/p' <<< "$*")
+  [ -n "$mod" ] || die "bg: no '-m measure.<module>' in the command"
+  launch_guarded "$h" "[m]easure\\.$mod " "cd ~/measure-code || exit 1; setsid nohup $* > $log 2>&1 < /dev/null &"
+}
+rpc_ok() { curl -s -m 3 -X POST -H 'content-type: application/json' \
+  --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' "$1" | grep -q '"result"'; }
+tcp_ok() { timeout 3 bash -c "</dev/tcp/$1/$2" 2>/dev/null; }
+say() { echo "[$(date +%H:%M:%S)] $*"; }
+FAIL_REASON=""
+die() { FAIL_REASON="$*"; echo "ERROR: $*" >&2; exit 1; }
+code_hash() { (cd "$1" && find measure -name '*.py' -not -path '*/__pycache__/*' | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -c1-16); }
+# R8: the UC2 game code hash (tank-arena/arena and tank-arena/net, shipped by sync), checked on every board
+# like code_hash. The same command runs here and, in ~/measure-code, on the boards.
+GAME_HASH_CMD="find tank-arena/arena tank-arena/net -name '*.py' -not -path '*/__pycache__/*' | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -c1-16"
+game_hash() { (cd "$1" && bash -o pipefail -c "$GAME_HASH_CMD"); }
+
+# apply_idle — R9: BOARDS = ALL_BOARDS minus IDLE_BOARDS (space-separated), in their order. bath0 (the stack)
+# and bath1 (the time server) can never be idle; an unknown name is refused. `run` takes IDLE_BOARDS from the
+# experiment file only (one_run); every other command from the environment (default bath3; IDLE_BOARDS= for all).
+apply_idle() {
+  local h keep=()
+  for h in ${IDLE_BOARDS:-}; do
+    case " ${ALL_BOARDS[*]} " in *" $h "*) ;; *) die "IDLE_BOARDS: unknown board '$h'" ;; esac
+    [ "$h" != bath0 ] && [ "$h" != bath1 ] || die "IDLE_BOARDS: $h cannot be idle (bath0 runs the stack, bath1 is the time server)"
+  done
+  for h in "${ALL_BOARDS[@]}"; do
+    case " ${IDLE_BOARDS:-} " in *" $h "*) ;; *) keep+=("$h") ;; esac
+  done
+  BOARDS=("${keep[@]}")
+}
+
+# run_start_commit OUT — OUT/run-start-commit.txt: the workstation's HEAD when the run starts, followed by
+# " dirty" if source outside results/ is changed. The manifest (written at the end) prefers it over HEAD then.
+run_start_commit() {
+  local c; c=$(git -C "$REPO" rev-parse HEAD) || die "git rev-parse HEAD failed in $REPO"
+  if [ -n "$(git -C "$REPO" status --porcelain -- . ':!results')" ]; then c="$c dirty"; fi
+  echo "$c" > "$1/run-start-commit.txt"
+}
+
+# gesl_check OUT — the CSV on the sensor board must be recording GESL_SIG exactly (measure.gesl.KNOWN_SHA256);
+# the run fails otherwise. Writes OUT/gesl.json {sig, sha256, file} for the manifest.
+gesl_check() {
+  local want got f="sigId-$GESL_SIG-PMU.csv"
+  want=$(cd "$REPO" && "$LPY" -c 'import sys; from measure.gesl import KNOWN_SHA256 as K; print(K.get(int(sys.argv[1]), ""))' \
+    "$GESL_SIG" 2>/dev/null) || true
+  [ -n "$want" ] || die "GESL_SIG=$GESL_SIG has no SHA-256 in measure.gesl.KNOWN_SHA256"
+  got=$(T=120 on "$SENSOR_BOARD" "sha256sum ~/gesl/$f" | cut -d' ' -f1) || true
+  [ "$got" = "$want" ] || die "GESL CSV on $SENSOR_BOARD is not recording $GESL_SIG (sha256 ${got:-unreadable}, want $want); run deploy/cluster sync"
+  printf '{"sig": %s, "sha256": "%s", "file": "%s"}\n' "$GESL_SIG" "$got" "$f" > "$1/gesl.json"
+}
+
+# stack_config OUT [STACK] — best effort, read only: SHA-256 of bath0's compose file, of the snapshot's SHA256SUMS
+# (the tarballs are checked against it by `up`) and of the nitro config inside config.tgz, which `up` has
+# just restored into the config volume. Written as sha256sum lines to OUT/stack-config.sha256.
+# zkSync: the compose file, the snapshot's SHA256SUMS, the general.yaml `up` wrote (one changed line, Q2)
+# and the server binary.
+stack_config() {
+  local cmd='set -o pipefail; cd ~/arbitrum && sha256sum docker-compose.yaml SHA256SUMS &&
+    tar xzOf config.tgz ./sequencer_config.json | sha256sum | sed "s|-\$|config.tgz:sequencer_config.json|"'
+  [ "${2:-arbitrum}" != zksync ] || cmd="sha256sum $ZK_COMPOSE/docker-compose.yml $ZK_SNAP/SHA256SUMS $ZK_CHAIN/configs/general.yaml $ZK_BIN"
+  [ "${2:-arbitrum}" != perun ] || cmd="sha256sum $ANVIL_BIN"     # Perun: nothing configured besides Anvil's command line
+  T=60 on bath0 "$cmd" > "$1/stack-config.sha256" 2>/dev/null \
+    || { rm -f "$1/stack-config.sha256"; echo "warning: could not hash the stack configuration on bath0" >&2; }
+}
+
+# build_perun — cross-compile perun-node from the committed perun/ tree (plan, Global Constraints: binary
+# provenance): arm64 for the boards, amd64 for `up perun`'s deploy step. Refuses a dirty perun/ tree. The hash
+# depends on the Go toolchain, so the toolchain is recorded next to it (perun-node.build).
+perun_tree() { git -C "$REPO" rev-parse HEAD:perun; }
+build_perun() {
+  [ -z "$(git -C "$REPO" status --porcelain -- perun)" ] \
+    || die "perun/ has uncommitted changes; commit them first (the perun-node binary must match a commit)"
+  local arch
+  for arch in arm64 amd64; do
+    mkdir -p "$PERUN_DIST/$arch"
+    (cd "$REPO/perun/hub-demo" && CGO_ENABLED=0 GOOS=linux GOARCH=$arch \
+      go build -trimpath -buildvcs=false -ldflags "-s -w" -o "$PERUN_DIST/$arch/perun-node.tmp" .) \
+      || die "go build perun-node ($arch) failed"
+    mv "$PERUN_DIST/$arch/perun-node.tmp" "$PERUN_DIST/$arch/perun-node"
+  done
+  sha256sum "$PERUN_DIST/arm64/perun-node" | cut -d' ' -f1 > "$PERUN_DIST/arm64/perun-node.sha256"
+  { echo "sha256 $(cat "$PERUN_DIST/arm64/perun-node.sha256")"
+    echo "toolchain $(go version)"
+    echo "binary_toolchain $(go version "$PERUN_DIST/arm64/perun-node" | awk '{print $NF}')"   # embedded in the binary
+    echo "perun_tree $(perun_tree)"
+    echo "commit $(git -C "$REPO" rev-parse HEAD)"
+    echo "flags CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -buildvcs=false -ldflags \"-s -w\""
+    echo "built $(date -u +%Y-%m-%dT%H:%M:%SZ)"; } > "$PERUN_DIST/arm64/perun-node.build"
+  echo "perun-node built: $(cat "$PERUN_DIST/arm64/perun-node.sha256") ($(go version | cut -d' ' -f3))"
+}
+
+cmd_sync() {
+  build_perun
+  local tmp; tmp=$(mktemp -d)
+  unzip -o -q "$REPO/data/gesl-samples/sigId-$GESL_SIG.zip" "sigId-$GESL_SIG-PMU.csv" -d "$tmp"
+  local h pids=() failed="" psha gh; psha=$(cat "$PERUN_DIST/arm64/perun-node.sha256")
+  gh=$(game_hash "$REPO") || die "game hash of $REPO/tank-arena failed"
+  [ -n "$gh" ] || die "game hash of $REPO/tank-arena is empty"
+  [ -z "${IDLE_BOARDS:-}" ] || echo "IDLE_BOARDS: not syncing ${IDLE_BOARDS}"
+  for h in "${BOARDS[@]:1}"; do
+    (
+      # measure/, the recorder, and the UC2 game (tank-arena/arena, tank-arena/net: R8, checked below)
+      tar -C "$REPO" --exclude=__pycache__ -czf - measure deploy/recorder.sh deploy/board-facts.sh \
+          tank-arena/arena tank-arena/net \
+        | timeout 120 ssh "${SSH_OPTS[@]}" "$h" 'rm -rf ~/measure-code && mkdir -p ~/measure-code && tar -xzf - -C ~/measure-code'
+      s=$(T=60 on "$h" "cd ~/measure-code && $GAME_HASH_CMD")
+      [ "$s" = "$gh" ] || { echo "game hash ${s:-missing} differs from the workstation ($gh) after the copy" >&2; exit 1; }
+      # perun-node (arm64) to every board; checked against sync's hash after the copy
+      timeout 300 ssh "${SSH_OPTS[@]}" "$h" 'mkdir -p ~/measure-code/bin && cat > ~/measure-code/bin/perun-node.tmp' \
+        < "$PERUN_DIST/arm64/perun-node"
+      T=60 on "$h" "set -e; cd ~/measure-code/bin; chmod 755 perun-node.tmp; mv perun-node.tmp perun-node
+        [ \"\$(sha256sum perun-node | cut -d' ' -f1)\" = $psha ] || { echo 'perun-node hash differs after the copy' >&2; exit 1; }"
+      T=1800 on "$h" 'set -e
+        if [ ! -x ~/venv/bin/python ]; then
+          sudo -n apt-get install -y -qq python3-venv >/dev/null 2>&1 \
+            || { sudo -n apt-get update -qq >/dev/null && sudo -n apt-get install -y -qq python3-venv >/dev/null; }
+          python3 -m venv ~/venv
+        fi
+        ~/venv/bin/pip install -q --disable-pip-version-check -r ~/measure-code/measure/requirements.txt'
+    ) > "$tmp/$h.log" 2>&1 &
+    pids+=("$h:$!")
+  done
+  local p
+  for p in "${pids[@]}"; do
+    wait "${p#*:}" || { failed="$failed ${p%%:*}"; sed "s/^/  ${p%%:*}: /" "$tmp/${p%%:*}.log" >&2; }
+  done
+  # The GESL data goes to bath1:~/gesl only, nowhere else.
+  T=120 on "$SENSOR_BOARD" 'mkdir -p ~/gesl'
+  timeout 300 scp -q "${SSH_OPTS[@]}" "$tmp/sigId-$GESL_SIG-PMU.csv" "$SENSOR_BOARD:gesl/"
+  local want got
+  want=$(sha256sum "$tmp/sigId-$GESL_SIG-PMU.csv" | cut -d' ' -f1)
+  got=$(T=120 on "$SENSOR_BOARD" "sha256sum ~/gesl/sigId-$GESL_SIG-PMU.csv" | cut -d' ' -f1)
+  rm -rf "$tmp"
+  [ "$want" = "$got" ] || die "GESL CSV on $SENSOR_BOARD does not match (sha256 $got, want $want)"
+  [ -z "$failed" ] || die "sync failed on:$failed"
+  echo "synced ${BOARDS[*]:1} (code $(code_hash "$REPO"), game $gh, perun-node $psha)"
+}
+
+# one_stack STACK — refuse to bring STACK up while another stack runs on bath0 (three stacks: Arbitrum's
+# arbitrum-* containers, zkSync's server and thesis_local-* containers, Perun's Anvil). One ssh call.
+one_stack() {
+  local seen other
+  seen=$(T=30 on bath0 "pgrep -f '$ZK_PAT' >/dev/null && echo zksync_server; docker ps --format '{{.Names}}'; pgrep -x anvil >/dev/null && echo anvil; true") \
+    || die "could not read bath0's processes and containers"
+  case "$1" in
+    arbitrum) other=$(grep -E "^(zksync_server|${ZK_PROJECT}-.*|anvil)\$" <<< "$seen" || true) ;;
+    zksync)   other=$(grep -E '^(arbitrum-.*|anvil)$' <<< "$seen" || true) ;;
+    perun)    other=$(grep -vx anvil <<< "$seen" || true) ;;   # any container at all, or the zkSync server
+  esac
+  [ -z "$other" ] || die "refusing 'up $1': another stack is running on bath0: $(tr '\n' ' ' <<< "$other")(run deploy/cluster down first)"
+}
+
+cmd_up() {
+  case "${1:-}" in
+    arbitrum) ;;
+    zksync) stack_endpoints zksync; one_stack zksync; up_zksync; return ;;
+    perun)  stack_endpoints perun; one_stack perun; up_perun; return ;;
+    *) echo "usage: $0 up arbitrum|zksync|perun" >&2; exit 2 ;;
+  esac
+  stack_endpoints arbitrum; one_stack arbitrum
+  local vols="${ARB_VOLUMES[*]}"
+  # Restore the snapshot: verify the tarballs, recreate each volume, unpack into it.
+  T=900 on bath0 "set -eo pipefail; cd ~/arbitrum
+    for v in $vols; do [ -f \$v.tgz ] || { echo \"missing ~/arbitrum/\$v.tgz\" >&2; exit 1; }; done
+    grep '\.tgz\$' SHA256SUMS | sha256sum -c --quiet
+    docker compose down >/dev/null 2>&1 || true
+    for v in $vols; do
+      docker volume rm -f arbitrum_\$v >/dev/null
+      docker volume create arbitrum_\$v >/dev/null
+      docker run --rm -v arbitrum_\$v:/v -v \$HOME/arbitrum:/in:ro alpine tar xzf /in/\$v.tgz -C /v
+    done
+    docker compose up -d --quiet-pull 2>&1 | tail -n 5
+    other=\$(docker ps --format '{{.Names}}' | grep -v '^arbitrum-' || true)
+    [ -z \"\$other\" ] || { echo \"other containers running on bath0: \$other\" >&2; exit 1; }" \
+    || die "snapshot restore / compose up failed on bath0"
+  local deadline=$((SECONDS + RPC_WAIT_S))
+  until rpc_ok "$L1" && rpc_ok "$L2_HTTP" && tcp_ok "$STACK_IP" 8548; do
+    [ "$SECONDS" -lt "$deadline" ] || die "RPCs not up after ${RPC_WAIT_S}s (L1 $L1: $(rpc_ok "$L1" && echo ok || echo no), L2 $L2_HTTP: $(rpc_ok "$L2_HTTP" && echo ok || echo no), L2 WS :8548: $(tcp_ok "$STACK_IP" 8548 && echo ok || echo no))"
+    sleep 2
+  done
+  echo "arbitrum up (snapshot restored)"
+}
+
+# up_zksync — restore the zkSync snapshot on bath0 (chain dir with RocksDB and configs, reth's data volume,
+# PostgreSQL's raw volume: Q6 a), set the one config line of Q2, start reth + postgres and the native server
+# (F2 command line), then wait until L1, L2 HTTP/WS and the server's health endpoint answer.
+up_zksync() {
+  local deadline_ms=${ZK_COMMIT_DEADLINE_MS:?set ZK_COMMIT_DEADLINE_MS (the experiment env, Q2)}
+  [[ $deadline_ms =~ ^[1-9][0-9]*$ ]] || die "ZK_COMMIT_DEADLINE_MS='$deadline_ms' is not a positive integer"
+  local t0=$SECONDS C="$ZK_CHAIN/configs"
+  T=900 on bath0 "set -eo pipefail
+    cd $ZK_SNAP
+    [ \$(grep -cE ' (chain|reth-data|postgres-vol)\.tgz\$' SHA256SUMS) = 3 ] || { echo 'SHA256SUMS lacks chain/reth-data/postgres-vol' >&2; exit 1; }
+    grep -E ' (chain|reth-data|postgres-vol)\.tgz\$' SHA256SUMS | sha256sum -c --quiet
+    echo '$ZK_ERA_ARTIFACTS_SHA  era-artifacts.tgz' | sha256sum -c --quiet
+    $ZK_STOP
+    (cd $ZK_COMPOSE && docker compose down >/dev/null 2>&1 || true)
+    # chain directory: RocksDB, configs (absolute paths in the tarball). The compose file in it is the
+    # pre-Q7 one (reth on 127.0.0.1, CORS *), so it is never unpacked.
+    rm -rf $ZK_CHAIN/db $ZK_CHAIN/artifacts
+    tar xzf chain.tgz -C / --exclude='home/i_wanilin/zksync-ecosystem/thesis_local/docker-compose.yml'
+    # build outputs the server reads at run time (spec §4): compared, unpacked again only if they differ
+    (cd $ZK_CWD && tar dzf $ZK_SNAP/era-artifacts.tgz >/dev/null 2>&1) \
+      || { echo 'era-artifacts differ from the snapshot: unpacking again'; tar xzf $ZK_SNAP/era-artifacts.tgz -C $ZK_CWD; }
+    for v in reth-data postgres-data; do docker volume rm -f ${ZK_PROJECT}_\$v >/dev/null; docker volume create ${ZK_PROJECT}_\$v >/dev/null; done
+    docker run --rm -v ${ZK_PROJECT}_reth-data:/v -v $ZK_SNAP:/in:ro alpine tar xzf /in/reth-data.tgz -C /v
+    docker run --rm -v ${ZK_PROJECT}_postgres-data:/v -v $ZK_SNAP:/in:ro alpine tar xzf /in/postgres-vol.tgz -C /v
+    # config: the snapshot's general.yaml with exactly one change (Q2), recorded
+    cfg=$C/general.yaml
+    [ \$(grep -c '^  block_commit_deadline_ms: [0-9]*\$' \$cfg) = 1 ]
+    sed -i -E 's/^(  block_commit_deadline_ms:) [0-9]+\$/\1 $deadline_ms/' \$cfg
+    grep -q '^  block_commit_deadline_ms: $deadline_ms\$' \$cfg
+    mkdir -p $ZK_RUN && rm -f $ZK_RUN/server.pid && sha256sum \$cfg > $ZK_RUN/config.sha256
+    grep -nE 'block_commit_deadline_ms|miniblock_commit_deadline_ms|max_nonce_ahead|pubdata_sending_mode' \$cfg > $ZK_RUN/config.txt
+    cd $ZK_COMPOSE && docker compose up -d reth postgres 2>&1 | tail -n 3
+    ok=0; for i in \$(seq 60); do docker compose exec -T postgres pg_isready -U postgres -q && { ok=1; break; }; sleep 1; done
+    [ \$ok = 1 ] || { echo 'postgres not ready after 60 s' >&2; exit 1; }
+    # the server gives up at once if the L1 does not answer when it starts (seen 2026-10-01)
+    ok=0; for i in \$(seq 120); do
+      curl -s -m 2 -X POST -H 'content-type: application/json' --data '{\"jsonrpc\":\"2.0\",\"method\":\"eth_blockNumber\",\"params\":[],\"id\":1}' \
+        http://127.0.0.1:8945 2>/dev/null | grep '\"result\"' >/dev/null && { ok=1; break; }; sleep 1; done
+    [ \$ok = 1 ] || { echo 'reth (L1) not answering on 127.0.0.1:8945 after 120 s' >&2; exit 1; }
+    other=\$(docker ps --format '{{.Names}}' | grep -v '^${ZK_PROJECT}-' || true)
+    [ -z \"\$other\" ] || { echo \"other containers running on bath0: \$other\" >&2; exit 1; }
+    cd $ZK_CWD
+    setsid nohup $ZK_BIN --genesis-path $C/genesis.yaml --config-path $C/general.yaml --wallets-path $C/wallets.yaml \
+      --secrets-path $C/secrets.yaml --contracts-config-path $C/contracts.yaml > $ZK_RUN/server.log 2>&1 < /dev/null &
+    echo \$! > $ZK_RUN/server.pid" || die "zkSync snapshot restore / start failed on bath0"
+  say "zksync: snapshot restored, server started after $((SECONDS - t0))s; waiting for the APIs"
+  local deadline=$((SECONDS + RPC_WAIT_S)) h
+  while :; do
+    h=$(T=10 on bath0 "pgrep -f '$ZK_PAT' >/dev/null || echo dead; curl -s -m 3 http://127.0.0.1:3071/health" 2>/dev/null || true)
+    [ "$h" != dead ] || die "zksync_server exited on bath0 (see bath0:$ZK_RUN/server.log)"
+    if grep -q '^{"status":"ready"' <<< "$h" && rpc_ok "$L1" && rpc_ok "$L2_HTTP" && tcp_ok "$STACK_IP" "$L2_WS_PORT"; then break; fi
+    [ "$SECONDS" -lt "$deadline" ] || die "zkSync not healthy after ${RPC_WAIT_S}s (L1 $L1: $(rpc_ok "$L1" && echo ok || echo no), L2 $L2_HTTP: $(rpc_ok "$L2_HTTP" && echo ok || echo no), L2 WS :$L2_WS_PORT: $(tcp_ok "$STACK_IP" "$L2_WS_PORT" && echo ok || echo no), health: ${h:0:80}; see bath0:$ZK_RUN/server.log)"
+    sleep 3
+  done
+  echo "zksync up (snapshot restored, block_commit_deadline_ms=$deadline_ms, $((SECONDS - t0))s)"
+}
+
+# up_perun — a fresh Anvil on bath0 (any old one is stopped: Anvil keeps no state) and the two Perun contracts,
+# deployed from the workstation with the amd64 perun-node of the last sync, at the pinned addresses.
+up_perun() {
+  local t0=$SECONDS bin="$PERUN_DIST/amd64/perun-node"
+  [ -x "$bin" ] || die "no $bin; run deploy/cluster sync"
+  T=60 on bath0 "[ -z \"\$(docker ps -q)\" ] || { echo 'containers running on bath0' >&2; exit 1; }
+    if pgrep -x anvil >/dev/null; then
+      pkill -TERM -x anvil; for i in \$(seq 10); do pgrep -x anvil >/dev/null || break; sleep 1; done
+      pkill -KILL -x anvil 2>/dev/null; sleep 1
+    fi
+    mkdir -p ~/perun || exit 1
+    setsid nohup $ANVIL_BIN --host 0.0.0.0 --port 8545 --chain-id $PERUN_CHAIN_ID --block-time 1 > ~/perun/anvil.log 2>&1 < /dev/null &
+    echo \$! > ~/perun/anvil.pid" || die "starting Anvil on bath0 failed"
+  local deadline=$((SECONDS + RPC_WAIT_S))
+  until rpc_ok "$L1"; do
+    [ "$SECONDS" -lt "$deadline" ] || die "Anvil not answering at $L1 after ${RPC_WAIT_S}s (see bath0:~/perun/anvil.log)"
+    sleep 1
+  done
+  rm -f "$PERUN_CONTRACTS"
+  timeout 180 "$bin" -mode uc1-deploy -url "$PERUN_CHAIN_WS" -chainid "$PERUN_CHAIN_ID" -out "$PERUN_CONTRACTS" \
+    > "$PERUN_DIST/uc1-deploy.log" 2>&1 || die "uc1-deploy failed (see $PERUN_DIST/uc1-deploy.log)"
+  "$LPY" - "$PERUN_CONTRACTS" "$PERUN_CHAIN_ID" "$PERUN_ADJ" "$PERUN_AH" <<'PY' || die "deployed contracts differ from the pinned ones (see $PERUN_CONTRACTS)"
+import json, sys
+c = json.load(open(sys.argv[1]))
+want = {"chain_id": int(sys.argv[2]), "adjudicator": sys.argv[3].lower(), "asset_holder": sys.argv[4].lower()}
+got = {"chain_id": c.get("chain_id"), "adjudicator": str(c.get("adjudicator")).lower(), "asset_holder": str(c.get("asset_holder")).lower()}
+if got != want:
+    sys.exit(f"contracts.json {got} != pinned {want}")
+PY
+  echo "perun up (fresh Anvil, contracts at the pinned addresses, $((SECONDS - t0))s)"
+}
+
+cmd_down() {
+  # The zkSync server first: it must not lose its database while it is still running.
+  T=240 on bath0 "$ZK_STOP
+    [ -d $ZK_COMPOSE ] && (cd $ZK_COMPOSE && docker compose stop -t 60 >/dev/null 2>&1)
+    cd ~/arbitrum && docker compose stop -t 60 sequencer >/dev/null 2>&1; docker compose stop >/dev/null 2>&1
+    if pgrep -x anvil >/dev/null; then pkill -TERM -x anvil; sleep 2; pkill -KILL -x anvil; fi; true" \
+    || echo "warning: could not stop the stacks on bath0" >&2
+  local h
+  for h in "${BOARDS[@]}"; do T=20 on "$h" 'sudo -n tc qdisc del dev wlan0 root 2>/dev/null; true' || true & done; wait
+  echo "down"
+}
+
+# gather_facts DIR — DIR/<host>.json from board-facts.sh (piped in, no copy on the board);
+# a board that fails leaves no file, which pre-flight reports as unreachable.
+gather_facts() {
+  local d=$1 h; mkdir -p "$d"
+  for h in "${BOARDS[@]}"; do
+    # shellcheck disable=SC2015  # rm only when the facts could not be read
+    ( timeout 30 ssh "${SSH_OPTS[@]}" "$h" 'bash -s' < "$REPO/deploy/board-facts.sh" > "$d/$h.json" 2>/dev/null \
+        && [ -s "$d/$h.json" ] || rm -f "$d/$h.json" ) &
+  done
+  wait
+}
+
+# gather_clock DIR — raw `chronyc tracking` per board (the offset is also in the facts).
+gather_clock() {
+  local d=$1 h; mkdir -p "$d"
+  for h in "${BOARDS[@]}"; do (T=20 on "$h" 'date +%s.%N; chronyc tracking' > "$d/$h.txt" 2>&1 || true) & done
+  wait
+}
+
+cmd_status() {
+  local d; d=$(mktemp -d); gather_facts "$d"
+  "$LPY" - "$d" "${BOARDS[@]}" <<'PY'
+import json, os, sys
+d, boards = sys.argv[1], sys.argv[2:]
+for b in boards:
+    p = os.path.join(d, b + ".json")
+    try:
+        f = json.load(open(p))
+    except (OSError, ValueError):
+        print(f"{b:6} UNREACHABLE (no facts)")
+        continue
+    off = f.get("chrony_offset_ms")
+    print(f"{f.get('host')!s:6} {f.get('kernel')} {f.get('bssid')} {f.get('freq_mhz')}MHz ps={f.get('power_save')} "
+          f"throttled={f.get('throttled')} off={'%.3fms' % off if isinstance(off, (int, float)) else off} "
+          f"src={f.get('chrony_source')} temp={f.get('temp_c')}C disk={f.get('disk_free_gb')}GB "
+          f"netem={f.get('netem')} docker={f.get('docker_up')} anvil={f.get('anvil_up')}")
+PY
+  rm -rf "$d"
+}
+
+cmd_preflight() {
+  local d; d=$(mktemp -d); gather_facts "$d"
+  local rc=0; (cd "$REPO" && "$LPY" -m measure.preflight "$d") || rc=$?
+  rm -rf "$d"; [ "$rc" -eq 0 ] && echo "pre-flight ok"; return "$rc"
+}
+
+# Cooling gate (spec §5, decided 2026-09-30, revised the same day): a run starts only
+# when every board is within COOL_DELTA_C of its own idle temperature, waiting at most
+# COOL_MAX_S. The idle temperatures come from `deploy/cluster idle-temps` (stack down,
+# boards idle); idle and start temperatures go into the run folder.
+COOL_DELTA_C=${COOL_DELTA_C:-3}; COOL_MAX_S=${COOL_MAX_S:-1200}
+IDLE_TEMPS="$REPO/results/pi/idle-temps.txt"
+board_temp() { T=15 on "$1" "vcgencmd measure_temp | tr -dc '0-9.'" 2>/dev/null || true; }
+all_temps() {            # all_temps DIR — DIR/<host> = temperature, all boards in parallel (ssh to a Pi 3B takes ~4 s)
+  local h; mkdir -p "$1"
+  for h in "${BOARDS[@]}"; do board_temp "$h" > "$1/$h" & done
+  wait
+}
+
+cmd_idle_temps() {
+  local h n; n=$(T=20 on bath0 "pgrep -f '$ZK_PAT' >/dev/null && echo zksync_server; pgrep -x anvil >/dev/null && echo anvil; docker ps -q | wc -l" || echo unreadable)
+  [ "$n" = 0 ] || die "the stack must be down for idle temperatures (bath0: ${n//$'\n'/ } running); run deploy/cluster down"
+  for h in "${BOARDS[@]}"; do
+    [ "$(T=20 on "$h" "pgrep -f '$LEFTOVERS' | wc -l" || echo x)" = 0 ] || die "$h: measure processes running or board unreachable; not idle"
+  done
+  local tmp i; tmp=$(mktemp -d)
+  for i in 1 2 3; do
+    [ "$i" = 1 ] || sleep 30
+    all_temps "$tmp/r$i"
+    for h in "${BOARDS[@]}"; do { cat "$tmp/r$i/$h"; echo; } >> "$tmp/$h"; done
+    say "idle sample $i/3 taken"
+  done
+  mkdir -p "$(dirname "$IDLE_TEMPS")"
+  {
+    echo "# idle temperatures, median of 3 samples 30 s apart, stack down; measured $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    for h in "${BOARDS[@]}"; do
+      local v; v=$(grep -E '^[0-9.]+$' "$tmp/$h" | sort -n | awk '{a[NR]=$1} END{if (NR==3) print a[2]; else if (NR) print a[int((NR+1)/2)]}')
+      [ -n "$v" ] || { rm -rf "$tmp"; die "$h: no temperature readable"; }
+      echo "$h $v"
+    done
+  } > "$IDLE_TEMPS.tmp"
+  mv "$IDLE_TEMPS.tmp" "$IDLE_TEMPS"; rm -rf "$tmp"
+  cat "$IDLE_TEMPS"
+}
+
+cool_gate() {
+  local out=$1 waited=0 hot h t idle tdir="$1/.temps"
+  [ -s "$IDLE_TEMPS" ] || die "no idle temperatures ($IDLE_TEMPS); run deploy/cluster idle-temps first"
+  while :; do
+    hot=""
+    { echo "# host idle_c start_c (gate: start <= idle + ${COOL_DELTA_C}); $(grep '^#' "$IDLE_TEMPS" | head -1 | sed 's/^# //')"
+      echo "# checked $(date -u +%Y-%m-%dT%H:%M:%SZ) after ${waited}s"; } > "$out/start-temps.txt.tmp"
+    all_temps "$tdir"
+    for h in "${BOARDS[@]}"; do
+      idle=$(awk -v h="$h" '$1 == h {print $2}' "$IDLE_TEMPS")
+      [ -n "$idle" ] || die "$h has no idle temperature in $IDLE_TEMPS; run deploy/cluster idle-temps"
+      t=$(cat "$tdir/$h")
+      echo "$h $idle ${t:-unreadable}" >> "$out/start-temps.txt.tmp"
+      if [ -z "$t" ]; then hot="$hot $h:unreadable"
+      elif awk -v t="$t" -v i="$idle" -v d="$COOL_DELTA_C" 'BEGIN{exit !(t > i + d)}'; then hot="$hot $h:$t(idle $idle)"; fi
+    done
+    mv "$out/start-temps.txt.tmp" "$out/start-temps.txt"; rm -rf "$tdir"
+    if [ -z "$hot" ]; then say "cool: every board within ${COOL_DELTA_C} C of idle after ${waited}s"; return 0; fi
+    [ "$waited" -lt "$COOL_MAX_S" ] || die "cooling gate: still hot after ${COOL_MAX_S}s:$hot"
+    say "cooling: waiting for$hot"
+    sleep 30; waited=$((waited + 30))
+  done
+}
+
+# proc_state HOST PATTERN LOG -> alive | done (exited after printing its result line) | dead | unreachable
+proc_state() {
+  T=30 on "$1" "if pgrep -f '$2' >/dev/null; then echo alive; elif grep -q '^{' $3 2>/dev/null; then echo done; else echo dead; fi" \
+    2>/dev/null || echo unreachable
+}
+
+# Clock-settle gate (2026-09-30): after a heavy run a board's chrony offset to the time server can sit
+# above the pre-flight limit for a few minutes. Before pre-flight, wait until every board except the
+# time server has |offset| < CLOCK_MAX_MS, at most CLOCK_MAX_S. Pre-flight itself is unchanged.
+CLOCK_MAX_MS=${CLOCK_MAX_MS:-5}; CLOCK_MAX_S=${CLOCK_MAX_S:-600}; CLOCK_POLL_S=${CLOCK_POLL_S:-20}; CLOCK_GOOD_POLLS=${CLOCK_GOOD_POLLS:-2}
+# chronyc -c tracking: [3]=stratum, [5]=system time offset (s), [14]=leap status. An unsynchronised chrony
+# reports offset 0 and stratum 0 / "Not synchronised": that must never look settled, so print nothing then.
+offset_ms_of() {         # stdin: one `chronyc -c tracking` line; stdout: offset in ms, or nothing
+  awk -F, 'NF >= 14 && $3 ~ /^[0-9]+$/ && $3 > 0 && $14 !~ /Not synchronised/ &&
+           $5 ~ /^[-+]?[0-9]+(\.[0-9]*)?([eE][-+]?[0-9]+)?$/ {printf "%.3f", $5 * 1000}'
+}
+board_offset_ms() { T=15 on "$1" 'chronyc -c tracking' 2>/dev/null | offset_ms_of || true; }
+all_offsets() {          # all_offsets DIR — DIR/<host> = chrony offset in ms, every board except the time server, in parallel
+  local h; mkdir -p "$1"
+  for h in "${BOARDS[@]}"; do [ "$h" = "$SENSOR_BOARD" ] || board_offset_ms "$h" > "$1/$h" & done
+  wait
+}
+
+clock_gate() {       # passes on CLOCK_GOOD_POLLS (2) consecutive polls with every board settled
+  local out=$1 waited=0 bad h v first="" last="" tdir="$1/.offsets" good=0 t0=$SECONDS
+  while :; do
+    bad=""; last=""; waited=$((SECONDS - t0))
+    all_offsets "$tdir"
+    for h in "${BOARDS[@]}"; do
+      [ "$h" != "$SENSOR_BOARD" ] || continue
+      v=$(cat "$tdir/$h")
+      last="$last$h ${v:-unreadable}"$'\n'
+      if [ -z "$v" ]; then bad="$bad $h:unreadable"
+      elif awk -v v="$v" -v m="$CLOCK_MAX_MS" 'BEGIN{if (v < 0) v = -v; exit !(v >= m)}'; then bad="$bad $h:${v}ms"; fi
+    done
+    rm -rf "$tdir"
+    [ -n "$first" ] || first="# start: after ${waited}s, $(date -u +%Y-%m-%dT%H:%M:%SZ)"$'\n'"$last"
+    { echo "# clock-settle gate: every board except $SENSOR_BOARD needs |offset| < ${CLOCK_MAX_MS} ms on ${CLOCK_GOOD_POLLS} consecutive polls, waiting at most ${CLOCK_MAX_S}s (host offset_ms)"
+      printf '%s' "$first"
+      echo "# end: after ${waited}s, $(date -u +%Y-%m-%dT%H:%M:%SZ), good polls in a row: $((good + (${#bad} == 0)))"
+      printf '%s' "$last"; } > "$out/clock-gate.txt"
+    if [ -z "$bad" ]; then
+      good=$((good + 1))
+      if [ "$good" -ge "$CLOCK_GOOD_POLLS" ]; then say "clocks settled: every board within ${CLOCK_MAX_MS} ms on $good polls, after ${waited}s"; return 0; fi
+    else
+      good=0
+      [ "$waited" -lt "$CLOCK_MAX_S" ] || die "clock gate: offsets still >= ${CLOCK_MAX_MS} ms (or unsynchronised) after ${CLOCK_MAX_S}s:$bad"
+      say "clocks settling: waiting for$bad"
+    fi
+    sleep "$CLOCK_POLL_S"
+  done
+}
+
+# pc_state HOST DIR -> complete | failed:<why> | dead | ready | starting | unreachable
+pc_state() {
+  timeout 30 ssh "${SSH_OPTS[@]}" "$1" python3 - "$2" 2>/dev/null <<'PY' || echo unreachable
+import json, os, subprocess, sys
+d = sys.argv[1]
+alive = subprocess.run(["pgrep", "-f", r"[m]easure\.payclient .*--out " + d + r"( |$)"],
+                       capture_output=True).returncode == 0
+try:
+    life = json.load(open(os.path.join(d, "lifecycle.json")))
+except (OSError, ValueError):
+    life = {}
+if life.get("complete"):
+    print("complete")
+elif any(life.get(k) for k in ("open_error", "close_error", "error")):
+    k = next(k for k in ("open_error", "close_error", "error") if life.get(k))
+    print(f"failed:{k}: {str(life[k])[:200]}")
+elif not alive:
+    print("dead")
+elif os.path.exists(os.path.join(d, "ready")):
+    print("ready")
+else:
+    print("starting")
+PY
+}
+
+# wait_payclients WANT DEADLINE_S DIR — until every customer board is in state WANT.
+wait_payclients() {
+  local want=$1 limit=$2 dir=$3 deadline=$((SECONDS + $2)) h s pending rd=${3%/pc}
+  while :; do
+    pending=""
+    if [ "$want" = complete ]; then     # the stream side: a sensor or customer that died early ends the run
+      s=$(proc_state "$SENSOR_BOARD" "[m]easure\.sensor .*--out $rd/sent\.csv" "$rd/sensor.log")
+      [ "$s" != dead ] || die "sensor on $SENSOR_BOARD exited without its result (see logs/$SENSOR_BOARD-sensor.log)"
+      for h in "${CUSTOMERS[@]}"; do
+        s=$(proc_state "$h" "[m]easure\.customer .*--out $rd/recv\.csv" "$rd/customer.log")
+        [ "$s" != dead ] || die "customer on $h exited without its result (see logs/$h-customer.log)"
+      done
+    fi
+    for h in "${CUSTOMERS[@]}"; do
+      s=$(pc_state "$h" "$dir")
+      case "$s" in
+        failed:*) die "payment client on $h ${s}" ;;
+        dead) [ "$want" = complete ] && s=$(pc_state "$h" "$dir")   # it may have finished between the two reads
+              [ "$s" = complete ] || die "payment client on $h exited before '$want' (see logs/$h-payclient.out)" ;;
+      esac
+      [ "$s" = "$want" ] || { [ "$want" = ready ] && [ "$s" = complete ]; } || pending="$pending $h:$s"
+    done
+    [ -n "$pending" ] || return 0
+    [ "$SECONDS" -lt "$deadline" ] || die "payment clients not '$want' after ${limit}s:$pending"
+    sleep 5
+  done
+}
+
+kill_leftovers() {       # kill_leftovers TERM|KILL [PATTERN] — every measure process and recorder on every board
+  local h pat=${2:-$LEFTOVERS}
+  for h in "${BOARDS[@]}"; do T=20 on "$h" "pkill -$1 -f '$pat'; true" >/dev/null 2>&1 || true & done
+  wait
+}
+
+# wait_gone PATTERN SECONDS — until no board runs a process matching PATTERN (bracketed, self-safe), at most
+# SECONDS. Boards are asked in parallel; an unreachable board counts as gone (finish_run must not hang on it).
+wait_gone() {
+  local pat=$1 deadline=$((SECONDS + $2)) h left tdir; tdir=$(mktemp -d)
+  while :; do
+    for h in "${BOARDS[@]}"; do (T=20 on "$h" "pgrep -f '$pat' >/dev/null && echo $h" > "$tdir/$h" 2>/dev/null || true) & done
+    wait
+    left=$(cat "$tdir"/* | tr '\n' ' ')
+    if [ -z "${left// /}" ]; then rm -rf "$tdir"; return 0; fi
+    if [ "$SECONDS" -ge "$deadline" ]; then echo "still running after ${2}s on: $left" >&2; rm -rf "$tdir"; return 1; fi
+    sleep 5
+  done
+}
+
+# Current repetition (read by the EXIT trap).
+RUN_OUT=""; RUN_ID=""; RUN_T0=""; STAGE=""
+
+# scp_h HOST SECONDS SCP_ARGS... — scp_try, but once a host has failed with a connection error (255 after
+# the retries) its remaining files are skipped, so a dead board costs one retry round, not one per file.
+DEAD_HOSTS=" "
+scp_h() {
+  local h=$1 rc=0; shift
+  case $DEAD_HOSTS in *" $h "*) echo "collect: $h unreachable, skipping $*" >&2; return 0 ;; esac
+  scp_try "$@" || rc=$?
+  [ "$rc" -ne 255 ] || DEAD_HOSTS="$DEAD_HOSTS$h "
+  return "$rc"
+}
+
+# copy_timeout BYTES — seconds for one directory copy: 300, plus 10 s per MB above 10 MB (a Perun w10
+# customer's pc/ is ~57 MB uncompressed: 770 s; bath2 moved only 15-46 kB/s in the 2026-10-04 w10 runs).
+copy_timeout() { local mb=$(( $1 / 1000000 )); echo $(( 300 + (mb > 10 ? (mb - 10) * 10 : 0) )); }
+# copy_gaps LOCAL_DIR < "SIZE RELPATH" lines — the files missing locally or of another size, one per line.
+copy_gaps() {
+  local d=$1 size rel got
+  while read -r size rel; do
+    [ -n "$rel" ] || continue
+    got=$(stat -c %s "$d/$rel" 2>/dev/null || echo missing)
+    [ "$got" = "$size" ] || echo "$rel: $got of $size bytes"
+  done
+}
+# collect_dir HOST REMOTE_DIR LOCAL_DIR LABEL — copy a board directory (scp -r, compressed on the wire, with a
+# timeout scaled to its size) and check every file's size against the board's list (final review I3: the
+# 300 s pc/ copy of bath2 timed out silently in three w10 runs). A failed copy, a missing or short file, or
+# an unreadable list is appended to RUN_OUT/COLLECT_INCOMPLETE and reported; never fatal (collect is best effort).
+collect_dir() {
+  local h=$1 src=$2 dst=$3 label=$4 list lrc=0 total rc=0 gaps
+  case $DEAD_HOSTS in *" $h "*)
+    echo "$label ($h:$src): not copied, $h unreachable" >> "$RUN_OUT/COLLECT_INCOMPLETE"
+    echo "collect: $label not copied, $h unreachable (see COLLECT_INCOMPLETE)" >&2; return 0 ;; esac
+  list=$(T=60 on "$h" "cd $src && find . -type f -printf '%s %P\\n'") || lrc=$?
+  [ "$lrc" -ne 255 ] || DEAD_HOSTS="$DEAD_HOSTS$h "
+  total=$(awk '{s += $1} END {print s + 0}' <<<"$list")
+  scp_h "$h" "$(copy_timeout "$total")" -q -C -r "$h:$src/." "$dst/" || rc=$?
+  gaps=$(copy_gaps "$dst" <<<"$list")
+  if [ "$lrc" -ne 0 ] || [ "$rc" -ne 0 ] || [ -n "$gaps" ]; then
+    # shellcheck disable=SC2001  # one indent per line of a multi-line list
+    { echo "$label ($h:$src -> $dst): scp exit $rc$([ "$lrc" -eq 0 ] || echo ", file list not readable (exit $lrc)")"
+      [ -z "$gaps" ] || sed 's/^/  /' <<<"$gaps"; } >> "$RUN_OUT/COLLECT_INCOMPLETE"
+    echo "collect: $label incomplete (see COLLECT_INCOMPLETE)" >&2
+  fi
+  return 0
+}
+
+collect() {   # best effort: whatever exists on the boards goes into the run folder
+  local out=$RUN_OUT rd=/tmp/m-$RUN_ID h n=1
+  DEAD_HOSTS=" "
+  mkdir -p "$out"/{results,logs,recorder}
+  scp_h "$SENSOR_BOARD" 120 -q "$SENSOR_BOARD:$rd/sent.csv" "$out/results/rows_sent.csv" || true
+  scp_h "$SENSOR_BOARD" 60 -q "$SENSOR_BOARD:$rd/sensor.log" "$out/logs/$SENSOR_BOARD-sensor.log" || true
+  for h in "${CUSTOMERS[@]}"; do
+    mkdir -p "$out/results/c$n"
+    collect_dir "$h" "$rd/pc" "$out/results/c$n" "c$n"
+    scp_h "$h" 120 -q "$h:$rd/recv.csv" "$out/results/c$n/rows_received.csv" || true
+    scp_h "$h" 60 -q "$h:$rd/payclient.out" "$out/logs/$h-payclient.out" || true
+    scp_h "$h" 60 -q "$h:$rd/customer.log" "$out/logs/$h-customer.log" || true
+    n=$((n + 1))
+  done
+  for h in "${BOARDS[@]}"; do
+    scp_h "$h" 60 -q "$h:$rd/rec.csv" "$out/recorder/$h.csv" || true
+    scp_h "$h" 60 -q "$h:$rd/recorder.log" "$out/logs/$h-recorder.log" || true
+  done
+  if [ "${STACK:-}" = perun ]; then
+    mkdir -p "$out/results/sensor"
+    collect_dir "$SENSOR_BOARD" "$rd/ps" "$out/results/sensor" "sensor"
+    scp_h "$SENSOR_BOARD" 60 -q "$SENSOR_BOARD:$rd/perun-sensor.out" "$out/logs/$SENSOR_BOARD-perun-sensor.out" || true
+    scp_h bath0 120 -q "bath0:perun/anvil.log" "$out/logs/bath0-anvil.log" || true
+  elif [ "${STACK:-}" = zksync ]; then
+    mkdir -p "$out/zk"
+    scp_h bath0 600 -q -C "bath0:$ZK_RUN/server.log" "$out/logs/bath0-zksync-server.log" || true
+    T=300 on bath0 "cd $ZK_COMPOSE && docker compose logs --no-color --timestamps --since ${RUN_T0:-0}" \
+      > "$out/logs/bath0-docker.log" 2>&1 || true
+    scp_h bath0 60 -q "bath0:$ZK_RUN/config.txt" "bath0:$ZK_RUN/config.sha256" "$out/results/" || true
+    # R7: the zk sampler CSV is not a board recorder; keep it out of recorder/ so manifest.py:186
+    # and analyze_uc1.py:292's "recorder/*.csv" globs stay board-only.
+    scp_h bath0 60 -q "bath0:$rd/zk.csv" "$out/zk/bath0-sampler.csv" || true
+    scp_h bath0 60 -q "bath0:$rd/zk-sampler.log" "$out/logs/bath0-zk-sampler.log" || true
+  else
+    T=120 on bath0 "cd ~/arbitrum && docker compose logs --no-color --timestamps --since ${RUN_T0:-0}" \
+      > "$out/logs/bath0-docker.log" 2>&1 || true
+  fi
+  gather_facts "$out/facts-end"; gather_clock "$out/chrony-end"
+}
+
+write_manifest() {
+  (cd "$REPO" && "$LPY" -m measure.manifest "$RUN_OUT") || echo "warning: manifest failed" >&2
+}
+
+compress_run() {     # best-effort: gzip the big files; a failure here never fails a good run
+  (cd "$REPO" && "$LPY" -m measure.compress "$RUN_OUT") || echo "warning: compress failed; run folder left uncompressed" >&2
+}
+
+finish_run() {       # finish_run ok|failed — stop processes, collect, manifest, down
+  local how=$1
+  STAGE="finish"
+  if [ "${STACK:-}" = perun ]; then
+    # A Perun payclient's orderly shutdown (quiesce, Close, sidecar stop) takes up to ~45 s and needs the sensor
+    # node alive for the cooperative close: TERM the measure processes first and wait for the payment clients,
+    # then TERM the perun-nodes (the sensor node writes sensor-result.json on TERM; if every channel broke, its
+    # settle deadline never starts, so only TERM stops it), then KILL what is left.
+    kill_leftovers TERM '[m]easure\.(payclient|sensor|customer)'
+    wait_gone '[m]easure\.payclient ' "$PERUN_TERM_GRACE_S" || true
+    kill_leftovers TERM; wait_gone "$PERUN_PROC" 30 || true; kill_leftovers KILL
+  else
+    kill_leftovers TERM; sleep 10; kill_leftovers KILL   # TERM first: payclients still write lifecycle/ledger
+  fi
+  if [ "${USE_CASE:-uc1}" = uc2 ]; then collect_uc2; else collect; fi
+  write_manifest
+  compress_run
+  cmd_down >/dev/null || true
+  if [ -f "$RUN_OUT/COLLECT_INCOMPLETE" ]; then
+    say "WARNING: collection incomplete, raw files missing or short (analysis may still use ledger.csv):"
+    sed 's/^/    /' "$RUN_OUT/COLLECT_INCOMPLETE"
+  fi
+  if [ "$how" = ok ]; then say "run complete: $RUN_OUT"; else say "run FAILED: $RUN_OUT"; fi
+  RUN_OUT=""
+}
+
+on_exit() {
+  local rc=$?
+  set +e; trap - EXIT INT TERM
+  if [ -n "$RUN_OUT" ]; then
+    [ -n "$FAIL_REASON" ] || FAIL_REASON="stage \"$STAGE\" failed (exit $rc)"
+    echo "$FAIL_REASON" > "$RUN_OUT/RUN_FAILED"
+    echo "run failed during \"$STAGE\": $FAIL_REASON; collecting and bringing the cluster down" >&2
+    finish_run failed
+    [ "$rc" -ne 0 ] || rc=1
+  fi
+  exit "$rc"
+}
+
+# ---- Perun (STACK=perun) pieces of one_run --------------------------------------------------------------
+board_ip() { echo "192.168.178.21${1#bath}"; }      # bathN -> 192.168.178.21N (deploy/FLEET.md)
+# cast_balance ADDR URL — the balance in wei as a bare integer (JSON), or null if it could not be read
+cast_balance() {
+  local v; v=$(timeout 20 "$CAST" balance "$1" --rpc-url "$2" 2>/dev/null || true)
+  if [[ $v =~ ^[0-9]+$ ]]; then echo "$v"; else echo null; fi
+}
+
+# perun_code_check OUT — every board runs the perun-node that the last sync built from today's perun/ tree.
+perun_code_check() {
+  local out=$1 want h s tree
+  want=$(cat "$PERUN_DIST/arm64/perun-node.sha256" 2>/dev/null) || die "no $PERUN_DIST/arm64/perun-node.sha256; run deploy/cluster sync"
+  [ -z "$(git -C "$REPO" status --porcelain -- perun)" ] || die "perun/ has uncommitted changes (the binary must match a commit)"
+  tree=$(awk '$1 == "perun_tree" {print $2}' "$PERUN_DIST/arm64/perun-node.build" 2>/dev/null || true)
+  [ "$tree" = "$(perun_tree)" ] || die "perun/ changed since the last sync (built from tree ${tree:-unknown}); run deploy/cluster sync"
+  for h in "${BOARDS[@]:1}"; do
+    s=$(T=30 on "$h" "sha256sum $PERUN_BIN_REMOTE 2>/dev/null | cut -d' ' -f1" || true)
+    [ "$s" = "$want" ] || die "$h: perun-node ${s:-missing} differs from sync's build ($want); run deploy/cluster sync"
+  done
+  echo "$want" > "$out/perun-node-sha256.txt"
+  cp "$PERUN_DIST/arm64/perun-node.build" "$out/perun-node-build.txt"
+}
+
+# perun_setup OUT — fund the sensor (100) and the customers in use (101..100+n) on Anvil from index 0; the
+# budget (every payment fits the deposit; the gas money outside the channel covers Open + Close ten times at
+# today's base fee); contracts.json into results/.
+perun_setup() {
+  local out=$1
+  [ -s "$PERUN_CONTRACTS" ] || die "no $PERUN_CONTRACTS (deploy/cluster up perun writes it)"
+  cp "$PERUN_CONTRACTS" "$out/results/contracts.json"
+  (cd "$REPO" && timeout 900 "$LPY" - "$L1" "$FUND_WEI" "${#CUSTOMERS[@]}" <<'PY') || die "funding the Perun accounts on Anvil failed"
+import sys
+from web3 import Web3
+from measure import arbitrum, keys
+url, amount, n = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
+l1 = Web3(Web3.HTTPProvider(url, request_kwargs={"timeout": 30}))
+for i in range(keys.SENSOR, keys.SENSOR + n + 1):
+    arbitrum.fund_on_l1(l1, keys.account(keys.FUNDER), keys.account(i).address, amount)
+print(f"funded {keys.SENSOR}..{keys.SENSOR + n} on Anvil (perun)")
+PY
+  (cd "$REPO" && timeout 60 "$LPY" - "$L1" "$DURATION_S" "$WINDOW_MS" "$PRICE_WEI" "$DEPOSIT_WEI" "$FUND_WEI" \
+      "$PERUN_OPEN_GAS" "$PERUN_CLOSE_GAS" > "$out/results/budget.json" <<'PY') || die "budget check failed (see results/budget.json)"
+import json, sys
+from web3 import Web3
+url, (dur, win, price, dep, fund, og, cg) = sys.argv[1], map(int, sys.argv[2:])
+try:
+    base = Web3(Web3.HTTPProvider(url, request_kwargs={"timeout": 10})).eth.get_block("latest")["baseFeePerGas"]
+except Exception as e:
+    print(json.dumps({"ok": False, "error": f"{type(e).__name__}: {e}"}))
+    sys.exit(2)
+n = dur * 1000 // win
+need, gas_need = n * price, 10 * (og + cg) * base
+ok = need <= dep and gas_need <= fund - dep
+print(json.dumps({"stack": "perun", "payments_per_customer": n, "need_wei": need, "deposit_wei": dep,
+                  "base_fee_wei": base, "open_close_gas": og + cg, "gas_money_need_wei": gas_need,
+                  "gas_money_wei": fund - dep, "ok": ok}))
+sys.exit(0 if ok else 1)
+PY
+}
+
+# perun_sensor_node OUT RD — ports free, contracts and key to bath1, start the sensor node, wait for its
+# control API, then check that every customer board reaches it (every customer -> bath1 pair, spec §8).
+perun_sensor_node() {
+  local out=$1 rd=$2 h s ports allow deadline strict=false persist=false
+  [ "${STRICT_POLICY:-1}" != 1 ] || strict=true
+  [ "${PERSIST:-1}" != 1 ] || persist=true
+  STAGE="perun ports"
+  for h in "$SENSOR_BOARD" "${CUSTOMERS[@]}"; do
+    ports=":$PERUN_WIRE_PORT"; [ "$h" != "$SENSOR_BOARD" ] || ports="$ports|:$PERUN_CONTROL_PORT"
+    s=$(T=20 on "$h" "ss -Hltn | awk '{print \$4}' | grep -E '($ports)\$' || true") \
+      || die "$h: could not list listening ports"
+    [ -z "$s" ] || die "$h: port(s) already in use: $(tr '\n' ' ' <<< "$s")"
+  done
+  STAGE="perun sensor node"
+  scp_try 30 -q "$out/results/contracts.json" "$SENSOR_BOARD:$rd/contracts.json"
+  (cd "$REPO" && "$LPY" -c "from measure import keys; print(keys.account(keys.SENSOR).key.hex())") \
+    | timeout 30 ssh "${SSH_OPTS[@]}" "$SENSOR_BOARD" "umask 077; cat > $rd/sensor.key" || die "writing the sensor key on $SENSOR_BOARD failed"
+  allow=$(cd "$REPO" && "$LPY" -c "import sys; from measure import keys; print(','.join(keys.account(keys.SENSOR + i).address for i in range(1, int(sys.argv[1]) + 1)))" "${#CUSTOMERS[@]}")
+  launch_guarded "$SENSOR_BOARD" "$PERUN_SENSOR_PROC" "cd $rd || exit 1; mkdir -p $rd/ps; setsid nohup $PERUN_BIN_REMOTE -mode uc1-sensor \
+    -url $PERUN_CHAIN_WS -chainid $PERUN_CHAIN_ID -contracts $rd/contracts.json -key-file $rd/sensor.key \
+    -bind 0.0.0.0:$PERUN_WIRE_PORT -endpoint $SENSOR_IP:$PERUN_WIRE_PORT -control 0.0.0.0:$PERUN_CONTROL_PORT \
+    -customers ${#CUSTOMERS[@]} -allow $allow -deposit-wei $DEPOSIT_WEI -challenge $CHALLENGE_S \
+    -update-timeout $UPDATE_TIMEOUT_S -strict=$strict -persist=$persist -state $rd/sensor-state \
+    -settle-deadline $SETTLE_WAIT_S -out $rd/ps > $rd/perun-sensor.out 2>&1 < /dev/null &"
+  deadline=$((SECONDS + READY_WAIT_S))
+  until curl -s -m 3 "http://$SENSOR_IP:$PERUN_CONTROL_PORT/v1/manifest" | grep -q '"wire"'; do
+    [ "$SECONDS" -lt "$deadline" ] || die "Perun sensor node on $SENSOR_BOARD: no /v1/manifest after ${READY_WAIT_S}s (see logs/$SENSOR_BOARD-perun-sensor.out)"
+    T=20 on "$SENSOR_BOARD" "pgrep -f '$PERUN_SENSOR_PROC' >/dev/null" \
+      || die "Perun sensor node on $SENSOR_BOARD exited at start (see logs/$SENSOR_BOARD-perun-sensor.out)"
+    sleep 2
+  done
+  STAGE="perun reachability"
+  for h in "${CUSTOMERS[@]}"; do
+    T=30 on "$h" "for i in 1 2 3; do curl -s -m 3 http://$SENSOR_IP:$PERUN_CONTROL_PORT/v1/manifest | grep -q '\"wire\"' && exit 0; sleep 2; done; exit 1" \
+      || die "$h cannot reach the sensor node's control API at $SENSOR_IP:$PERUN_CONTROL_PORT"
+  done
+  say "perun sensor node up on $SENSOR_BOARD, reachable from ${CUSTOMERS[*]}"
+}
+
+# perun_wait_settle RD — after the payment clients completed: until the sensor node has exited, at most
+# SETTLE_WAIT_S. Sets PERUN_SRES to "complete", or to why not (the caller fails the run after recording the balance).
+PERUN_SRES=""
+perun_wait_settle() {
+  local rd=$1 deadline=$((SECONDS + SETTLE_WAIT_S)) st
+  while :; do
+    st=$(T=30 on "$SENSOR_BOARD" "if pgrep -f '$PERUN_SENSOR_PROC' >/dev/null; then echo alive
+      elif [ -s $rd/ps/sensor-result.json ]; then python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); print(\"complete\" if r.get(\"complete\") is True else \"incomplete: \" + str(r.get(\"exit_reason\")))' $rd/ps/sensor-result.json
+      else echo 'exited without sensor-result.json'; fi" 2>/dev/null || echo unreachable)
+    case "$st" in
+      alive|unreachable) ;;
+      *) PERUN_SRES=$st; say "perun sensor node: $st"; return 0 ;;
+    esac
+    [ "$SECONDS" -lt "$deadline" ] || { PERUN_SRES="not settled after ${SETTLE_WAIT_S}s ($st)"; return 0; }
+    sleep 5
+  done
+}
+
+# ---- UC2 (USE_CASE=uc2): the six-player game, paid in points (plan Task 13) ---------------------------------
+# Command lines as in deploy/uc2-local.sh (Task 12), with the per-board parts filled in. Layout (spec §7.3):
+# PLAYERS = players 0..5 (bath1 first), the hub on bath1 beside player 0, bath0 the stack.
+HUB_BOARD=$SENSOR_BOARD; HUB_IP=$SENSOR_IP
+HUB_CONTROL_PORT=8091                 # not UC1's 8090: a stray UC1 sensor never answers
+HUB_WIRE_PORT=9000                    # the hub's Perun wire on bath1
+PLAYER_WIRE_PORT=9001                 # every player's sidecar wire (9001: player 0 shares bath1 with the hub's 9000)
+GAME_PORT=9100                        # the game mesh on every player
+REFERENCE_SHA="$REPO/tank-arena/reference/uc2-seed42.jsonl.sha256"   # Task 14; copied into the run (ruling P4)
+
+# uc2_reference — the reference log's SHA-256 (first word of REFERENCE_SHA, 64 hex digits) on stdout; refuses
+# (exit 1, with why) when the file is missing or malformed: a UC2 run must not start without it.
+uc2_reference() {
+  local v="" got=""
+  [ -s "$REFERENCE_SHA" ] && v=$(awk 'NR == 1 {print tolower($1)}' "$REFERENCE_SHA")
+  if [[ ! $v =~ ^[0-9a-f]{64}$ ]]; then
+    [ -z "$v" ] || got="it holds \"$v\", not a SHA-256; "
+    echo "refusing a UC2 run: no reference log hash in $REFERENCE_SHA (${got}Task 14 creates it from the" \
+      "reference log generated on bath2; commit it and run deploy/cluster sync first)" >&2
+    return 1
+  fi
+  echo "$v"
+}
+
+# uc2_params_check — the experiment file's UC2 keys are complete and consistent (before any run folder exists).
+uc2_params_check() {
+  local k h seen=" "
+  for k in STACK N_PLAYERS TICKRATE GAME_TICKS GAME_SEED START_POINTS MAX_QUEUE DRAIN_S MAX_IN_FLIGHT FUND_WEI DEPOSIT_WEI; do
+    [ -n "${!k:-}" ] || die "uc2: $k is not set in the experiment file"
+  done
+  [ "$((GAME_TICKS % TICKRATE))" -eq 0 ] || die "uc2: GAME_TICKS=$GAME_TICKS is not a whole number of seconds at TICKRATE=$TICKRATE"
+  [ "${#PLAYERS[@]}" -eq "$N_PLAYERS" ] || die "uc2: PLAYERS has ${#PLAYERS[@]} boards, N_PLAYERS=$N_PLAYERS"
+  [ "${PLAYERS[0]}" = "$HUB_BOARD" ] || die "uc2: player 0 must be $HUB_BOARD (the host, beside the hub), not ${PLAYERS[0]}"
+  for h in "${PLAYERS[@]}"; do
+    case " ${BOARDS[*]:1} " in *" $h "*) ;; *) die "uc2: player $h is not an active board (bath0 or idle or unknown)" ;; esac
+    case $seen in *" $h "*) die "uc2: $h is in PLAYERS twice" ;; esac
+    seen="$seen$h "
+  done
+  if [ "$STACK" = perun ]; then
+    for k in UPDATE_TIMEOUT_S CHALLENGE_S PERSIST YIELD_TIMEOUT_MS MAX_COLLISION_RETRIES; do
+      [ -n "${!k:-}" ] || die "uc2: $k is not set in the experiment file (perun)"
+    done
+  fi
+}
+
+# uc2_code_check OUT — every active board runs the workstation's measure/ code and game code (R8).
+uc2_code_check() {
+  local out=$1 want gwant h s
+  want=$(code_hash "$REPO"); echo "$want" > "$out/code-hash.txt"
+  gwant=$(game_hash "$REPO") || die "game hash of $REPO/tank-arena failed"
+  [ -n "$gwant" ] || die "game hash of $REPO/tank-arena is empty"
+  echo "$gwant" > "$out/game-hash.txt"
+  for h in "${BOARDS[@]:1}"; do
+    s=$(T=30 on "$h" "[ -x ~/venv/bin/python ] && cd ~/measure-code && find measure -name '*.py' -not -path '*/__pycache__/*' | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -c1-16" || true)
+    [ "$s" = "$want" ] || die "$h: code ${s:-missing} differs from the workstation ($want); run deploy/cluster sync"
+    s=$(T=30 on "$h" "cd ~/measure-code && $GAME_HASH_CMD" || true)
+    [ "$s" = "$gwant" ] || die "$h: game code ${s:-missing} differs from the workstation ($gwant); run deploy/cluster sync"
+  done
+}
+
+# uc2_ports — nothing listens yet on the ports the match uses (game mesh; Perun: wire on every player, the
+# hub's wire and control on bath1).
+uc2_ports() {
+  local h ports s
+  for h in "${PLAYERS[@]}"; do
+    ports=":$GAME_PORT"
+    [ "$STACK" != perun ] || ports="$ports|:$PLAYER_WIRE_PORT"
+    [ "$STACK" != perun ] || [ "$h" != "$HUB_BOARD" ] || ports="$ports|:$HUB_WIRE_PORT|:$HUB_CONTROL_PORT"
+    s=$(T=20 on "$h" "ss -Hltn | awk '{print \$4}' | grep -E '($ports)\$' || true") || die "$h: could not list listening ports"
+    [ -z "$s" ] || die "$h: port(s) already in use: $(tr '\n' ' ' <<< "$s")"
+  done
+}
+
+# uc2_bound OUT GAME_S — results/bound.json from the rules (python -m arena.bound, never the spec text);
+# `ok` must be true and start_points must be START_POINTS.
+uc2_bound() {
+  local out=$1 game_s=$2
+  (cd "$REPO/tank-arena" && timeout 300 "$LPY" -m arena.bound --json --players "$N_PLAYERS" --tickrate "$TICKRATE" \
+      --duration "$game_s") > "$out/results/bound.json" || die "arena.bound failed"
+  "$LPY" - "$out/results/bound.json" "$START_POINTS" <<'PY' || die "bound check failed (see results/bound.json)"
+import json, sys
+b = json.load(open(sys.argv[1]))
+if b.get("ok") is not True or b.get("start_points") != int(sys.argv[2]):
+    sys.exit(f"bound {b} not ok or start_points != {sys.argv[2]}")
+for k in ("virtual_stake", "hub_deposit", "ammo"):
+    if not isinstance(b.get(k), int) or b[k] <= 0:
+        sys.exit(f"bound {b}: {k} is not a positive integer")
+PY
+  say "bound: $(tr -d '\n' < "$out/results/bound.json")"
+}
+
+# uc2_ship OUT_FILE REMOTE_NAME HOST... — copy a results file to RD/REMOTE_NAME on every HOST.
+uc2_ship() {
+  local f=$1 name=$2 h; shift 2
+  for h in "$@"; do
+    scp_try 30 -q "$f" "$h:/tmp/m-$RUN_ID/$name" || die "copying $name to $h failed"
+  done
+}
+
+# uc2_setup_perun OUT RD — fund the hub (110) and the players (111..116) on Anvil; uc2-deploy (the points
+# token, START_POINTS minted per player and N x hub_deposit to the hub) -> results/contracts.json; cluster.json
+# -> results/ and every player; contracts.json to every player (contracts_file); the hub key (0600) to bath1.
+uc2_setup_perun() {
+  local out=$1 rd=$2 bin="$PERUN_DIST/amd64/perun-node" mint hub hub_points ips=() h
+  [ -x "$bin" ] || die "no $bin; run deploy/cluster sync"
+  (cd "$REPO" && timeout 900 "$LPY" - "$L1" "$FUND_WEI" "$N_PLAYERS" <<'PY') || die "funding 110..116 on Anvil failed"
+import sys
+from web3 import Web3
+from measure import arbitrum, keys
+url, amount, n = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
+l1 = Web3(Web3.HTTPProvider(url, request_kwargs={"timeout": 30}))
+for i in [keys.ARENA] + [keys.player_index(k) for k in range(n)]:
+    arbitrum.fund_on_l1(l1, keys.account(keys.FUNDER), keys.account(i).address, amount)
+print(f"funded {keys.ARENA}..{keys.player_index(n - 1)} on Anvil (perun uc2)")
+PY
+  mint=$(cd "$REPO" && "$LPY" -c "import sys; from measure import keys; print(','.join(keys.account(keys.player_index(k)).address for k in range(int(sys.argv[1]))))" "$N_PLAYERS") \
+    || die "player addresses: measure.keys failed"
+  hub=$(cd "$REPO" && "$LPY" -c "from measure import keys; print(keys.account(keys.ARENA).address)") || die "hub address: measure.keys failed"
+  hub_points=$("$LPY" -c "import json, sys; print(int(sys.argv[2]) * json.load(open(sys.argv[1]))['hub_deposit'])" "$out/results/bound.json" "$N_PLAYERS") \
+    || die "hub points from results/bound.json failed"
+  timeout 180 "$bin" -mode uc2-deploy -url "$PERUN_CHAIN_WS" -chainid "$PERUN_CHAIN_ID" -mint "$mint" -points "$START_POINTS" \
+      -hub "$hub" -hub-points "$hub_points" -out "$out/results/contracts.json" > "$out/logs/uc2-deploy.out" 2>&1 \
+    || die "uc2-deploy failed (see logs/uc2-deploy.out)"
+  for h in "${PLAYERS[@]}"; do ips+=("$(board_ip "$h")"); done
+  (cd "$REPO" && "$LPY" - "$out/results/bound.json" "$rd" "$PERUN_CHAIN_WS" "$PERUN_CHAIN_ID" "$START_POINTS" \
+      "$CHALLENGE_S" "$UPDATE_TIMEOUT_S" "$YIELD_TIMEOUT_MS" "$MAX_COLLISION_RETRIES" "${STRICT_POLICY:-1}" \
+      "$HUB_IP" "$HUB_WIRE_PORT" "$HUB_CONTROL_PORT" "$PLAYER_WIRE_PORT" "${ips[@]}" > "$out/results/cluster.json" <<'PY') \
+    || die "writing cluster.json failed"
+import json, sys
+from measure import keys
+(bound, rd, chain, chain_id, ledger, challenge, upd, yield_ms, retries, strict,
+ hub_ip, hub_wire, hub_ctl, player_wire, *ips) = sys.argv[1:]
+b = json.load(open(bound))
+cfg = {"chain_url": chain, "chain_id": int(chain_id), "asset": "points",
+       "state_root": f"{rd}/perun-state", "result_dir": f"{rd}/hub",
+       "ledger_deposit": int(ledger), "virtual_stake": b["virtual_stake"],
+       "hub_deposit": b["hub_deposit"], "ammo_reserve": b["ammo"],
+       "challenge_seconds": int(challenge), "update_timeout_seconds": int(upd),
+       "yield_timeout_ms": int(yield_ms), "max_collision_retries": int(retries),
+       "disable_strict_payment_policy": strict != "1",
+       "contracts_file": f"{rd}/contracts.json", "hub_key_file": f"{rd}/hub.key",
+       "hub": {"name": "arena", "bind": f"0.0.0.0:{hub_wire}", "endpoint": f"{hub_ip}:{hub_wire}",
+               "control": f"0.0.0.0:{hub_ctl}", "ethereum": keys.account(keys.ARENA).address},
+       "clients": [{"name": f"p{k}", "bind": f"0.0.0.0:{player_wire}", "endpoint": f"{ip}:{player_wire}",
+                    "control": f"http://{hub_ip}:{hub_ctl}",
+                    "ethereum": keys.account(keys.player_index(k)).address} for k, ip in enumerate(ips)]}
+print(json.dumps(cfg, indent=1))
+PY
+  uc2_ship "$out/results/cluster.json" cluster.json "${PLAYERS[@]}"       # PLAYERS[0] is bath1, the hub's board
+  uc2_ship "$out/results/contracts.json" contracts.json "${PLAYERS[@]}"
+  (cd "$REPO" && "$LPY" -c "from measure import keys; print(keys.account(keys.ARENA).key.hex())") \
+    | timeout 30 ssh "${SSH_OPTS[@]}" "$HUB_BOARD" "umask 077; cat > $rd/hub.key" || die "writing the hub key on $HUB_BOARD failed"
+  say "perun: contracts deployed, cluster.json and contracts.json on ${PLAYERS[*]}, hub key on $HUB_BOARD"
+}
+
+# uc2_hub OUT RD — start uc2-hub on bath1 (its exit code goes to RD/hub.rc), wait until its control API
+# answers here, then from every player. The hub's /v1/manifest carries "RunID" (not UC1's "wire").
+uc2_hub() {
+  local out=$1 rd=$2 h deadline url="http://$HUB_IP:$HUB_CONTROL_PORT/v1/manifest"
+  STAGE="perun hub"
+  launch_guarded "$HUB_BOARD" "$PERUN_HUB_PROC" "cd $rd || exit 1; mkdir -p $rd/hub; setsid nohup bash -c '$PERUN_BIN_REMOTE -mode uc2-hub -config $rd/cluster.json; echo \$? > $rd/hub.rc' > $rd/uc2-hub.out 2>&1 < /dev/null &" \
+    || die "starting uc2-hub on $HUB_BOARD failed"
+  deadline=$((SECONDS + READY_WAIT_S))
+  until curl -s -m 3 "$url" | grep -q '"RunID"'; do
+    [ "$SECONDS" -lt "$deadline" ] || die "uc2-hub on $HUB_BOARD: no /v1/manifest after ${READY_WAIT_S}s (see logs/$HUB_BOARD-uc2-hub.out)"
+    T=20 on "$HUB_BOARD" "pgrep -f '$PERUN_HUB_PROC' >/dev/null" \
+      || die "uc2-hub on $HUB_BOARD exited at start (see logs/$HUB_BOARD-uc2-hub.out)"
+    sleep 2
+  done
+  STAGE="perun reachability"
+  for h in "${PLAYERS[@]}"; do
+    T=30 on "$h" "for i in 1 2 3; do curl -s -m 3 $url | grep -q '\"RunID\"' && exit 0; sleep 2; done; exit 1" \
+      || die "$h cannot reach the hub's control API at $HUB_IP:$HUB_CONTROL_PORT"
+  done
+  say "uc2-hub up on $HUB_BOARD, reachable from ${PLAYERS[*]}"
+}
+
+# hub_state RD -> alive | ok | failed:<why> | unreachable. The wrapper (bash -c ... ; echo $? > hub.rc) counts
+# as alive until it has written the exit code; ok = exit 0 and the hub's "hub complete:" line.
+hub_state() {
+  timeout 30 ssh "${SSH_OPTS[@]}" "$HUB_BOARD" python3 - "$1" 2>/dev/null <<'PY' || echo unreachable
+import os, re, subprocess, sys
+rd = sys.argv[1]
+if subprocess.run(["pgrep", "-f", r"[u]c2-hub -config " + rd + r"/cluster\.json"], capture_output=True).returncode == 0:
+    print("alive")
+    sys.exit()
+try:
+    rc = open(os.path.join(rd, "hub.rc")).read().strip()
+except OSError:
+    print("failed: exited without writing hub.rc")
+    sys.exit()
+try:
+    out = open(os.path.join(rd, "uc2-hub.out"), errors="replace").read()
+except OSError:
+    out = ""
+done = re.search(r"^hub complete:", out, re.M) is not None
+print("ok" if rc == "0" and done else f"failed: exit {rc or '?'}, {'a' if done else 'no'} 'hub complete' line")
+PY
+}
+
+# uc2_wait_hub RD — after every payment client completed: until the hub has settled and exited, at most
+# SETTLE_WAIT_S. Sets HUB_RES to "ok", or to why not (the caller fails the run after reading the balances).
+HUB_RES=""
+uc2_wait_hub() {
+  local rd=$1 deadline=$((SECONDS + SETTLE_WAIT_S)) st
+  while :; do
+    st=$(hub_state "$rd"); st=${st%%$'\n'*}
+    case "$st" in
+      ok) HUB_RES=ok; say "uc2-hub settled and exited"; return 0 ;;
+      failed:*) HUB_RES=$st; return 0 ;;
+    esac
+    [ "$SECONDS" -lt "$deadline" ] || { HUB_RES="not exited after ${SETTLE_WAIT_S}s (${st:-no answer})"; return 0; }
+    sleep 5
+  done
+}
+
+# uc2_setup_rollup OUT — measure.uc2_setup: fund 110..116 and 119 on the L1, deploy the points token, mintBatch
+# -> results/token.json, results/recipients.json; recipients.json to every player.
+uc2_setup_rollup() {
+  local out=$1
+  (cd "$REPO" && timeout 1800 "$LPY" -m measure.uc2_setup --stack "$STACK" --l1 "$L1" --l2-http "$L2_HTTP" \
+      --players "$N_PLAYERS" --points "$START_POINTS" --fund-wei "$FUND_WEI" --out "$out/results") \
+    > "$out/logs/uc2-setup.out" 2>&1 || die "measure.uc2_setup failed (see logs/uc2-setup.out)"
+  [ -s "$out/results/token.json" ] && [ -s "$out/results/recipients.json" ] \
+    || die "measure.uc2_setup wrote no token.json/recipients.json (see logs/uc2-setup.out)"
+  uc2_ship "$out/results/recipients.json" recipients.json "${PLAYERS[@]}"
+  say "token: $(tail -n 1 "$out/logs/uc2-setup.out")"
+}
+
+# wait_players WANT DEADLINE_S DIR — until every player's payment client is in state WANT (pc_state per board,
+# captured with $(...): an unknown or empty answer stays pending until the deadline, never passes).
+wait_players() {
+  local want=$1 limit=$2 dir=$3 deadline=$((SECONDS + $2)) h s pending
+  while :; do
+    pending=""
+    for h in "${PLAYERS[@]}"; do
+      s=$(pc_state "$h" "$dir"); s=${s%%$'\n'*}
+      case "$s" in
+        failed:*) die "payment client on $h ${s}" ;;
+        dead) [ "$want" = complete ] && { s=$(pc_state "$h" "$dir"); s=${s%%$'\n'*}; }   # it may have finished between the two reads
+              [ "$s" = complete ] || die "payment client on $h exited before '$want' (see logs/$h-payclient.out)" ;;
+      esac
+      [ "$s" = "$want" ] || { [ "$want" = ready ] && [ "$s" = complete ]; } || pending="$pending $h:${s:-no answer}"
+    done
+    [ -n "$pending" ] || return 0
+    [ "$SECONDS" -lt "$deadline" ] || die "payment clients not '$want' after ${limit}s:$pending"
+    sleep 5
+  done
+}
+
+# game_state HOST RD -> alive | complete | aborted: <reason> | dead | bad: <why> | unreachable
+game_state() {
+  timeout 30 ssh "${SSH_OPTS[@]}" "$1" python3 - "$2" 2>/dev/null <<'PY' || echo unreachable
+import json, os, subprocess, sys
+res = os.path.join(sys.argv[1], "game", "node-result.json")
+if subprocess.run(["pgrep", "-f", r"[a]rena\.node .*--result-out " + res + r"( |$)"],
+                  capture_output=True).returncode == 0:
+    print("alive")
+elif not os.path.exists(res):
+    print("dead")
+else:
+    try:
+        r = json.load(open(res))
+    except (OSError, ValueError) as e:
+        print(f"bad: node-result.json unreadable ({e})"[:200])
+        sys.exit()
+    if r.get("complete") is True and not r.get("aborted"):
+        print("complete")
+    else:
+        print("aborted: " + str(r.get("aborted") or "incomplete, no reason given")[:200])
+PY
+}
+
+# uc2_wait_game RD DEADLINE_S — until every player's game node has exited with its node-result.json; any
+# aborted match, a node that exited without its result, or the deadline fails the run. QUIET_S (optional): no
+# polling for that long first (ssh + python3 on every Pi would load CPU and Wi-Fi while tick lag is measured);
+# the deadline is unchanged and counts from the call.
+uc2_wait_game() {
+  local rd=$1 limit=$2 quiet=${3:-0} deadline=$((SECONDS + $2)) h s pending tdir
+  [ "$quiet" -le "$limit" ] || quiet=$limit
+  [ "$quiet" -le 0 ] || sleep "$quiet"
+  tdir=$(mktemp -d)
+  while :; do
+    pending=""
+    for h in "${PLAYERS[@]}"; do game_state "$h" "$rd" > "$tdir/$h" & done
+    wait
+    for h in "${PLAYERS[@]}"; do
+      s=$(head -n 1 "$tdir/$h" 2>/dev/null || true)
+      case "$s" in
+        complete) ;;
+        aborted:*) rm -rf "$tdir"; die "match aborted on $h: ${s#aborted: }" ;;
+        dead) rm -rf "$tdir"; die "game node on $h exited without node-result.json (see logs/$h-node.out)" ;;
+        bad:*) rm -rf "$tdir"; die "game node on $h: ${s#bad: }" ;;
+        *) pending="$pending $h:${s:-no answer}" ;;
+      esac
+    done
+    if [ -z "$pending" ]; then rm -rf "$tdir"; return 0; fi
+    [ "$SECONDS" -lt "$deadline" ] || { rm -rf "$tdir"; die "match not finished after ${limit}s:$pending"; }
+    sleep 5
+  done
+}
+
+# uc2_game RD GAME_S — start every player's game node at once (the mesh connects within 15 s,
+# arena/node.py CONNECT_TIMEOUT_S), then wait for every result (deadline GAME_S x 3 + 120 s).
+uc2_game() {
+  local rd=$1 game_s=$2 k=0 h peers="" tdir rc t0=$SECONDS
+  for h in "${PLAYERS[@]}"; do peers="$peers${peers:+,}$(board_ip "$h"):$GAME_PORT"; done
+  tdir=$(mktemp -d)
+  for h in "${PLAYERS[@]}"; do
+    ( rc=0
+      launch_guarded "$h" "[a]rena\\.node .*--result-out $rd/game/node-result\\.json" \
+        "cd ~/measure-code/tank-arena || exit 1; setsid nohup $RPY -m arena.node --id $k --peers $peers --tickrate $TICKRATE \
+          --duration $game_s --seed $GAME_SEED --run $RUN_ID --pay-socket $rd/pay.sock --out $rd/game/trace.jsonl \
+          --ticks-out $rd/game/ticks.csv --result-out $rd/game/node-result.json > $rd/node.out 2>&1 < /dev/null &" || rc=$?
+      echo "$rc" > "$tdir/$h" ) &
+    k=$((k + 1))
+  done
+  wait
+  for h in "${PLAYERS[@]}"; do
+    rc=$(cat "$tdir/$h" 2>/dev/null || echo "no status")
+    [ "$rc" = 0 ] || { rm -rf "$tdir"; die "starting the game node on $h failed ($rc)"; }
+  done
+  rm -rf "$tdir"
+  say "match: ${N_PLAYERS} players, ${game_s}s at ${TICKRATE} Hz, seed $GAME_SEED"
+  uc2_wait_game "$rd" $((game_s * 3 + 120)) $((game_s - (SECONDS - t0)))
+  say "match complete on ${PLAYERS[*]}"
+}
+
+# uc2_points_balances OUT URL — R11: the final points of the six players and the arena, after every payment
+# client (and on Perun the hub) completed. Rollups: balanceOf on the L2. Perun: the withdrawn token balances on
+# the L1; arena = the hub's net gain = its balance - what it was minted (= withdrawn - N x hub_deposit).
+uc2_points_balances() {
+  (cd "$REPO" && timeout 120 "$LPY" - "$STACK" "$2" "$1/results" "$N_PLAYERS" <<'PY')
+import json, os, sys
+from web3 import Web3
+from measure import keys, points as pts
+system, url, res, n = sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4])
+w3 = Web3(Web3.HTTPProvider(url, request_kwargs={"timeout": 30}))
+def bal(token, addr):
+    return int(w3.eth.call({"to": token, "data": pts.balance_of_data(addr)}).hex(), 16)
+players = {f"p{k}": keys.account(keys.player_index(k)).address for k in range(n)}
+hub = keys.account(keys.ARENA).address
+if system == "perun":
+    c = json.load(open(os.path.join(res, "contracts.json")))
+    b = json.load(open(os.path.join(res, "bound.json")))
+    minted = {Web3.to_checksum_address(a): v for a, v in c["minted"].items()}
+    if minted.get(hub) != n * b["hub_deposit"]:
+        sys.exit(f"hub minted {minted.get(hub)} != {n} x hub_deposit {b['hub_deposit']}")
+    token = Web3.to_checksum_address(c["token"])
+    hub_bal = bal(token, hub)
+    out = {"players": {p: bal(token, a) for p, a in players.items()}, "arena": hub_bal - minted[hub],
+           "hub_balance": hub_bal, "hub_minted": minted[hub], "token": token, "chain": "L1 (Anvil)"}
+else:
+    t = json.load(open(os.path.join(res, "token.json")))
+    rec = pts.load_recipients(os.path.join(res, "recipients.json"), n)
+    token = Web3.to_checksum_address(t["token"])
+    out = {"players": {p: bal(token, rec[p]) for p in players}, "arena": bal(token, rec["arena"]),
+           "token": token, "chain": "L2"}
+print(json.dumps(out, indent=1))
+PY
+}
+
+# uc2_hash_check OUT RD — every board's trace against results/reference.sha256 (ruling P4). The boards' hashes
+# go to results/trace-sha256.txt; a differing or unreadable one writes HASH_MISMATCH (the boards) and fails the run.
+uc2_hash_check() {
+  local out=$1 rd=$2 ref h s bad=""
+  ref=$(awk 'NR == 1 {print tolower($1)}' "$out/results/reference.sha256")
+  [[ $ref =~ ^[0-9a-f]{64}$ ]] || die "results/reference.sha256 holds no SHA-256"
+  : > "$out/results/trace-sha256.txt"
+  for h in "${PLAYERS[@]}"; do
+    s=$(T=60 on "$h" "sha256sum $rd/game/trace.jsonl | cut -d' ' -f1" 2>/dev/null || true)
+    [[ $s =~ ^[0-9a-f]{64}$ ]] || s=unreadable
+    echo "$h $s" >> "$out/results/trace-sha256.txt"
+    [ "$s" = "$ref" ] || bad="$bad $h"
+  done
+  if [ -n "$bad" ]; then
+    echo "${bad# }" > "$out/HASH_MISMATCH"
+    die "trace hash differs from the reference ($ref) on:$bad (see results/trace-sha256.txt)"
+  fi
+  say "hash ok on ${PLAYERS[*]}: $ref"
+}
+
+# collect_uc2 — best effort, as collect: results/p<k>/{pc,game} and the logs of every player, the recorders,
+# Perun's results/hub/ and logs/bath1-uc2-hub.out, the stack's logs, the end facts.
+collect_uc2() {
+  local out=$RUN_OUT rd=/tmp/m-$RUN_ID h k=0
+  DEAD_HOSTS=" "
+  mkdir -p "$out"/{results,logs,recorder}
+  for h in "${PLAYERS[@]}"; do
+    mkdir -p "$out/results/p$k/pc" "$out/results/p$k/game"
+    collect_dir "$h" "$rd/pc" "$out/results/p$k/pc" "p$k pc"
+    collect_dir "$h" "$rd/game" "$out/results/p$k/game" "p$k game"
+    scp_h "$h" 60 -q "$h:$rd/payclient.out" "$out/logs/$h-payclient.out" || true
+    scp_h "$h" 60 -q "$h:$rd/node.out" "$out/logs/$h-node.out" || true
+    k=$((k + 1))
+  done
+  for h in "${BOARDS[@]}"; do
+    scp_h "$h" 60 -q "$h:$rd/rec.csv" "$out/recorder/$h.csv" || true
+    scp_h "$h" 60 -q "$h:$rd/recorder.log" "$out/logs/$h-recorder.log" || true
+  done
+  if [ "${STACK:-}" = perun ]; then
+    mkdir -p "$out/results/hub"
+    collect_dir "$HUB_BOARD" "$rd/hub" "$out/results/hub" "hub"
+    scp_h "$HUB_BOARD" 60 -q "$HUB_BOARD:$rd/uc2-hub.out" "$out/logs/$HUB_BOARD-uc2-hub.out" || true
+    scp_h "$HUB_BOARD" 60 -q "$HUB_BOARD:$rd/hub.rc" "$out/logs/$HUB_BOARD-uc2-hub.rc" || true
+    scp_h bath0 120 -q "bath0:perun/anvil.log" "$out/logs/bath0-anvil.log" || true
+  elif [ "${STACK:-}" = zksync ]; then
+    mkdir -p "$out/zk"
+    scp_h bath0 600 -q -C "bath0:$ZK_RUN/server.log" "$out/logs/bath0-zksync-server.log" || true
+    T=300 on bath0 "cd $ZK_COMPOSE && docker compose logs --no-color --timestamps --since ${RUN_T0:-0}" \
+      > "$out/logs/bath0-docker.log" 2>&1 || true
+    scp_h bath0 60 -q "bath0:$ZK_RUN/config.txt" "bath0:$ZK_RUN/config.sha256" "$out/results/" || true
+    scp_h bath0 60 -q "bath0:$rd/zk.csv" "$out/zk/bath0-sampler.csv" || true
+    scp_h bath0 60 -q "bath0:$rd/zk-sampler.log" "$out/logs/bath0-zk-sampler.log" || true
+  else
+    T=120 on bath0 "cd ~/arbitrum && docker compose logs --no-color --timestamps --since ${RUN_T0:-0}" \
+      > "$out/logs/bath0-docker.log" 2>&1 || true
+  fi
+  gather_facts "$out/facts-end"; gather_clock "$out/chrony-end"
+}
+
+# one_run_uc2 EXP REP — one UC2 match (the experiment env is already sourced and BOARDS has the idle boards
+# removed). Every wait has a deadline; every failure dies (RUN_FAILED, collection, down: on_exit).
+one_run_uc2() {
+  local exp=$1 rep=$2
+  stack_endpoints "$STACK"
+  uc2_params_check
+  local ref; ref=$(uc2_reference) || exit 2
+  local game_s=$((GAME_TICKS / TICKRATE))
+  RUN_ID="$(date +%Y%m%d-%H%M%S)-$STACK-$exp-rep$rep"; RUN_T0=$(date +%s)
+  local out="$REPO/results/pi/$USE_CASE/$RUN_ID" rd=/tmp/m-$RUN_ID h k
+  mkdir -p "$out"/{results,logs,recorder}; RUN_OUT=$out
+  cp "$REPO/deploy/experiments/$exp.env" "$out/experiment.env"
+  cp "$REFERENCE_SHA" "$out/results/reference.sha256"       # ruling P4: the run folder carries its reference
+  say "run $RUN_ID (uc2 on $STACK: ${PLAYERS[*]}${IDLE_BOARDS:+, idle $IDLE_BOARDS}; reference ${ref:0:16})"
+
+  STAGE="leftovers"
+  kill_leftovers TERM; sleep 3; kill_leftovers KILL
+
+  STAGE="code check"; uc2_code_check "$out"
+  [ "$STACK" != perun ] || perun_code_check "$out"
+  (cd "$REPO/tank-arena" && "$LPY" -c 'from arena.tune import config_digest; print(config_digest(None, None))') \
+    > "$out/config-digest.txt" || die "arena.tune.config_digest failed"
+  STAGE="run-start commit"; run_start_commit "$out"
+
+  STAGE="down"; cmd_down >/dev/null
+  STAGE="cooling gate"; cool_gate "$out"
+  STAGE="up"; cmd_up "$STACK"
+  STAGE="stack config"; stack_config "$out" "$STACK"
+  STAGE="clock gate"; clock_gate "$out"
+  STAGE="pre-flight"
+  gather_facts "$out/facts-start"; gather_clock "$out/chrony-start"
+  (cd "$REPO" && "$LPY" -m measure.preflight "$out/facts-start") | tee "$out/logs/preflight.txt" \
+    || die "pre-flight failed (see logs/preflight.txt)"
+  STAGE="ports"; uc2_ports
+
+  STAGE="bound"; uc2_bound "$out" "$game_s"
+
+  STAGE="run dirs"
+  for h in "${BOARDS[@]}"; do
+    T=30 on "$h" "rm -rf $rd && mkdir -p $rd/game" || die "$h: creating $rd failed"
+  done
+  STAGE="setup"
+  if [ "$STACK" = perun ]; then uc2_setup_perun "$out" "$rd"; else uc2_setup_rollup "$out"; fi
+
+  STAGE="recorders"
+  local rec_s=$((READY_WAIT_S * 2 + game_s * 3 + 120 + DRAIN_S + $(complete_extra_s) + SETTLE_WAIT_S + 120))   # finish_run stops it
+  for h in "${BOARDS[@]}"; do
+    scp_try 30 -q "$REPO/deploy/recorder.sh" "$h:$rd/recorder.sh" || die "copying the recorder to $h failed"
+    launch_guarded "$h" '[r]ecorder\.sh ' "setsid nohup bash $rd/recorder.sh $rd/rec.csv $rec_s > $rd/recorder.log 2>&1 < /dev/null &" \
+      || die "starting the recorder on $h failed"
+  done
+  if [ "$STACK" = zksync ]; then     # server CPU/RSS and chain progress on bath0
+    scp_try 30 -q "$REPO/deploy/zk-sampler.sh" "bath0:$rd/zk-sampler.sh" || die "copying the zk sampler to bath0 failed"
+    launch_guarded bath0 '[z]k-sampler\.sh ' "setsid nohup bash $rd/zk-sampler.sh $rd/zk.csv $rec_s $ZK_RUN/server.pid > $rd/zk-sampler.log 2>&1 < /dev/null &" \
+      || die "starting the zk sampler on bath0 failed"
+  fi
+
+  [ "$STACK" != perun ] || uc2_hub "$out" "$rd"
+  STAGE="payment clients"
+  local token="" rm_flag=""
+  if [ "$STACK" != perun ]; then
+    token=$("$LPY" -c "import json, sys; print(json.load(open(sys.argv[1]))['token'])" "$out/results/token.json") \
+      || die "no token address in results/token.json"
+    [ -z "${RECEIPT_MODE:-}" ] || rm_flag="--receipt-mode $RECEIPT_MODE"
+  fi
+  k=0
+  for h in "${PLAYERS[@]}"; do
+    if [ "$STACK" = perun ]; then
+      bg "$h" "$rd/payclient.out" "$RPY -m measure.payclient --system perun --use-case uc2 --perun-config $rd/cluster.json \
+        --sidecar $PERUN_BIN_REMOTE --deposit-wei 0 --update-timeout $UPDATE_TIMEOUT_S --persist $PERSIST \
+        --account $((111 + k)) --max-in-flight $MAX_IN_FLIGHT --max-queue $MAX_QUEUE --drain $DRAIN_S \
+        --socket $rd/pay.sock --out $rd/pc" || die "starting the payment client on $h failed"
+    else
+      bg "$h" "$rd/payclient.out" "$RPY -m measure.payclient --system $STACK --asset points --token $token \
+        --recipients $rd/recipients.json --players $N_PLAYERS --l1 $L1 --l2 $L2_WS --deposit-wei $DEPOSIT_WEI \
+        --receipt-timeout ${RECEIPT_TIMEOUT_S:-120} --close-timeout ${CLOSE_TIMEOUT_S:-300} $rm_flag \
+        --account $((111 + k)) --max-in-flight $MAX_IN_FLIGHT --max-queue $MAX_QUEUE --drain $DRAIN_S \
+        --socket $rd/pay.sock --out $rd/pc" || die "starting the payment client on $h failed"
+    fi
+    k=$((k + 1))
+  done
+  STAGE="wait ready"; wait_players ready "$READY_WAIT_S" "$rd/pc"; say "payment clients ready on ${PLAYERS[*]}"
+
+  STAGE="match-start temperatures"      # recorded, not gated
+  all_temps "$out/.mt"
+  { echo "# host temp_c at match start (every payment client ready), $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    for h in "${BOARDS[@]}"; do echo "$h $(cat "$out/.mt/$h" 2>/dev/null)"; done; } > "$out/match-start-temps.txt"
+  rm -rf "$out/.mt"
+
+  STAGE="game"; uc2_game "$rd" "$game_s"
+
+  STAGE="wait complete"
+  wait_players complete $((DRAIN_S + $(complete_extra_s))) "$rd/pc"; say "payment clients complete"
+  if [ "$STACK" = perun ]; then STAGE="wait hub"; uc2_wait_hub "$rd"; fi
+
+  STAGE="points balances"
+  local url=$L2_HTTP; [ "$STACK" != perun ] || url=$L1
+  uc2_points_balances "$out" "$url" > "$out/results/points-balances.json" || die "reading the points balances failed"
+  say "points balances: $(tr -d '\n ' < "$out/results/points-balances.json")"
+  [ "$STACK" != perun ] || [ "$HUB_RES" = ok ] || die "uc2-hub on $HUB_BOARD: $HUB_RES (see logs/$HUB_BOARD-uc2-hub.out)"
+
+  STAGE="hash check"; uc2_hash_check "$out" "$rd"
+  finish_run ok
+}
+
+# uc1_params_check — every customer is an active board (not bath0/bath1, not idle, not unknown, not twice) and
+# EXPECTED_CUSTOMERS (what measure/analyze_uc1.py counts a complete run against) is the number of CUSTOMERS;
+# checked before any run folder exists, as uc2_params_check does for PLAYERS.
+uc1_params_check() {
+  local h seen=" "
+  for h in "${CUSTOMERS[@]}"; do
+    [ "$h" != "$SENSOR_BOARD" ] || die "uc1: $h is the sensor board and cannot be a customer"
+    case " ${BOARDS[*]:1} " in *" $h "*) ;; *) die "uc1: customer $h is not an active board (bath0 or idle or unknown)" ;; esac
+    case $seen in *" $h "*) die "uc1: $h is in CUSTOMERS twice" ;; esac
+    seen="$seen$h "
+  done
+  [ -n "${EXPECTED_CUSTOMERS:-}" ] || die "uc1: EXPECTED_CUSTOMERS is not set in the experiment file (the analysis would assume 6)"
+  [ "$EXPECTED_CUSTOMERS" -eq "${#CUSTOMERS[@]}" ] \
+    || die "uc1: EXPECTED_CUSTOMERS=$EXPECTED_CUSTOMERS but CUSTOMERS has ${#CUSTOMERS[@]} boards (${CUSTOMERS[*]})"
+}
+
+one_run() {
+  local exp=$1 rep=$2
+  # IDLE_BOARDS comes from the experiment file alone (UC2 and the final UC1 files, *5mx7*, set bath3)
+  unset IDLE_BOARDS; BOARDS=("${ALL_BOARDS[@]}")
+  # shellcheck disable=SC1090
+  source "$REPO/deploy/experiments/$exp.env"
+  apply_idle
+  if [ "${USE_CASE:-uc1}" = uc2 ]; then one_run_uc2 "$exp" "$rep"; return; fi
+  uc1_params_check
+  stack_endpoints "$STACK"
+  RUN_ID="$(date +%Y%m%d-%H%M%S)-$STACK-$exp-rep$rep"; RUN_T0=$(date +%s)
+  local out="$REPO/results/pi/$USE_CASE/$RUN_ID" rd=/tmp/m-$RUN_ID h n s
+  mkdir -p "$out"/{results,logs,recorder}; RUN_OUT=$out
+  cp "$REPO/deploy/experiments/$exp.env" "$out/experiment.env"
+  say "run $RUN_ID"
+
+  STAGE="leftovers"
+  kill_leftovers TERM; sleep 3; kill_leftovers KILL
+
+  STAGE="code check"                 # boards must run exactly the workstation's measure/ code
+  local want; want=$(code_hash "$REPO"); echo "$want" > "$out/code-hash.txt"
+  for h in "${BOARDS[@]:1}"; do
+    s=$(T=30 on "$h" "[ -x ~/venv/bin/python ] && cd ~/measure-code && find measure -name '*.py' -not -path '*/__pycache__/*' | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -c1-16" || true)
+    [ "$s" = "$want" ] || die "$h: code ${s:-missing} differs from the workstation ($want); run deploy/cluster sync"
+  done
+  T=30 on "$SENSOR_BOARD" "[ -s ~/gesl/sigId-$GESL_SIG-PMU.csv ]" || die "GESL CSV missing on $SENSOR_BOARD; run deploy/cluster sync"
+  [ "$STACK" != perun ] || perun_code_check "$out"
+  STAGE="run-start commit"; run_start_commit "$out"
+  STAGE="GESL check"; gesl_check "$out"
+
+  STAGE="down"; cmd_down >/dev/null
+  STAGE="cooling gate"; cool_gate "$out"          # before up: the chain does not idle while boards cool
+  STAGE="up"; cmd_up "$STACK"
+  STAGE="stack config"; stack_config "$out" "$STACK"
+  STAGE="clock gate"; clock_gate "$out"
+  STAGE="pre-flight"
+  gather_facts "$out/facts-start"; gather_clock "$out/chrony-start"
+  (cd "$REPO" && "$LPY" -m measure.preflight "$out/facts-start") | tee "$out/logs/preflight.txt" \
+    || die "pre-flight failed (see logs/preflight.txt)"
+
+  STAGE="setup"
+  local sensor; sensor=$(cd "$REPO" && "$LPY" -c "from measure import keys; print(keys.account(keys.SENSOR).address)")
+  if [ "$STACK" = perun ]; then perun_setup "$out"; else     # the rollups: unchanged
+  # the sensor (100) and the customers in use (101..100+n), as perun_setup does
+  (cd "$REPO" && timeout 900 "$LPY" - "$STACK" "$L1" "$FUND_WEI" "${#CUSTOMERS[@]}" <<'PY') \
+    || die "funding accounts 100..$((100 + ${#CUSTOMERS[@]})) on the L1 failed"
+import importlib, sys
+from web3 import Web3
+from measure import keys
+stack, url, amount, n = sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4])
+m = importlib.import_module("measure." + stack)
+l1 = Web3(Web3.HTTPProvider(url, request_kwargs={"timeout": 30}))
+funder = getattr(m, "funder", lambda: keys.account(keys.FUNDER))()
+if stack == "zksync":     # the snapshot restore resets the funder's balance every run (F8: ~1e38 wei)
+    have, need = l1.eth.get_balance(funder.address), (1 + n) * amount + 10**18
+    if have < need:
+        sys.exit(f"L1 funder {funder.address} holds {have} wei, needs >= {need} ({1 + n} x FUND_WEI + 1 ETH)")
+for i in range(keys.SENSOR, keys.SENSOR + n + 1):
+    m.fund_on_l1(l1, funder, keys.account(i).address, amount)
+print(f"funded {keys.SENSOR}..{keys.SENSOR + n} on the L1 ({stack})")
+PY
+  # Budget: the deposit must cover every payment (value + fee at today's L2 gas price, gas limit as the payclient sets it).
+  (cd "$REPO" && timeout 60 "$LPY" - "$STACK" "$L2_HTTP" "$sensor" "$DURATION_S" "$WINDOW_MS" "$PRICE_WEI" "$DEPOSIT_WEI" \
+      > "$out/results/budget.json" <<'PY') || die "budget check failed: deposit too small or not checkable (see results/budget.json)"
+import importlib, json, sys
+from web3 import Web3
+stack, url, to, dur, win, price, dep = sys.argv[1], sys.argv[2], sys.argv[3], *map(int, sys.argv[4:])
+m = importlib.import_module("measure." + stack)
+l2 = Web3(Web3.HTTPProvider(url, request_kwargs={"timeout": 10}))
+try:
+    gp = l2.eth.gas_price
+    if stack == "arbitrum":   # as before: estimate_payment_gas would estimate from the sensor, which has no L2 funds yet
+        limit = int(l2.eth.estimate_gas({"to": to, "value": 0}) * 1.5)
+    else:                     # the gas limit the payment client sets (zkSync: fixed PAYMENT_GAS)
+        limit = m.estimate_payment_gas(l2, to, to)
+except Exception as e:
+    print(json.dumps({"ok": False, "error": f"{type(e).__name__}: {e}"}))
+    sys.exit(2)
+n = dur * 1000 // win
+need = n * (price + limit * gp)
+print(json.dumps({"payments_per_customer": n, "l2_gas_price_wei": gp, "gas_limit_est": limit,
+                  "need_wei": need, "deposit_wei": dep, "ok": need <= dep}))
+sys.exit(0 if need <= dep else 1)
+PY
+  fi
+  cat "$out/results/budget.json"
+
+  STAGE="recorders"
+  local rec_s=$((READY_WAIT_S + SENSOR_WAIT_S + DURATION_S + DRAIN_S + $(complete_extra_s) + 120))   # finish_run stops it
+  [ "$STACK" != perun ] || rec_s=$((rec_s + READY_WAIT_S + SETTLE_WAIT_S))   # + sensor node start, + settle
+  for h in "${BOARDS[@]}"; do
+    T=30 on "$h" "rm -rf $rd && mkdir -p $rd"
+    scp_try 30 -q "$REPO/deploy/recorder.sh" "$h:$rd/recorder.sh"
+    launch_guarded "$h" '[r]ecorder\.sh ' "setsid nohup bash $rd/recorder.sh $rd/rec.csv $rec_s > $rd/recorder.log 2>&1 < /dev/null &"
+  done
+  if [ "$STACK" = zksync ]; then     # server CPU/RSS and chain progress on bath0
+    scp_try 30 -q "$REPO/deploy/zk-sampler.sh" "bath0:$rd/zk-sampler.sh"
+    launch_guarded bath0 '[z]k-sampler\.sh ' "setsid nohup bash $rd/zk-sampler.sh $rd/zk.csv $rec_s $ZK_RUN/server.pid > $rd/zk-sampler.log 2>&1 < /dev/null &"
+  fi
+
+  [ "$STACK" != perun ] || perun_sensor_node "$out" "$rd"
+  STAGE="payment clients"
+  n=1
+  for h in "${CUSTOMERS[@]}"; do
+    if [ "$STACK" = perun ]; then
+      bg "$h" "$rd/payclient.out" "$RPY -m measure.payclient --system perun --chain $PERUN_CHAIN_WS --chain-id $PERUN_CHAIN_ID \
+        --sensor-control http://$SENSOR_IP:$PERUN_CONTROL_PORT --sidecar $PERUN_BIN_REMOTE \
+        --wire-bind 0.0.0.0:$PERUN_WIRE_PORT --wire-endpoint $(board_ip "$h"):$PERUN_WIRE_PORT \
+        --account $((100 + n)) --pay-to $sensor --deposit-wei $DEPOSIT_WEI --max-in-flight $MAX_IN_FLIGHT \
+        --max-queue $MAX_QUEUE --drain $DRAIN_S --update-timeout $UPDATE_TIMEOUT_S --persist $PERSIST \
+        --socket $rd/pay.sock --out $rd/pc"
+    else
+      local rm_flag=""
+      [ -z "${RECEIPT_MODE:-}" ] || rm_flag="--receipt-mode $RECEIPT_MODE"
+      bg "$h" "$rd/payclient.out" "$RPY -m measure.payclient --system $STACK --l1 $L1 --l2 $L2_WS \
+        --account $((100 + n)) --pay-to $sensor --deposit-wei $DEPOSIT_WEI --max-in-flight $MAX_IN_FLIGHT \
+        --max-queue $MAX_QUEUE --drain $DRAIN_S --receipt-timeout ${RECEIPT_TIMEOUT_S:-120} \
+        --close-timeout ${CLOSE_TIMEOUT_S:-300} $rm_flag --socket $rd/pay.sock --out $rd/pc"
+    fi
+    n=$((n + 1))
+  done
+  STAGE="wait ready"; wait_payclients ready "$READY_WAIT_S" "$rd/pc"; say "payment clients ready"
+
+  local before
+  if [ "$STACK" = perun ]; then     # the sensor's L1 (Anvil) balance: it sends no transaction before Close
+    before=$(cast_balance "$sensor" "$L1")
+  else
+    before=$(timeout 20 "$CAST" balance "$sensor" --rpc-url "$L2_HTTP" 2>/dev/null || echo null)
+  fi
+
+  STAGE="sensor"
+  bg "$SENSOR_BOARD" "$rd/sensor.log" "$RPY -m measure.sensor --csv ~/gesl/sigId-$GESL_SIG-PMU.csv \
+    --port $SENSOR_PORT --customers ${#CUSTOMERS[@]} --duration $DURATION_S --wait-timeout $SENSOR_WAIT_S \
+    --queue-max ${SENSOR_QUEUE_MAX:-240} --write-timeout ${SENSOR_WRITE_TIMEOUT_S:-5} --out $rd/sent.csv"
+  local deadline=$((SECONDS + SENSOR_WAIT_S))
+  until tcp_ok "$SENSOR_IP" "$SENSOR_PORT"; do
+    [ "$SECONDS" -lt "$deadline" ] || die "sensor not listening on $SENSOR_IP:$SENSOR_PORT after ${SENSOR_WAIT_S}s"
+    sleep 1
+  done
+  local st_pid=""
+  if [ "$STACK" = zksync ] || [ "$STACK" = perun ]; then     # Q4: temperatures at stream start, recorded (not gated), in parallel
+    ( all_temps "$out/.st"
+      { echo "# host temp_c at stream start (sensor listening), $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+        for h in "${BOARDS[@]}"; do echo "$h $(cat "$out/.st/$h" 2>/dev/null)"; done; } > "$out/stream-start-temps.txt"
+      rm -rf "$out/.st" ) &
+    st_pid=$!
+  fi
+
+  STAGE="customers"
+  n=1
+  for h in "${CUSTOMERS[@]}"; do
+    bg "$h" "$rd/customer.log" "$RPY -m measure.customer --sensor $SENSOR_IP:$SENSOR_PORT --customer $n --run $RUN_ID \
+      --window-ms $WINDOW_MS --pay-to $sensor --price-wei $PRICE_WEI --socket $rd/pay.sock --out $rd/recv.csv"
+    n=$((n + 1))
+  done
+  say "streaming ${DURATION_S}s at window ${WINDOW_MS} ms"
+  [ -z "$st_pid" ] || wait "$st_pid" || true
+
+  STAGE="wait complete"
+  wait_payclients complete $((DURATION_S + DRAIN_S + $(complete_extra_s))) "$rd/pc"
+  if [ "$STACK" = perun ]; then
+    STAGE="wait settle"; perun_wait_settle "$rd"
+    local after; after=$(cast_balance "$sensor" "$L1")
+    echo "{\"stack\": \"perun\", \"sensor\": \"$sensor\", \"l1_balance_before_wei\": $before, \"l1_balance_after_wei\": $after}" \
+      > "$out/results/sensor-balance.json"
+    [ "$PERUN_SRES" = complete ] || die "Perun sensor node on $SENSOR_BOARD: $PERUN_SRES (see logs/$SENSOR_BOARD-perun-sensor.out)"
+    finish_run ok; return
+  fi
+  local after; after=$(timeout 20 "$CAST" balance "$sensor" --rpc-url "$L2_HTTP" 2>/dev/null || echo null)
+  echo "{\"sensor\": \"$sensor\", \"l2_balance_before_wei\": $before, \"l2_balance_after_wei\": $after}" \
+    > "$out/results/sensor-balance.json"
+  finish_run ok
+}
+
+cmd_run() {
+  local exp=${1:-} reps=1
+  # shellcheck disable=SC2015
+  [ -n "$exp" ] && [ -f "$REPO/deploy/experiments/$exp.env" ] || { echo "no experiment '$exp' in deploy/experiments/" >&2; exit 2; }
+  if [ "${2:-}" = --reps ]; then reps=${3:-}; fi
+  [[ $reps =~ ^[1-9][0-9]*$ ]] || { echo "--reps needs a positive number" >&2; exit 2; }
+  local use; use=$(unset USE_CASE; # shellcheck disable=SC1090
+                    source "$REPO/deploy/experiments/$exp.env" >/dev/null; echo "${USE_CASE:-uc1}") \
+    || { echo "cannot read deploy/experiments/$exp.env" >&2; exit 2; }
+  [ "$use" != uc2 ] || uc2_reference > /dev/null || exit 2      # refuse a UC2 run without the reference log hash
+  trap on_exit EXIT
+  trap 'FAIL_REASON="interrupted"; exit 130' INT TERM
+  local rep
+  for rep in $(seq 1 "$reps"); do one_run "$exp" "$rep"; done
+}
+
+# IDLE_BOARDS from the environment (sync, status, preflight, ...); `run` resets it per experiment (one_run).
+# Unset, it defaults to bath3 (dead since 2026-10-05); IDLE_BOARDS= (empty) includes every board. Exported so
+# measure.preflight (`deploy/cluster preflight`, no experiment.env) sees the same idle set.
+IDLE_BOARDS=${IDLE_BOARDS-bath3}; export IDLE_BOARDS
+apply_idle
+case "${1:-}" in
+  sync) cmd_sync ;; up) cmd_up "${2:-}" ;; down) cmd_down ;; status) cmd_status ;;
+  preflight) cmd_preflight ;; idle-temps) cmd_idle_temps ;; run) shift; cmd_run "$@" ;;
+  *) echo "usage: $0 sync|up <stack>|down|status|preflight|idle-temps|run <experiment> [--reps N]" >&2; exit 2 ;;
+esac

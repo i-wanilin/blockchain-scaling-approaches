@@ -1,0 +1,26 @@
+### captured 2026-07-28T18:09:51Z
+
+## laptop / bob (laptop)
+CPU(s):                                  8
+Model name:                              Intel(R) Core(TM) i5-8250U CPU @ 1.60GHz
+Thread(s) per core:                      2
+Core(s) per socket:                      4
+CPU(s) scaling MHz:                      89%
+CPU max MHz:                             3400,0000
+CPU min MHz:                             400,0000
+L1d cache:                               128 KiB (4 instances)
+L1i cache:                               128 KiB (4 instances)
+L2 cache:                                1 MiB (4 instances)
+L3 cache:                                6 MiB (1 instance)
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       4,5Gi       790Mi       317Mi        10Gi        10Gi
+yes:home-wifi:77:270 Mbit/s:5600 MHz
+governor: powersave
+commit: cbff89c0c4c64a7d6942933f9056ccd43624c7dc
+-- ping 192.168.178.22 (50) --
+50 packets transmitted, 50 received, 0% packet loss, time 9841ms
+rtt min/avg/max/mdev = 1.887/4.168/43.480/5.745 ms
+-- ping 192.168.178.35 (50) --
+50 packets transmitted, 50 received, 0% packet loss, time 9842ms
+rtt min/avg/max/mdev = 1.564/2.594/5.268/0.927 ms
+./lan-battery.sh: line 190: rest: unbound variable

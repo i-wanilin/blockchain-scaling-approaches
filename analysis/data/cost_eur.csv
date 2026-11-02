@@ -1,0 +1,112 @@
+use_case,system,window,metric,board,unit,stat,n,mean,sd,min,max,rep1,rep2,rep3,saturated_runs,runs,source
+ref,all,,eth_eur,,eur_per_eth,value,1,1980.89,,,,,,,,,"analysis/data/reference_prices_24m.json, medians from 2025-10-21 to 2026-10-21 (end exclusive)"
+ref,ethereum,,gas_price_gwei,,gwei,value,1,0.245573249,,,,,,,,,"analysis/data/reference_prices_24m.json, medians from 2025-10-21 to 2026-10-21 (end exclusive)"
+ref,arbitrum,,gas_price_gwei,,gwei,value,1,0.02006,,,,,,,,,"analysis/data/reference_prices_24m.json, medians from 2025-10-21 to 2026-10-21 (end exclusive)"
+ref,zksync,,gas_price_gwei,,gwei,value,1,0.04525,,,,,,,,,"analysis/data/reference_prices_24m.json, medians from 2025-10-21 to 2026-10-21 (end exclusive)"
+ref,arbitrum,,transfer_gas_for_l1,,gas,value,1,129,,,,,,,,,"analysis/data/reference_prices_24m.json, medians from 2025-10-21 to 2026-10-21 (end exclusive)"
+ref,zksync,,transfer_gas_public,,gas,value,1,93397,,,,,,,,,"analysis/data/reference_prices_24m.json, medians from 2025-10-21 to 2026-10-21 (end exclusive)"
+uc1,perun,w1000,eur_open,,eur,value,1,0.022280061022685,,,,,,,,,analysis/data/results.csv gas_open x ethereum price
+uc1,perun,w1000,eur_close,,eur,value,1,0.10398886031845,,,,,,,,,analysis/data/results.csv gas_close x ethereum price
+uc1,perun,w1000,eur_sensor_close_per_channel,,eur,value,1,0.0208295536984466,,,,,,,,,analysis/data/results.csv sensor_gas_close_per_channel x ethereum price
+uc1,arbitrum,w1000,eur_payment,,eur,value,1,0.0008395957496886,,,,,,,,,analysis/data/results.csv gas_payment x arbitrum price
+uc1,arbitrum,w1000,eur_open,,eur,value,1,0.0442998693730017,,,,,,,,,analysis/data/results.csv gas_open x ethereum price
+uc1,arbitrum,w1000,eur_close,,eur,value,1,0.0027219607579,,,,,,,,,analysis/data/results.csv gas_close x arbitrum price
+uc1,zksync,w1000,eur_payment,,eur,value,1,0.007864778079695,,,,,,,,,analysis/data/results.csv gas_payment x zksync price
+uc1,zksync,w1000,eur_open,,eur,value,1,0.141747712525931,,,,,,,,,analysis/data/results.csv gas_open x ethereum price
+uc1,zksync,w1000,eur_close,,eur,value,1,0.0112762069157725,,,,,,,,,analysis/data/results.csv gas_close x zksync price
+uc1,perun,w100,eur_open,,eur,value,1,0.022280061022685,,,,,,,,,analysis/data/results.csv gas_open x ethereum price
+uc1,perun,w100,eur_close,,eur,value,1,0.103979779851377,,,,,,,,,analysis/data/results.csv gas_close x ethereum price
+uc1,perun,w100,eur_sensor_close_per_channel,,eur,value,1,0.0208299428613211,,,,,,,,,analysis/data/results.csv sensor_gas_close_per_channel x ethereum price
+uc1,arbitrum,w100,eur_payment,,eur,value,1,0.0008395957496886,,,,,,,,,analysis/data/results.csv gas_payment x arbitrum price
+uc1,arbitrum,w100,eur_open,,eur,value,1,0.0442998693730017,,,,,,,,,analysis/data/results.csv gas_open x ethereum price
+uc1,arbitrum,w100,eur_close,,eur,value,1,0.0027219607579,,,,,,,,,analysis/data/results.csv gas_close x arbitrum price
+uc1,zksync,w100,eur_payment,,eur,value,1,0.007864778079695,,,,,,,,,analysis/data/results.csv gas_payment x zksync price
+uc1,zksync,w100,eur_open,,eur,value,1,0.141747712525931,,,,,,,,,analysis/data/results.csv gas_open x ethereum price
+uc1,zksync,w100,eur_close,,eur,value,1,0.0112762069157725,,,,,,,,,analysis/data/results.csv gas_close x zksync price
+uc1,perun,w10,eur_open,,eur,value,1,0.022280061022685,,,,,,,,,analysis/data/results.csv gas_open x ethereum price
+uc1,perun,w10,eur_close,,eur,value,1,0.103984320084914,,,,,,,,,analysis/data/results.csv gas_close x ethereum price
+uc1,perun,w10,eur_sensor_close_per_channel,,eur,value,1,0.0208299428613211,,,,,,,,,analysis/data/results.csv sensor_gas_close_per_channel x ethereum price
+uc1,arbitrum,w10,eur_payment,,eur,value,1,0.0008395957496886,,,,,,,,,analysis/data/results.csv gas_payment x arbitrum price
+uc1,arbitrum,w10,eur_open,,eur,value,1,0.0442998693730017,,,,,,,,,analysis/data/results.csv gas_open x ethereum price
+uc1,arbitrum,w10,eur_close,,eur,value,1,0.0027219607579,,,,,,,,,analysis/data/results.csv gas_close x arbitrum price
+uc1,zksync,w10,eur_payment,,eur,value,1,0.007864778079695,,,,,,,,,analysis/data/results.csv gas_payment x zksync price
+uc1,zksync,w10,eur_open,,eur,value,1,0.141747712525931,,,,,,,,,analysis/data/results.csv gas_open x ethereum price
+uc1,zksync,w10,eur_close,,eur,value,1,0.0112760276452275,,,,,,,,,analysis/data/results.csv gas_close x zksync price
+uc2,perun,,eur_open,,eur,value,1,0.0504374543585526,,,,,,,,,analysis/data/results.csv gas_open x ethereum price
+uc2,perun,,eur_close,,eur,value,1,0.108210791053934,,,,,,,,,analysis/data/results.csv gas_close x ethereum price
+uc2,perun,,eur_hub_open_per_channel,,eur,value,1,0.0531048415613296,,,,,,,,,analysis/data/results.csv hub_gas_open_per_channel x ethereum price
+uc2,perun,,eur_hub_close_per_channel,,eur,value,1,0.0263733518079637,,,,,,,,,analysis/data/results.csv hub_gas_close_per_channel x ethereum price
+uc2,arbitrum,,eur_open,,eur,value,1,0.0442998693730017,,,,,,,,,analysis/data/results.csv gas_open x ethereum price
+uc2,arbitrum,,eur_close,,eur,value,1,0.0028593899736839,,,,,,,,,analysis/data/results.csv gas_close x arbitrum price
+uc2,arbitrum,,eur_per_shot,,eur,value,1,0.0013719874319418,,,,,,,,,analysis/data/results.csv gas_per_shot x arbitrum price
+uc2,zksync,,eur_open,,eur,value,1,0.141747712525931,,,,,,,,,analysis/data/results.csv gas_open x ethereum price
+uc2,zksync,,eur_close,,eur,value,1,0.0130373458106404,,,,,,,,,analysis/data/results.csv gas_close x zksync price
+uc2,zksync,,eur_per_shot,,eur,value,1,0.0076682079271025,,,,,,,,,analysis/data/results.csv gas_per_shot x zksync price
+uc1,all,w1000,eur_window_price,,eur,value,1,0.00198089,,,,,,,,,1e-06 ETH per s of data x 1.0 s x ETH/EUR
+uc1,arbitrum,w1000,fee_share,,fraction,value,1,0.42384774,,,,,,,,,eur_payment / eur_window_price (uc1 w1000)
+uc1,perun,w1000,fee_share,,fraction,value,1,0.0825097557380672,,,,,,,,,(Open + Close + sensor's Close) / payments confirmed per customer / eur_window_price (uc1 w1000)
+uc1,zksync,w1000,fee_share,,fraction,value,1,3.9703255,,,,,,,,,eur_payment / eur_window_price (uc1 w1000)
+uc1,all,w100,eur_window_price,,eur,value,1,0.000198089,,,,,,,,,1e-06 ETH per s of data x 0.1 s x ETH/EUR
+uc1,arbitrum,w100,fee_share,,fraction,value,1,4.2384774,,,,,,,,,eur_payment / eur_window_price (uc1 w100)
+uc1,perun,w100,fee_share,,fraction,value,1,0.0825048806543093,,,,,,,,,(Open + Close + sensor's Close) / payments confirmed per customer / eur_window_price (uc1 w100)
+uc1,zksync,w100,fee_share,,fraction,value,1,39.703255,,,,,,,,,eur_payment / eur_window_price (uc1 w100)
+uc1,all,w10,eur_window_price,,eur,value,1,1.98089e-05,,,,,,,,,1e-06 ETH per s of data x 0.01 s x ETH/EUR
+uc1,arbitrum,w10,fee_share,,fraction,value,1,42.384774,,,,,,,,,eur_payment / eur_window_price (uc1 w10)
+uc1,perun,w10,fee_share,,fraction,value,1,0.245607634063354,,,,,,,,,(Open + Close + sensor's Close) / payments confirmed per customer / eur_window_price (uc1 w10)
+uc1,zksync,w10,fee_share,,fraction,value,1,397.03255,,,,,,,,,eur_payment / eur_window_price (uc1 w10)
+uc2,perun,,eur_match_open_close,,eur,value,1,1.42875863269068,,,,,,,,,"6 x (Open + Close, with the hub's share on Perun)"
+uc2,perun,,eur_match_payments,,eur,value,1,0,,,,,,,,,1070 x eur_per_shot
+uc2,perun,,eur_match,,eur,value,1,1.42875863269068,,,,,,,,,eur_match_open_close + eur_match_payments
+uc2,perun,,eur_match_per_player,,eur,value,1,0.23812643878178,,,,,,,,,"eur_match / 6, on Perun with the hub's cost spread over the players"
+uc2,arbitrum,,eur_match_open_close,,eur,value,1,0.282955556080114,,,,,,,,,"6 x (Open + Close, with the hub's share on Perun)"
+uc2,arbitrum,,eur_match_payments,,eur,value,1,1.46802655217773,,,,,,,,,1070 x eur_per_shot
+uc2,arbitrum,,eur_match,,eur,value,1,1.75098210825784,,,,,,,,,eur_match_open_close + eur_match_payments
+uc2,arbitrum,,eur_match_per_player,,eur,value,1,0.291830351376307,,,,,,,,,"eur_match / 6, on Perun with the hub's cost spread over the players"
+uc2,zksync,,eur_match_open_close,,eur,value,1,0.928710350019429,,,,,,,,,"6 x (Open + Close, with the hub's share on Perun)"
+uc2,zksync,,eur_match_payments,,eur,value,1,8.20498248199968,,,,,,,,,1070 x eur_per_shot
+uc2,zksync,,eur_match,,eur,value,1,9.13369283201911,,,,,,,,,eur_match_open_close + eur_match_payments
+uc2,zksync,,eur_match_per_player,,eur,value,1,1.52228213866985,,,,,,,,,"eur_match / 6, on Perun with the hub's cost spread over the players"
+uc2,perun,,eur_match_on_arbitrum,,eur,value,1,0.116710180316811,,,,,,,,,"6 x Perun's Open and Close gas (with the hub's share) x arbitrum price, without the L1 data share"
+uc1,arbitrum,w1000,break_even_payments,,count,value,1,119.196226214578,,,,,,,,,"(Perun channel, both ends - arbitrum Open+Close) / arbitrum payment"
+uc1,zksync,w1000,break_even_payments,,count,value,1,0,,,,,,,,,"(Perun channel, both ends - zksync Open+Close) / zksync payment"
+uc1,arbitrum,w100,break_even_payments,,count,value,1,119.18587444207,,,,,,,,,"(Perun channel, both ends - arbitrum Open+Close) / arbitrum payment"
+uc1,zksync,w100,break_even_payments,,count,value,1,0,,,,,,,,,"(Perun channel, both ends - zksync Open+Close) / zksync payment"
+uc1,arbitrum,w10,break_even_payments,,count,value,1,119.191282084425,,,,,,,,,"(Perun channel, both ends - arbitrum Open+Close) / arbitrum payment"
+uc1,zksync,w10,break_even_payments,,count,value,1,0,,,,,,,,,"(Perun channel, both ends - zksync Open+Close) / zksync payment"
+uc2,arbitrum,,break_even_payments,,count,value,1,139.190181330462,,,,,,,,,"(Perun channel, both ends - arbitrum Open+Close) / arbitrum payment"
+uc2,zksync,,break_even_payments,,count,value,1,10.8684299170666,,,,,,,,,"(Perun channel, both ends - zksync Open+Close) / zksync payment"
+uc1,arbitrum,w1000,break_even_payments_min,,count,value,1,27.4560644077477,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc1,arbitrum,w1000,break_even_payments_max,,count,value,1,270.875123459556,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc1,arbitrum,w1000,break_even_payments_before_min,,count,value,1,1200.70462002048,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc1,arbitrum,w1000,break_even_payments_before_max,,count,value,1,3789.94390476984,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc1,zksync,w1000,break_even_payments_min,,count,value,1,0,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc1,zksync,w1000,break_even_payments_max,,count,value,1,0,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc1,zksync,w1000,break_even_payments_before_min,,count,value,1,2.12780948807994,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc1,zksync,w1000,break_even_payments_before_max,,count,value,1,29.3203722037562,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc1,arbitrum,w100,break_even_payments_min,,count,value,1,27.453467817811,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc1,arbitrum,w100,break_even_payments_max,,count,value,1,270.85194915648,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc1,arbitrum,w100,break_even_payments_before_min,,count,value,1,1200.60284214043,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc1,arbitrum,w100,break_even_payments_before_max,,count,value,1,3789.62332745064,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc1,zksync,w100,break_even_payments_min,,count,value,1,0,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc1,zksync,w100,break_even_payments_max,,count,value,1,0,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc1,zksync,w100,break_even_payments_before_min,,count,value,1,2.1220243898353,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc1,zksync,w100,break_even_payments_before_max,,count,value,1,29.2704179176803,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc1,arbitrum,w10,break_even_payments_min,,count,value,1,27.4548242453898,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc1,arbitrum,w10,break_even_payments_max,,count,value,1,270.864055135699,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc1,arbitrum,w10,break_even_payments_before_min,,count,value,1,1200.65600968971,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc1,arbitrum,w10,break_even_payments_before_max,,count,value,1,3789.7907932144,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc1,zksync,w10,break_even_payments_min,,count,value,1,0,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc1,zksync,w10,break_even_payments_max,,count,value,1,0,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc1,zksync,w10,break_even_payments_before_min,,count,value,1,2.12506925018339,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc1,zksync,w10,break_even_payments_before_max,,count,value,1,29.2965362343581,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc2,arbitrum,,break_even_payments_min,,count,value,1,33.264124486648,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc2,arbitrum,,break_even_payments_max,,count,value,1,315.131211493589,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc2,arbitrum,,break_even_payments_before_min,,count,value,1,1422.1858884861,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc2,arbitrum,,break_even_payments_before_max,,count,value,1,5875.13327496763,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc2,zksync,,break_even_payments_min,,count,value,1,1.43228457147747,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc2,zksync,,break_even_payments_max,,count,value,1,19.9614758245978,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc2,zksync,,break_even_payments_before_min,,count,value,1,64.0958291323791,,,,,,,,,analysis/data/reference_prices_monthly.csv
+uc2,zksync,,break_even_payments_before_max,,count,value,1,566.447947011819,,,,,,,,,analysis/data/reference_prices_monthly.csv
+ref,ethereum,,gas_price_gwei_before_min,,gwei,value,1,1.285562859,,,,,,,,,"analysis/data/reference_prices_monthly.csv, lowest monthly median 2024-11 to 2025-07"
+ref,ethereum,,gas_price_gwei_since_max,,gwei,value,1,0.439048528,,,,,,,,,"analysis/data/reference_prices_monthly.csv, highest monthly median after 2025-07"
+ref,ethereum,,outlier_tip_gwei,,gwei,value,1,237.890932665,,,,,,,,,"analysis/data/reference_prices_24m.json, the sample with the highest median tip: block 23429174, 2025-09-24"

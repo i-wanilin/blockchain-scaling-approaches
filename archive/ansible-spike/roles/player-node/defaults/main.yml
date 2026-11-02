@@ -1,0 +1,8 @@
+---
+# Where the tank-arena code + binaries live on each Pi.
+thesis_dir: /opt/thesis
+# Arena runtime parameters baked into the systemd unit environment.
+arena_port: 9000
+arena_tickrate: 20
+arena_duration: 60
+arena_seed: 42

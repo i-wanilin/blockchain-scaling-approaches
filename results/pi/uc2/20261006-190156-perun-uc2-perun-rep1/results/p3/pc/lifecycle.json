@@ -1,0 +1,215 @@
+{
+ "system": "perun",
+ "account": 114,
+ "complete": true,
+ "max_in_flight": 64,
+ "max_queue": 10000,
+ "drain_s": 60.0,
+ "duplicates": 0,
+ "late": 0,
+ "use_case": "uc2",
+ "player": "p3",
+ "init": {
+  "address": "0xD4Db664B707353422b1Ffc94038cDD0a7D074D51",
+  "index": 3
+ },
+ "open": {
+  "op": "open",
+  "ok": true,
+  "t_start": 1791306545.1398275,
+  "t_ledger_funded": 1791306546.9556227,
+  "t_virtual_start": 1791306551.4642587,
+  "t_virtual_open": 1791306554.204098,
+  "ledger_channel_id": "0x262807093042ce6c3ffdd78bac3eb9863e1a9c67ff1844b3cc8f1dd9885fcc91",
+  "virtual": {
+   "p0": "0xd023278f6c9f04a39bb9de4eb0c1f3c19c6cf45e68ef15f75e52cca5b11655ac",
+   "p1": "0xc95db8ea97e2bb46e1caa8df1ce17fe9e6a4fc2e0248c021a97cd631d2e8e177",
+   "p2": "0x8844f118c2e77c8ce63438af022651a10fe2d41beb1c13a9390ec362f2c1267f",
+   "p4": "0x6a0225cddd936555edeeb38695f3c89eeab7f46b0dd91c8ce2f79f1487cb1467",
+   "p5": "0x9c238231a9cb7e0a8c9160403afb78ae892c162a7568e050e8090e69be49ee42"
+  },
+  "l1_gas_used": 103684,
+  "l1_fee_wei": "103684000725788",
+  "txs": 2
+ },
+ "ready_at": 1791306554.6465673,
+ "quiesce_sent_at": 1791306648.4237304,
+ "ended_at": 1791306648.4279416,
+ "quiesce": {
+  "dropped": 0,
+  "versions": {
+   "hub": 78,
+   "p0": 20,
+   "p1": 30,
+   "p2": 6,
+   "p4": 50,
+   "p5": 0
+  }
+ },
+ "channels_before_close": {
+  "hub": {
+   "version": 78,
+   "balances_wei": [
+    "1527",
+    "73"
+   ],
+   "broken": false
+  },
+  "p0": {
+   "version": 20,
+   "balances_wei": [
+    "1760",
+    "1600"
+   ],
+   "broken": false
+  },
+  "p1": {
+   "version": 30,
+   "balances_wei": [
+    "1550",
+    "1810"
+   ],
+   "broken": false
+  },
+  "p2": {
+   "version": 6,
+   "balances_wei": [
+    "1670",
+    "1690"
+   ],
+   "broken": false
+  },
+  "p4": {
+   "version": 50,
+   "balances_wei": [
+    "1650",
+    "1710"
+   ],
+   "broken": false
+  },
+  "p5": {
+   "version": 0,
+   "balances_wei": [
+    "1680",
+    "1680"
+   ],
+   "broken": false
+  }
+ },
+ "broken_channels": [],
+ "reconciliation": {
+  "hub": {
+   "out_succeeded_wei": 73,
+   "out_succeeded_count": 73,
+   "free_balance_wei": 1527,
+   "version": 78,
+   "broken": false
+  },
+  "p0": {
+   "out_succeeded_wei": 10,
+   "out_succeeded_count": 2,
+   "free_balance_wei": 1760,
+   "version": 20,
+   "broken": false
+  },
+  "p1": {
+   "out_succeeded_wei": 140,
+   "out_succeeded_count": 28,
+   "free_balance_wei": 1550,
+   "version": 30,
+   "broken": false
+  },
+  "p2": {
+   "out_succeeded_wei": 20,
+   "out_succeeded_count": 4,
+   "free_balance_wei": 1670,
+   "version": 6,
+   "broken": false
+  },
+  "p4": {
+   "out_succeeded_wei": 140,
+   "out_succeeded_count": 28,
+   "free_balance_wei": 1650,
+   "version": 50,
+   "broken": false
+  },
+  "p5": {
+   "out_succeeded_wei": 0,
+   "out_succeeded_count": 0,
+   "free_balance_wei": 1680,
+   "version": 0,
+   "broken": false
+  }
+ },
+ "close": {
+  "op": "close",
+  "ok": true,
+  "t_start": 1791306648.4667087,
+  "t_virtual_settled": 1791306652.808947,
+  "t_withdrawn": 1791306655.7155442,
+  "virtual_settle_s": 1.113541314,
+  "ledger_settle_s": 2.906597156,
+  "final_ledger_version": 84,
+  "final_ledger_balances_wei": [
+   "9837",
+   "8563"
+  ],
+  "virtual_final": [
+   {
+    "channel": "6a0225cddd936555edeeb38695f3c89eeab7f46b0dd91c8ce2f79f1487cb1467",
+    "version": 50,
+    "balances": [
+     "1650",
+     "1710"
+    ]
+   },
+   {
+    "channel": "8844f118c2e77c8ce63438af022651a10fe2d41beb1c13a9390ec362f2c1267f",
+    "version": 6,
+    "balances": [
+     "1690",
+     "1670"
+    ]
+   },
+   {
+    "channel": "9c238231a9cb7e0a8c9160403afb78ae892c162a7568e050e8090e69be49ee42",
+    "version": 0,
+    "balances": [
+     "1680",
+     "1680"
+    ]
+   },
+   {
+    "channel": "c95db8ea97e2bb46e1caa8df1ce17fe9e6a4fc2e0248c021a97cd631d2e8e177",
+    "version": 30,
+    "balances": [
+     "1810",
+     "1550"
+    ]
+   },
+   {
+    "channel": "d023278f6c9f04a39bb9de4eb0c1f3c19c6cf45e68ef15f75e52cca5b11655ac",
+    "version": 20,
+    "balances": [
+     "1600",
+     "1760"
+    ]
+   }
+  ],
+  "collisions": 0,
+  "l1_gas_used": 222477,
+  "l1_fee_wei": "222477001557339",
+  "txs": 2,
+  "by_contract": {
+   "adjudicator": {
+    "gas": 153751,
+    "txs": 1
+   },
+   "asset holder": {
+    "gas": 68726,
+    "txs": 1
+   }
+  }
+ },
+ "sidecar_rc": 0
+}

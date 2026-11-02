@@ -1,0 +1,31 @@
+2026-10-04 22:52:11,518 ERROR Close failed
+Traceback (most recent call last):
+  File "/home/i_wanilin/measure-code/measure/payclient.py", line 425, in main_async
+    life["close"] = await asyncio.to_thread(mod.close_withdraw, l2http, acct, left // 2, **close_kw)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/threads.py", line 25, in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/i_wanilin/measure-code/measure/arbitrum.py", line 81, in close_withdraw
+    r = _send(l2, acct, {"from": acct.address, "to": ARBSYS, "value": amount_wei, "data": data},
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/i_wanilin/measure-code/measure/arbitrum.py", line 35, in _send
+    h = w3.eth.send_raw_transaction(acct.sign_transaction(tx).raw_transaction)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/i_wanilin/venv/lib/python3.12/site-packages/web3/eth/eth.py", line 387, in send_raw_transaction
+    return self._send_raw_transaction(transaction)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/i_wanilin/venv/lib/python3.12/site-packages/web3/module.py", line 106, in caller
+    result = w3.manager.request_blocking(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/i_wanilin/venv/lib/python3.12/site-packages/web3/manager.py", line 226, in request_blocking
+    return self.formatted_response(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/i_wanilin/venv/lib/python3.12/site-packages/web3/manager.py", line 192, in formatted_response
+    validate_rpc_response_and_raise_if_error(
+  File "/home/i_wanilin/venv/lib/python3.12/site-packages/web3/_utils/validation.py", line 399, in validate_rpc_response_and_raise_if_error
+    raise web3_rpc_error
+web3.exceptions.Web3RPCError: {'code': -32000, 'message': 'max fee per gas less than block base fee: maxFeePerGas: 200000001 baseFee: 200570000'}

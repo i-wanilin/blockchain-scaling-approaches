@@ -1,0 +1,7 @@
+sensor: dropped customer 6 at seq 1497: queue over 240 frames
+sensor: dropped customer 1 at seq 90034: queue over 240 frames
+sensor: dropped customer 3 at seq 91195: queue over 240 frames
+sensor: dropped customer 5 at seq 91365: queue over 240 frames
+sensor: dropped customer 2 at seq 92219: queue over 240 frames
+sensor: dropped customer 4 at seq 92595: queue over 240 frames
+{'rows': 108000, 'start': 1790842802.7762775, 'dropped': [6, 1, 3, 5, 2, 4], 'max_late_s': 0.0038575400030822493}

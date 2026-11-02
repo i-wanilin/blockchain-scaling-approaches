@@ -1,0 +1,37 @@
+{
+  "chain_url": "ws://192.168.1.10:8545",
+  "chain_id": 31337,
+  "state_root": ".state",
+  "result_dir": "results",
+  "asset": "eth",
+  "ledger_deposit": 100,
+  "virtual_stake": 10,
+  "challenge_seconds": 10,
+  "startup_timeout_seconds": 300,
+  "operation_timeout_seconds": 180,
+  "keep_hub_running": false,
+  "disable_strict_payment_policy": false,
+  "yield_timeout_ms": 1000,
+  "update_timeout_seconds": 10,
+  "max_collision_retries": 10,
+  "hub": {
+    "name": "ingrid",
+    "bind": "0.0.0.0:9000",
+    "endpoint": "192.168.1.10:9000",
+    "control": "0.0.0.0:8080"
+  },
+  "clients": [
+    {
+      "name": "alice",
+      "bind": "0.0.0.0:9000",
+      "endpoint": "192.168.1.11:9000",
+      "control": "http://192.168.1.10:8080"
+    },
+    {
+      "name": "bob",
+      "bind": "0.0.0.0:9000",
+      "endpoint": "192.168.1.12:9000",
+      "control": "http://192.168.1.10:8080"
+    }
+  ]
+}

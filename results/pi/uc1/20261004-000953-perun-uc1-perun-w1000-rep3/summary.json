@@ -1,0 +1,619 @@
+{
+ "complete": true,
+ "saturated": false,
+ "headline": {
+  "saturated": false,
+  "offered": 4500,
+  "succeeded_share": 1.0,
+  "admitted_share": 1.0,
+  "dropped_share": 0.0,
+  "unresolved_share": 0.0,
+  "goodput_per_s": 5.005571550786176,
+  "confirmation_s": {
+   "n": 4500,
+   "p50": 0.04784369468688965,
+   "p90": 0.06611294746398926,
+   "p99": 0.16730566978454606,
+   "max": 0.3402268886566162
+  },
+  "payment_latency_s": {
+   "n": 4500,
+   "p50": 0.05147886276245117,
+   "p90": 0.069545578956604,
+   "p99": 0.17128657579422008,
+   "max": 0.34420037269592285
+  },
+  "latency_note": null,
+  "max_queue": "10000",
+  "drain_s": "60"
+ },
+ "complete_checks": {
+  "customers_found": 5,
+  "customers_expected": 5,
+  "incomplete_customers": [],
+  "run_failed": false,
+  "missing": [],
+  "dropped_customers": [],
+  "short_customers": {},
+  "stream_incomplete_customers": [],
+  "unreadable_logs": [],
+  "sensor_result_complete": true
+ },
+ "open_s": {
+  "c1": 1.321779727935791,
+  "c2": 1.4444465637207031,
+  "c3": 1.3328988552093506,
+  "c4": 1.3069453239440918,
+  "c5": 1.3855390548706055
+ },
+ "close_s": {
+  "c1": 2.551342487335205,
+  "c2": 2.6717472076416016,
+  "c3": 2.5956063270568848,
+  "c4": 2.4998772144317627,
+  "c5": 2.637119770050049
+ },
+ "close_pending": {
+  "c1": null,
+  "c2": null,
+  "c3": null,
+  "c4": null,
+  "c5": null
+ },
+ "not_admitted": {
+  "c1": null,
+  "c2": null,
+  "c3": null,
+  "c4": null,
+  "c5": null
+ },
+ "offered_rate_per_s": 5.0,
+ "confirmed_per_10s": [
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50,
+  50
+ ],
+ "backlog_max": 5,
+ "late_executed": {
+  "c1": 0,
+  "c2": 0,
+  "c3": 0,
+  "c4": 0,
+  "c5": 0
+ },
+ "late_executed_total": 0,
+ "payment_latency_s": {
+  "n": 4500,
+  "p50": 0.05147886276245117,
+  "p90": 0.069545578956604,
+  "p99": 0.17128657579422008,
+  "max": 0.34420037269592285
+ },
+ "queueing_s": {
+  "n": 4500,
+  "p50": 0.001550436019897461,
+  "p90": 0.0021689653396606444,
+  "p99": 0.008096306324005135,
+  "max": 0.02411341667175293
+ },
+ "confirmation_s": {
+  "n": 4500,
+  "p50": 0.04784369468688965,
+  "p90": 0.06611294746398926,
+  "p99": 0.16730566978454606,
+  "max": 0.3402268886566162
+ },
+ "deadline_miss_share": 0.0,
+ "deadline_miss_share_by_window_ms": {
+  "1000": 0.0
+ },
+ "receive_lag_s": {
+  "n": 540000,
+  "p50": 0.006783962249755859,
+  "p90": 0.013031029701232918,
+  "p99": 0.062499787807464624,
+  "max": 0.2364206314086914
+ },
+ "per_customer": {
+  "c1": {
+   "board": "bath2",
+   "board_model": "Raspberry Pi 3 Model B Plus Rev 1.4",
+   "offered": 900,
+   "succeeded": 900,
+   "queue_full": 0,
+   "confirmation_span_s": 898.9811117649078,
+   "goodput_per_s": 1.0011333811375545,
+   "confirmation_p50_s": 0.044693589210510254,
+   "backlog_max": 1,
+   "late_executed": 0,
+   "receive_lag_s": {
+    "n": 108000,
+    "p50": 0.0060547590255737305,
+    "p99": 0.05798011779785128,
+    "max": 0.15376496315002441
+   }
+  },
+  "c2": {
+   "board": "bath3",
+   "board_model": "Raspberry Pi 3 Model B Rev 1.2",
+   "offered": 900,
+   "succeeded": 900,
+   "queue_full": 0,
+   "confirmation_span_s": 898.9723949432373,
+   "goodput_per_s": 1.0011430885559367,
+   "confirmation_p50_s": 0.04775118827819824,
+   "backlog_max": 1,
+   "late_executed": 0,
+   "receive_lag_s": {
+    "n": 108000,
+    "p50": 0.006315708160400391,
+    "p99": 0.058452196121215785,
+    "max": 0.22964978218078613
+   }
+  },
+  "c3": {
+   "board": "bath4",
+   "board_model": "Raspberry Pi 3 Model B Rev 1.2",
+   "offered": 900,
+   "succeeded": 900,
+   "queue_full": 0,
+   "confirmation_span_s": 898.9783389568329,
+   "goodput_per_s": 1.0011364690325606,
+   "confirmation_p50_s": 0.050284385681152344,
+   "backlog_max": 1,
+   "late_executed": 0,
+   "receive_lag_s": {
+    "n": 108000,
+    "p50": 0.006747722625732422,
+    "p99": 0.06763670206069936,
+    "max": 0.20202350616455078
+   }
+  },
+  "c4": {
+   "board": "bath5",
+   "board_model": "Raspberry Pi 3 Model B Rev 1.2",
+   "offered": 900,
+   "succeeded": 900,
+   "queue_full": 0,
+   "confirmation_span_s": 898.9936122894287,
+   "goodput_per_s": 1.0011194603574638,
+   "confirmation_p50_s": 0.04842996597290039,
+   "backlog_max": 1,
+   "late_executed": 0,
+   "receive_lag_s": {
+    "n": 108000,
+    "p50": 0.008557796478271484,
+    "p99": 0.06601863861083981,
+    "max": 0.2343153953552246
+   }
+  },
+  "c5": {
+   "board": "bath6",
+   "board_model": "Raspberry Pi 3 Model B Rev 1.2",
+   "offered": 900,
+   "succeeded": 900,
+   "queue_full": 0,
+   "confirmation_span_s": 898.9903147220612,
+   "goodput_per_s": 1.0011231325425913,
+   "confirmation_p50_s": 0.04780685901641846,
+   "backlog_max": 1,
+   "late_executed": 0,
+   "receive_lag_s": {
+    "n": 108000,
+    "p50": 0.0052721500396728516,
+    "p99": 0.061824440956115535,
+    "max": 0.2364206314086914
+   }
+  }
+ },
+ "windows": {
+  "ledger_rows": 4500,
+  "expected_per_customer": 900,
+  "per_customer": {
+   "c1": {
+    "ledger_rows": 900,
+    "windows_expected": 900
+   },
+   "c2": {
+    "ledger_rows": 900,
+    "windows_expected": 900
+   },
+   "c3": {
+    "ledger_rows": 900,
+    "windows_expected": 900
+   },
+   "c4": {
+    "ledger_rows": 900,
+    "windows_expected": 900
+   },
+   "c5": {
+    "ledger_rows": 900,
+    "windows_expected": 900
+   }
+  }
+ },
+ "outcomes": {
+  "succeeded": 4500
+ },
+ "mapped_to_unresolved": 0,
+ "reconciliation": {
+  "succeeded_wei": 4500000000000000,
+  "sensor_received_wei": 4500000000000000,
+  "difference_wei": 0,
+  "ok": true,
+  "explained_wei": 0,
+  "ok_explained": true,
+  "late_executed_wei": 0,
+  "ok_with_late": true,
+  "sensor_l1_balance_change_wei": 4285851998500964,
+  "sensor_close_fee_wei": 214148001499036,
+  "sensor_final_balances_wei": 4500000000000000,
+  "sensor_settled_balances_wei": 4500000000000000,
+  "l1_matches_final_balances": true,
+  "l1_matches_settled_channels": true,
+  "unmatched_sensor_channels": [],
+  "per_customer": {
+   "c1": {
+    "succeeded_wei": 900000000000000,
+    "sensor_final_wei": 900000000000000,
+    "succeeded_matches_sensor": true,
+    "customer_matches_sensor": true,
+    "explained_wei": 0
+   },
+   "c2": {
+    "succeeded_wei": 900000000000000,
+    "sensor_final_wei": 900000000000000,
+    "succeeded_matches_sensor": true,
+    "customer_matches_sensor": true,
+    "explained_wei": 0
+   },
+   "c3": {
+    "succeeded_wei": 900000000000000,
+    "sensor_final_wei": 900000000000000,
+    "succeeded_matches_sensor": true,
+    "customer_matches_sensor": true,
+    "explained_wei": 0
+   },
+   "c4": {
+    "succeeded_wei": 900000000000000,
+    "sensor_final_wei": 900000000000000,
+    "succeeded_matches_sensor": true,
+    "customer_matches_sensor": true,
+    "explained_wei": 0
+   },
+   "c5": {
+    "succeeded_wei": 900000000000000,
+    "sensor_final_wei": 900000000000000,
+    "succeeded_matches_sensor": true,
+    "customer_matches_sensor": true,
+    "explained_wei": 0
+   }
+  }
+ },
+ "gas": {
+  "deposit_l1_median": 45801,
+  "payment_l2_median": 0.0,
+  "withdraw_l2_median": null,
+  "close_l1_median": 213772,
+  "close_sensor_l1_total": 214148,
+  "close_sensor_l1_per_channel": 42829.6
+ },
+ "fees_eth": {
+  "deposit_l1": 0.000229005001603035,
+  "payments_l2": 0.0,
+  "payments_l2_reverted": 0.0,
+  "withdraw_l2": null,
+  "close_l1": 0.001068852007481964,
+  "close_sensor_l1": 0.000214148001499036
+ },
+ "fees_unpriced_submitted_rows": 0,
+ "diagnostics": {
+  "customers": {
+   "c1": {
+    "resyncs": null,
+    "reconnects": null,
+    "outage_seconds": null,
+    "quiesce_timeouts": null,
+    "late": 0,
+    "duplicates": 0
+   },
+   "c2": {
+    "resyncs": null,
+    "reconnects": null,
+    "outage_seconds": null,
+    "quiesce_timeouts": null,
+    "late": 0,
+    "duplicates": 0
+   },
+   "c3": {
+    "resyncs": null,
+    "reconnects": null,
+    "outage_seconds": null,
+    "quiesce_timeouts": null,
+    "late": 0,
+    "duplicates": 0
+   },
+   "c4": {
+    "resyncs": null,
+    "reconnects": null,
+    "outage_seconds": null,
+    "quiesce_timeouts": null,
+    "late": 0,
+    "duplicates": 0
+   },
+   "c5": {
+    "resyncs": null,
+    "reconnects": null,
+    "outage_seconds": null,
+    "quiesce_timeouts": null,
+    "late": 0,
+    "duplicates": 0
+   }
+  },
+  "recorder": {
+   "bath0": {
+    "undervolted_share": 0.0,
+    "max_temp_c": 45.2,
+    "samples": 180,
+    "skipped_lines": 0,
+    "scope": "stream window",
+    "mean_cpu_busy_pct": 1.6133333333333333
+   },
+   "bath1": {
+    "undervolted_share": 0.0,
+    "max_temp_c": 54.2,
+    "samples": 180,
+    "skipped_lines": 0,
+    "scope": "stream window",
+    "mean_cpu_busy_pct": 20.212777777777777
+   },
+   "bath2": {
+    "undervolted_share": 0.0,
+    "max_temp_c": 49.4,
+    "samples": 180,
+    "skipped_lines": 0,
+    "scope": "stream window",
+    "mean_cpu_busy_pct": 10.507777777777779
+   },
+   "bath3": {
+    "undervolted_share": 0.5555555555555556,
+    "max_temp_c": 52.6,
+    "samples": 180,
+    "skipped_lines": 0,
+    "scope": "stream window",
+    "mean_cpu_busy_pct": 16.5
+   },
+   "bath4": {
+    "undervolted_share": 0.3055555555555556,
+    "max_temp_c": 58.0,
+    "samples": 180,
+    "skipped_lines": 0,
+    "scope": "stream window",
+    "mean_cpu_busy_pct": 15.785555555555556
+   },
+   "bath5": {
+    "undervolted_share": 0.0,
+    "max_temp_c": 62.3,
+    "samples": 180,
+    "skipped_lines": 0,
+    "scope": "stream window",
+    "mean_cpu_busy_pct": 11.058333333333334
+   },
+   "bath6": {
+    "undervolted_share": 0.4666666666666667,
+    "max_temp_c": 58.0,
+    "samples": 180,
+    "skipped_lines": 0,
+    "scope": "stream window",
+    "mean_cpu_busy_pct": 16.04888888888889
+   },
+   "bath7": {
+    "undervolted_share": 0.2849162011173184,
+    "max_temp_c": 50.5,
+    "samples": 179,
+    "skipped_lines": 0,
+    "scope": "stream window",
+    "mean_cpu_busy_pct": 3.146368715083799
+   }
+  }
+ },
+ "analysis_commit": "47df96e40acade2e817ddc85d994d1c26fe70452",
+ "analysis_measure_dirty": false,
+ "close_definition": "cooperative close: off-chain finalize + concludeFinal + withdrawal, confirmed on the L1, timed on the customer",
+ "close_finalize_s": {
+  "c1": 0.03145766258239746,
+  "c2": 0.034589529037475586,
+  "c3": 0.02925586700439453,
+  "c4": 0.026700496673583984,
+  "c5": 0.04354047775268555
+ },
+ "channels": {
+  "c1": {
+   "channel_id": "0x830378801616d21cc7e744e78141e459075db05bbf05bbf9b1c55aabd12d682a",
+   "final_version": 901,
+   "broken": false,
+   "updates_accepted": 901,
+   "payments_accepted": 900,
+   "updates_rejected": 0,
+   "final": true,
+   "settled": true,
+   "settle_error": null,
+   "sensor_balance_wei": 900000000000000,
+   "succeeded_wei": 900000000000000,
+   "customer_final_version": 901,
+   "customer_final_balances_wei": [
+    999100000000000000,
+    900000000000000
+   ],
+   "close_error": null,
+   "unresolved_in_final_state": 0
+  },
+  "c2": {
+   "channel_id": "0x1bd3223de62628ec74ff4098be250762d6d39260965949d67aff4d4be40fffa7",
+   "final_version": 901,
+   "broken": false,
+   "updates_accepted": 901,
+   "payments_accepted": 900,
+   "updates_rejected": 0,
+   "final": true,
+   "settled": true,
+   "settle_error": null,
+   "sensor_balance_wei": 900000000000000,
+   "succeeded_wei": 900000000000000,
+   "customer_final_version": 901,
+   "customer_final_balances_wei": [
+    999100000000000000,
+    900000000000000
+   ],
+   "close_error": null,
+   "unresolved_in_final_state": 0
+  },
+  "c3": {
+   "channel_id": "0xc7614a49f58ada8a1e74f4d2f9eac6df87df9df40f28767bca56595297501e8d",
+   "final_version": 901,
+   "broken": false,
+   "updates_accepted": 901,
+   "payments_accepted": 900,
+   "updates_rejected": 0,
+   "final": true,
+   "settled": true,
+   "settle_error": null,
+   "sensor_balance_wei": 900000000000000,
+   "succeeded_wei": 900000000000000,
+   "customer_final_version": 901,
+   "customer_final_balances_wei": [
+    999100000000000000,
+    900000000000000
+   ],
+   "close_error": null,
+   "unresolved_in_final_state": 0
+  },
+  "c4": {
+   "channel_id": "0x354a94fe7b3c48000fc7a90552eea6c00feefe09aaec865dfb7a41670457e6d9",
+   "final_version": 901,
+   "broken": false,
+   "updates_accepted": 901,
+   "payments_accepted": 900,
+   "updates_rejected": 0,
+   "final": true,
+   "settled": true,
+   "settle_error": null,
+   "sensor_balance_wei": 900000000000000,
+   "succeeded_wei": 900000000000000,
+   "customer_final_version": 901,
+   "customer_final_balances_wei": [
+    999100000000000000,
+    900000000000000
+   ],
+   "close_error": null,
+   "unresolved_in_final_state": 0
+  },
+  "c5": {
+   "channel_id": "0x42bc66b73ef6df566c3bb410373f77695c2c4926719d98289573470672becdc8",
+   "final_version": 901,
+   "broken": false,
+   "updates_accepted": 901,
+   "payments_accepted": 900,
+   "updates_rejected": 0,
+   "final": true,
+   "settled": true,
+   "settle_error": null,
+   "sensor_balance_wei": 900000000000000,
+   "succeeded_wei": 900000000000000,
+   "customer_final_version": 901,
+   "customer_final_balances_wei": [
+    999100000000000000,
+    900000000000000
+   ],
+   "close_error": null,
+   "unresolved_in_final_state": 0
+  }
+ }
+}

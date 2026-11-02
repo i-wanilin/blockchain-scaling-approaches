@@ -1,0 +1,18 @@
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+Copyright (c) 2026 Ivan Ilin
+
+Scope: the results, figures and documentation of this repository, that is
+results/, analysis/data/, analysis/figures/, docs/ and the Markdown files
+(see "Licence" in README.md). The code is under the MIT licence (LICENSE).
+Third-party components keep their own licences.
+
+This material is licensed under the Creative Commons Attribution 4.0
+International licence. The full legal code is at:
+
+    https://creativecommons.org/licenses/by/4.0/legalcode
+
+When you use the material, cite the thesis: Ivan Ilin, "A Use-Case-Driven
+Comparison of Layer-2 Scaling Approaches for IoT Micropayments and On-Chain
+Gaming", bachelor's thesis, Technische Universität Berlin, Open Distributed
+Systems, 2026.

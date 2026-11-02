@@ -1,0 +1,29 @@
+{
+ "system": "arbitrum",
+ "asset": "points",
+ "complete": true,
+ "account": 112,
+ "open": {
+  "t_start": 1791299970.0,
+  "t_l1_confirmed": 1791299972.0,
+  "t_l2_credited": 1791299979.0,
+  "l1_gas_used": 91068,
+  "l1_fee_wei": 91068000000000
+ },
+ "ready_at": 1791299990.0,
+ "ended_at": 1791300002.2,
+ "fee_cap_wei": 1000000000,
+ "start_nonce": 0,
+ "submitted_nonce": 12,
+ "close_nonce": 12,
+ "executed_onchain": 12,
+ "executed_after_close": 0,
+ "points_before_close": 9996,
+ "close": {
+  "t_start": 1791300003.0,
+  "t_confirmed": 1791300004.5,
+  "status": 1,
+  "l2_gas_used": 67572,
+  "l2_fee_wei": 6757200000000
+ }
+}

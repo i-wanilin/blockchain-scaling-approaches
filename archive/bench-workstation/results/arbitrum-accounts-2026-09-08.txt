@@ -1,0 +1,35 @@
+# ==============================================================================
+# HEADLINE: Aggregate scales LINEARLY to 251 tx/s at 64 accounts, no knee found.
+#   The ~280 plateau at 64x4 is NOT a node limit: load ~0.9 on 16 cores means
+#   the Python generator went GIL-bound. Blocks held up to 161 tx (~640 tx/s
+#   of capacity), never approached.
+#
+# Full explanation, latency definitions and scope: see README.md in this folder.
+# ==============================================================================
+# probe_ceiling  rpc=http://127.0.0.1:8547  chain=412346  gasPrice=100000000
+# max-block-speed=250ms (default) | slot-threading fixed
+# per-account tx=30  accounts=[1, 2, 4, 8, 16, 32, 64]  depths=[1, 4]
+# started 2026-09-08 14:05:27   idle load=0.14
+
+# tps  = confirmed-in-a-block per second (the throughput figure)
+# /act = tps divided by account count
+# sub  = mean ms that eth_sendRawTransaction blocks for
+# e2e  = mean ms from starting the send to holding the receipt
+# load = 1-min load average AT END OF CELL. A plateau with high load means
+#        the GENERATOR saturated, not the node. 16 cores on this host.
+ acct  depth  thread       ok/sent  span_s       tps      /act   sub_ms  e2e_mean  e2e_p90   load   err
+    1      1       1     30/30        7.02      4.27      4.27    232.3     234.2    252.2   0.20     0
+    2      1       2     60/60        7.53      7.97      3.99    244.0     246.7    252.9   0.17     0
+    4      1       4    120/120       7.29     16.47      4.12    236.5     242.8    253.8   0.16     0
+    8      1       8    240/240       7.54     31.83      3.98    236.4     249.0    256.5   0.21     0
+   16      1      16    480/480       7.55     63.58      3.97    225.3     250.1    262.8   0.17     0
+   32      1      32    960/960       7.59    126.51      3.95    200.5     251.2    273.1   0.22     0
+   64      1      64   1920/1920      7.65    251.07      3.92    149.3     252.3    298.3   0.87     0
+    1      4       4     30/30        2.00     14.98     14.98    235.5     242.0    253.1   0.80     0
+    2      4       8     60/60        2.01     29.90     14.95    234.5     246.7    258.1   0.80     0
+    4      4      16    120/120       2.03     59.22     14.81    222.7     246.9    273.6   0.74     0
+    8      4      32    240/240       2.04    117.54     14.69    204.0     252.1    285.0   0.74     0
+   16      4      64    480/480       2.08    231.23     14.45    160.1     257.6    321.9   0.76     0
+   32      4     128    960/960       3.56    270.03      8.44    250.1     434.3    579.8   0.87     0
+   64      4     256   1893/1893      6.78    279.02      4.36    276.4     521.1    807.5   0.96    27
+        ! x27  {'code': -32000, 'message': 'nonce too high: address 0x3c3E2E178C69D4baD964568415a0f0c84fd6320A, tx:

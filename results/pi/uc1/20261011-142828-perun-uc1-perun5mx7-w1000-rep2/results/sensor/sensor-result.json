@@ -1,0 +1,129 @@
+{
+  "complete": true,
+  "exit_reason": "settled",
+  "sensor": "0x8C3229EC621644789d7F61FAa82c6d0E5F97d43D",
+  "adjudicator": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  "asset_holder": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+  "chain_id": 31337,
+  "customers_expected": 5,
+  "deposit_wei": "1000000000000000000",
+  "strict": true,
+  "persist": true,
+  "channels": [
+    {
+      "name": "customer-101",
+      "ethereum": "0x9586A4833970847aef259aD5BFB7aa8901DDf746",
+      "channel_id": "0xafa7d0356510e5dfb65ae30e27872f6c3214ab5fa0752ae60af3f8c67718a11f",
+      "accepted_updates": 901,
+      "payments": 900,
+      "rejected_updates": 0,
+      "last_version": 901,
+      "balances_wei": [
+        "999100000000000000",
+        "900000000000000"
+      ],
+      "final": true,
+      "t_opened": 1791722005.383392,
+      "t_final": 1791722976.520317,
+      "t_settle_start": 1791722985.4637892,
+      "t_settle_end": 1791722986.9582875,
+      "settled": true
+    },
+    {
+      "name": "customer-103",
+      "ethereum": "0xC4c81D5C1851702d27d602aA8ff830A7689F17cc",
+      "channel_id": "0x4e68bf9ee07280726bf7196f61d7119d57eb80cd29585989cb775b010aecff75",
+      "accepted_updates": 901,
+      "payments": 900,
+      "rejected_updates": 0,
+      "last_version": 901,
+      "balances_wei": [
+        "999100000000000000",
+        "900000000000000"
+      ],
+      "final": true,
+      "t_opened": 1791722009.3851757,
+      "t_final": 1791722976.5582802,
+      "t_settle_start": 1791722985.4639435,
+      "t_settle_end": 1791722986.779892,
+      "settled": true
+    },
+    {
+      "name": "customer-102",
+      "ethereum": "0x0e9971c0005D91336c1441b8F03c1C4fe5FB4584",
+      "channel_id": "0x6e6b831fe6acde60ff794e384d48268fe098328c6c58fc01a2fd8100e40bd542",
+      "accepted_updates": 901,
+      "payments": 900,
+      "rejected_updates": 0,
+      "last_version": 901,
+      "balances_wei": [
+        "999100000000000000",
+        "900000000000000"
+      ],
+      "final": true,
+      "t_opened": 1791722013.3830714,
+      "t_final": 1791722976.689316,
+      "t_settle_start": 1791722985.4645026,
+      "t_settle_end": 1791722987.0680282,
+      "settled": true
+    },
+    {
+      "name": "customer-104",
+      "ethereum": "0x9c79357189d6aF261691ECF48de9A6bbF30438Fc",
+      "channel_id": "0x6a28370ee671d92ea44484af3216c9b428f25f767a90cfa93041f593a9032865",
+      "accepted_updates": 901,
+      "payments": 900,
+      "rejected_updates": 0,
+      "last_version": 901,
+      "balances_wei": [
+        "999100000000000000",
+        "900000000000000"
+      ],
+      "final": true,
+      "t_opened": 1791722018.3851368,
+      "t_final": 1791722976.6821194,
+      "t_settle_start": 1791722985.4643795,
+      "t_settle_end": 1791722986.9950736,
+      "settled": true
+    },
+    {
+      "name": "customer-105",
+      "ethereum": "0xd96Eb0f2e106eA7c0a939e9C460a17ace65FeCFF",
+      "channel_id": "0x5ad98b224d9c2f01270007fd40c02e1e7d16f7466d42babe2f35c82eb27dc11c",
+      "accepted_updates": 901,
+      "payments": 900,
+      "rejected_updates": 0,
+      "last_version": 901,
+      "balances_wei": [
+        "999100000000000000",
+        "900000000000000"
+      ],
+      "final": true,
+      "t_opened": 1791722026.3836484,
+      "t_final": 1791722976.6361868,
+      "t_settle_start": 1791722985.4641147,
+      "t_settle_end": 1791722986.8354774,
+      "settled": true
+    }
+  ],
+  "open_gas": {
+    "gas": 0,
+    "txs": 0,
+    "fee_wei": "0"
+  },
+  "close_gas": {
+    "gas": 214072,
+    "txs": 5,
+    "fee_wei": "214072001498504",
+    "by_contract": {
+      "asset holder": {
+        "gas": 214072,
+        "txs": 5
+      }
+    }
+  },
+  "errors": [],
+  "t_started": 1791721969.182311,
+  "t_first_final": 1791722976.520317,
+  "t_written": 1791722987.3171444
+}

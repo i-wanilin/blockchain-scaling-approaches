@@ -1,0 +1,4 @@
+---
+- name: reboot required
+  ansible.builtin.debug:
+    msg: "Reboot needed to apply cmdline.txt cgroup settings (not done automatically)."

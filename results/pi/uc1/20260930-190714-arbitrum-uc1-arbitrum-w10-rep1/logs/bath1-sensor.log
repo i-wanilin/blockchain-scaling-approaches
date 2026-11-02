@@ -1,0 +1,2 @@
+sensor: dropped customer 5 at seq 78044: queue over 240 frames
+{'rows': 108000, 'start': 1790788363.6514702, 'dropped': [5], 'max_late_s': 0.0041018123338290025}

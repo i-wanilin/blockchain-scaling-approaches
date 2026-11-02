@@ -1,0 +1,8 @@
+# host temp_c at match start (every payment client ready), 2026-10-06T17:47:13Z
+bath0 49.6
+bath1 50.5
+bath2 48.3
+bath4 58.0
+bath5 59.1
+bath6 55.8
+bath7 52.6

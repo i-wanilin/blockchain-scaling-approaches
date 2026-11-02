@@ -1,0 +1,19 @@
+# Copy to inventory.ini and adjust IPs / user.
+# Hostname scheme pi1..pi6 matches the runbook (deploy/README.md).
+# Use DHCP reservations on the router (recommended) or static IPs so these
+# addresses never move.
+
+[pis]
+pi1 ansible_host=192.168.50.101 arena_id=0
+pi2 ansible_host=192.168.50.102 arena_id=1
+pi3 ansible_host=192.168.50.103 arena_id=2
+pi4 ansible_host=192.168.50.104 arena_id=3
+pi5 ansible_host=192.168.50.105 arena_id=4
+pi6 ansible_host=192.168.50.106 arena_id=5
+
+[pis:vars]
+ansible_user=ivan
+# The laptop on the same LAN: NTP source (chrony) + Anvil L1 + heavy services.
+laptop_ip=192.168.50.10
+# Go toolchain for the Pis — pinned to match STATUS.md (host Go 1.26.x).
+go_version=1.26.4

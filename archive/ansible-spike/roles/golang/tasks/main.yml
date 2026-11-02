@@ -1,0 +1,36 @@
+# Go toolchain (arm64 tarball), pinned via go_version (inventory).
+# Only needed if you want to BUILD Go code on a Pi; the normal flow is to
+# cross-compile on the laptop (deploy/build-arm64.sh) and ship the binary,
+# in which case this role is skippable (--skip-tags golang).
+---
+- name: Check installed Go version
+  ansible.builtin.command: /usr/local/go/bin/go version
+  register: goversion
+  changed_when: false
+  failed_when: false
+
+- name: Download Go {{ go_version }} (linux-arm64)
+  ansible.builtin.get_url:
+    url: "https://go.dev/dl/go{{ go_version }}.linux-arm64.tar.gz"
+    dest: /tmp/go{{ go_version }}.linux-arm64.tar.gz
+    mode: "0644"
+  when: go_version not in (goversion.stdout | default(''))
+
+- name: Remove previous Go toolchain
+  ansible.builtin.file:
+    path: /usr/local/go
+    state: absent
+  when: go_version not in (goversion.stdout | default(''))
+
+- name: Unpack Go to /usr/local
+  ansible.builtin.unarchive:
+    src: /tmp/go{{ go_version }}.linux-arm64.tar.gz
+    dest: /usr/local
+    remote_src: true
+  when: go_version not in (goversion.stdout | default(''))
+
+- name: Add Go to PATH system-wide
+  ansible.builtin.copy:
+    dest: /etc/profile.d/golang.sh
+    mode: "0644"
+    content: 'export PATH=$PATH:/usr/local/go/bin'

@@ -1,0 +1,449 @@
+{
+ "git_commit": "8287e84edca70e053b7ae2c4b225221d9c1ecf7d",
+ "git_commit_source": "run-start-commit.txt",
+ "git_commit_at_manifest": "8287e84edca70e053b7ae2c4b225221d9c1ecf7d",
+ "git_dirty": true,
+ "gesl": {
+  "sig": 6063,
+  "sha256": "87b2ad10cd5ba219a43f91d871635a142fa24e75016f2760108e297a6b6fd009",
+  "file": "sigId-6063-PMU.csv"
+ },
+ "stack_config_sha256": {
+  "docker-compose.yaml": "223916040e80ce71c2ff74c9692ac8175a20bcf4f3f90a5cff2a12b5be23959f",
+  "SHA256SUMS": "15bf6539e46f623f4219f42a8775f3b33f844cd6daeb9179d121f4e09ad7ffb5",
+  "config.tgz:sequencer_config.json": "939ab07781ea7303e4dd7ada0c7fe6dce3194128d11d84e6d9645a2d275c21c2"
+ },
+ "code_hash": "f5ac93f5315bf02b",
+ "run_failed": null,
+ "experiment": {
+  "USE_CASE": "uc1",
+  "STACK": "arbitrum",
+  "WINDOW_MS": "10",
+  "DURATION_S": "900",
+  "PRICE_WEI": "1000000000000",
+  "DEPOSIT_WEI": "1000000000000000000",
+  "FUND_WEI": "2000000000000000000",
+  "MAX_IN_FLIGHT": "64",
+  "MAX_QUEUE": "10000",
+  "DRAIN_S": "60",
+  "CUSTOMERS": "(bath2 bath3 bath4 bath5 bath6)",
+  "EXPECTED_CUSTOMERS": "5"
+ },
+ "boards": {
+  "bath0": {
+   "host": "bath0",
+   "model": "Raspberry Pi 4 Model B Rev 1.5",
+   "serial": "100000007cf44eea",
+   "wifi_mac": "d8:3a:dd:b4:7e:66",
+   "kernel": "6.8.0-1065-raspi",
+   "bssid": "02:00:00:00:00:01",
+   "freq_mhz": 2462,
+   "power_save": "off",
+   "throttled": "0x80000",
+   "chrony_source": "192.168.178.211",
+   "chrony_offset_ms": -0.016078000000000002,
+   "netem": false,
+   "disk_free_gb": 101.0,
+   "temp_c": 57.9,
+   "docker_up": "3"
+  },
+  "bath1": {
+   "host": "bath1",
+   "model": "Raspberry Pi 3 Model B Plus Rev 1.4",
+   "serial": "eadbff54",
+   "wifi_mac": "b8:27:eb:8e:aa:01",
+   "kernel": "6.8.0-1065-raspi",
+   "bssid": "02:00:00:00:00:01",
+   "freq_mhz": 2462,
+   "power_save": "off",
+   "throttled": "0x0",
+   "chrony_source": "185.250.250.61",
+   "chrony_offset_ms": -0.448772,
+   "netem": false,
+   "disk_free_gb": 108.8,
+   "temp_c": 49.4,
+   "docker_up": "0"
+  },
+  "bath2": {
+   "host": "bath2",
+   "model": "Raspberry Pi 3 Model B Plus Rev 1.4",
+   "serial": "99ed7f03",
+   "wifi_mac": "b8:27:eb:b8:2a:56",
+   "kernel": "6.8.0-1065-raspi",
+   "bssid": "02:00:00:00:00:01",
+   "freq_mhz": 2462,
+   "power_save": "off",
+   "throttled": "0x50000",
+   "chrony_source": "192.168.178.211",
+   "chrony_offset_ms": 0.09477000000000001,
+   "netem": false,
+   "disk_free_gb": 23.9,
+   "temp_c": 47.2,
+   "docker_up": "0"
+  },
+  "bath3": {
+   "host": "bath3",
+   "model": "Raspberry Pi 3 Model B Rev 1.2",
+   "serial": "84a87803",
+   "wifi_mac": "b8:27:eb:fd:2d:56",
+   "kernel": "6.8.0-1065-raspi",
+   "bssid": "02:00:00:00:00:01",
+   "freq_mhz": 2462,
+   "power_save": "off",
+   "throttled": "0x50005",
+   "chrony_source": "192.168.178.211",
+   "chrony_offset_ms": -0.10562400000000001,
+   "netem": false,
+   "disk_free_gb": 23.8,
+   "temp_c": 49.9,
+   "docker_up": "0"
+  },
+  "bath4": {
+   "host": "bath4",
+   "model": "Raspberry Pi 3 Model B Rev 1.2",
+   "serial": "9bf86702",
+   "wifi_mac": "b8:27:eb:ad:32:57",
+   "kernel": "6.8.0-1065-raspi",
+   "bssid": "02:00:00:00:00:01",
+   "freq_mhz": 2462,
+   "power_save": "off",
+   "throttled": "0x50000",
+   "chrony_source": "192.168.178.211",
+   "chrony_offset_ms": 0.458089,
+   "netem": false,
+   "disk_free_gb": 23.9,
+   "temp_c": 55.8,
+   "docker_up": "0"
+  },
+  "bath5": {
+   "host": "bath5",
+   "model": "Raspberry Pi 3 Model B Rev 1.2",
+   "serial": "fd0a0b25",
+   "wifi_mac": "b8:27:eb:5f:5e:70",
+   "kernel": "6.8.0-1065-raspi",
+   "bssid": "02:00:00:00:00:01",
+   "freq_mhz": 2462,
+   "power_save": "off",
+   "throttled": "0x50000",
+   "chrony_source": "192.168.178.211",
+   "chrony_offset_ms": 0.042948,
+   "netem": false,
+   "disk_free_gb": 23.9,
+   "temp_c": 58.0,
+   "docker_up": "0"
+  },
+  "bath6": {
+   "host": "bath6",
+   "model": "Raspberry Pi 3 Model B Rev 1.2",
+   "serial": "5b7811a3",
+   "wifi_mac": "b8:27:eb:2d:44:f6",
+   "kernel": "6.8.0-1065-raspi",
+   "bssid": "02:00:00:00:00:01",
+   "freq_mhz": 2462,
+   "power_save": "off",
+   "throttled": "0x50000",
+   "chrony_source": "192.168.178.211",
+   "chrony_offset_ms": 0.000639,
+   "netem": false,
+   "disk_free_gb": 23.8,
+   "temp_c": 55.8,
+   "docker_up": "0"
+  },
+  "bath7": {
+   "host": "bath7",
+   "model": "Raspberry Pi 3 Model B Rev 1.2",
+   "serial": "3d270082",
+   "wifi_mac": "b8:27:eb:72:55:d7",
+   "kernel": "6.8.0-1065-raspi",
+   "bssid": "02:00:00:00:00:01",
+   "freq_mhz": 2462,
+   "power_save": "off",
+   "throttled": "0x50000",
+   "chrony_source": "192.168.178.211",
+   "chrony_offset_ms": 0.191675,
+   "netem": false,
+   "disk_free_gb": 24.3,
+   "temp_c": 53.7,
+   "docker_up": "0"
+  }
+ },
+ "boards_end": {
+  "bath0": {
+   "host": "bath0",
+   "model": "Raspberry Pi 4 Model B Rev 1.5",
+   "serial": "100000007cf44eea",
+   "wifi_mac": "d8:3a:dd:b4:7e:66",
+   "kernel": "6.8.0-1065-raspi",
+   "bssid": "02:00:00:00:00:01",
+   "freq_mhz": 2462,
+   "power_save": "off",
+   "throttled": "0x80000",
+   "chrony_source": "192.168.178.211",
+   "chrony_offset_ms": 1.0891790000000001,
+   "netem": false,
+   "disk_free_gb": 99.5,
+   "temp_c": 52.1,
+   "docker_up": "3"
+  },
+  "bath1": {
+   "host": "bath1",
+   "model": "Raspberry Pi 3 Model B Plus Rev 1.4",
+   "serial": "eadbff54",
+   "wifi_mac": "b8:27:eb:8e:aa:01",
+   "kernel": "6.8.0-1065-raspi",
+   "bssid": "02:00:00:00:00:01",
+   "freq_mhz": 2462,
+   "power_save": "off",
+   "throttled": "0x0",
+   "chrony_source": "185.250.250.61",
+   "chrony_offset_ms": -0.26271500000000003,
+   "netem": false,
+   "disk_free_gb": 108.8,
+   "temp_c": 48.9,
+   "docker_up": "0"
+  },
+  "bath2": {
+   "host": "bath2",
+   "model": "Raspberry Pi 3 Model B Plus Rev 1.4",
+   "serial": "99ed7f03",
+   "wifi_mac": "b8:27:eb:b8:2a:56",
+   "kernel": "6.8.0-1065-raspi",
+   "bssid": "02:00:00:00:00:01",
+   "freq_mhz": 2462,
+   "power_save": "off",
+   "throttled": "0x50000",
+   "chrony_source": "192.168.178.211",
+   "chrony_offset_ms": -0.209038,
+   "netem": false,
+   "disk_free_gb": 23.9,
+   "temp_c": 47.2,
+   "docker_up": "0"
+  },
+  "bath3": {
+   "host": "bath3",
+   "model": "Raspberry Pi 3 Model B Rev 1.2",
+   "serial": "84a87803",
+   "wifi_mac": "b8:27:eb:fd:2d:56",
+   "kernel": "6.8.0-1065-raspi",
+   "bssid": "02:00:00:00:00:01",
+   "freq_mhz": 2462,
+   "power_save": "off",
+   "throttled": "0x50005",
+   "chrony_source": "192.168.178.211",
+   "chrony_offset_ms": -0.09638,
+   "netem": false,
+   "disk_free_gb": 23.8,
+   "temp_c": 49.4,
+   "docker_up": "0"
+  },
+  "bath4": {
+   "host": "bath4",
+   "model": "Raspberry Pi 3 Model B Rev 1.2",
+   "serial": "9bf86702",
+   "wifi_mac": "b8:27:eb:ad:32:57",
+   "kernel": "6.8.0-1065-raspi",
+   "bssid": "02:00:00:00:00:01",
+   "freq_mhz": 2462,
+   "power_save": "off",
+   "throttled": "0x50000",
+   "chrony_source": "192.168.178.211",
+   "chrony_offset_ms": 0.20604799999999998,
+   "netem": false,
+   "disk_free_gb": 23.9,
+   "temp_c": 55.8,
+   "docker_up": "0"
+  },
+  "bath5": {
+   "host": "bath5",
+   "model": "Raspberry Pi 3 Model B Rev 1.2",
+   "serial": "fd0a0b25",
+   "wifi_mac": "b8:27:eb:5f:5e:70",
+   "kernel": "6.8.0-1065-raspi",
+   "bssid": "02:00:00:00:00:01",
+   "freq_mhz": 2462,
+   "power_save": "off",
+   "throttled": "0x50000",
+   "chrony_source": "192.168.178.211",
+   "chrony_offset_ms": 0.192885,
+   "netem": false,
+   "disk_free_gb": 23.9,
+   "temp_c": 58.0,
+   "docker_up": "0"
+  },
+  "bath6": {
+   "host": "bath6",
+   "model": "Raspberry Pi 3 Model B Rev 1.2",
+   "serial": "5b7811a3",
+   "wifi_mac": "b8:27:eb:2d:44:f6",
+   "kernel": "6.8.0-1065-raspi",
+   "bssid": "02:00:00:00:00:01",
+   "freq_mhz": 2462,
+   "power_save": "off",
+   "throttled": "0x50000",
+   "chrony_source": "192.168.178.211",
+   "chrony_offset_ms": 0.768076,
+   "netem": false,
+   "disk_free_gb": 23.7,
+   "temp_c": 54.8,
+   "docker_up": "0"
+  },
+  "bath7": {
+   "host": "bath7",
+   "model": "Raspberry Pi 3 Model B Rev 1.2",
+   "serial": "3d270082",
+   "wifi_mac": "b8:27:eb:72:55:d7",
+   "kernel": "6.8.0-1065-raspi",
+   "bssid": "02:00:00:00:00:01",
+   "freq_mhz": 2462,
+   "power_save": "off",
+   "throttled": "0x50000",
+   "chrony_source": "192.168.178.211",
+   "chrony_offset_ms": 0.29071,
+   "netem": false,
+   "disk_free_gb": 24.3,
+   "temp_c": 52.1,
+   "docker_up": "0"
+  }
+ },
+ "idle_and_start_temps": {
+  "bath0": {
+   "idle_c": 46.7,
+   "start_c": 47.2
+  },
+  "bath1": {
+   "idle_c": 51.0,
+   "start_c": 49.4
+  },
+  "bath2": {
+   "idle_c": 48.3,
+   "start_c": 46.7
+  },
+  "bath3": {
+   "idle_c": 51.5,
+   "start_c": 49.9
+  },
+  "bath4": {
+   "idle_c": 58.0,
+   "start_c": 55.3
+  },
+  "bath5": {
+   "idle_c": 60.7,
+   "start_c": 58.0
+  },
+  "bath6": {
+   "idle_c": 58.0,
+   "start_c": 55.8
+  },
+  "bath7": {
+   "idle_c": 55.8,
+   "start_c": 52.1
+  }
+ },
+ "images": "[{\"ID\":\"sha256:cfa9726d35e21435429933bdebf9aa92b9fe5bb9cc7074320f4f9d6a096a237a\",\"ContainerName\":\"arbitrum-geth-1\",\"Repository\":\"ethereum/client-go\",\"Tag\":\"v1.16.4\",\"Size\":22226414},{\"ID\":\"sha256:b7fd1a2c89d09a836f659d72c52d27b9f71202c97014a47639f87c992e8c0f1b\",\"ContainerName\":\"arbitrum-redis-1\",\"Repository\":\"redis\",\"Tag\":\"6.2.6\",\"Size\":39777451},{\"ID\":\"sha256:36d018ed4c65ba5aca67dd7388fd887a79ff46557ce2bb2d1617e691f22d6825\",\"ContainerName\":\"arbitrum-sequencer-1\",\"Repository\":\"offchainlabs/nitro-node\",\"Tag\":\"v3.9.6-91bf578\",\"Size\":975198707}]",
+ "recorder_summary": {
+  "bath0": {
+   "samples": 41,
+   "skipped_lines": 0,
+   "scope": "stream window",
+   "undervolted_share": 0.0,
+   "mean_arm_mhz": 1600.0,
+   "max_temp_c": 61.8,
+   "bssids": [
+    "02:00:00:00:00:01"
+   ],
+   "mean_cpu_busy_pct": 35.390243902439025,
+   "max_cpu_busy_pct": 65.5
+  },
+  "bath1": {
+   "samples": 41,
+   "skipped_lines": 0,
+   "scope": "stream window",
+   "undervolted_share": 0.0,
+   "mean_arm_mhz": 1134.0975609756097,
+   "max_temp_c": 50.5,
+   "bssids": [
+    "02:00:00:00:00:01"
+   ],
+   "mean_cpu_busy_pct": 7.2975609756097555,
+   "max_cpu_busy_pct": 18.8
+  },
+  "bath2": {
+   "samples": 41,
+   "skipped_lines": 0,
+   "scope": "stream window",
+   "undervolted_share": 0.0,
+   "mean_arm_mhz": 1104.8292682926829,
+   "max_temp_c": 47.8,
+   "bssids": [
+    "02:00:00:00:00:01"
+   ],
+   "mean_cpu_busy_pct": 6.260975609756097,
+   "max_cpu_busy_pct": 21.7
+  },
+  "bath3": {
+   "samples": 41,
+   "skipped_lines": 0,
+   "scope": "stream window",
+   "undervolted_share": 0.7317073170731707,
+   "mean_arm_mhz": 646.2926829268292,
+   "max_temp_c": 51.5,
+   "bssids": [
+    "02:00:00:00:00:01"
+   ],
+   "mean_cpu_busy_pct": 17.26341463414634,
+   "max_cpu_busy_pct": 46.7
+  },
+  "bath4": {
+   "samples": 41,
+   "skipped_lines": 0,
+   "scope": "stream window",
+   "undervolted_share": 0.5609756097560976,
+   "mean_arm_mhz": 726.829268292683,
+   "max_temp_c": 58.0,
+   "bssids": [
+    "02:00:00:00:00:01"
+   ],
+   "mean_cpu_busy_pct": 16.634146341463413,
+   "max_cpu_busy_pct": 48.8
+  },
+  "bath5": {
+   "samples": 41,
+   "skipped_lines": 0,
+   "scope": "stream window",
+   "undervolted_share": 0.0,
+   "mean_arm_mhz": 1085.341463414634,
+   "max_temp_c": 61.2,
+   "bssids": [
+    "02:00:00:00:00:01"
+   ],
+   "mean_cpu_busy_pct": 11.160975609756099,
+   "max_cpu_busy_pct": 31.4
+  },
+  "bath6": {
+   "samples": 42,
+   "skipped_lines": 0,
+   "scope": "stream window",
+   "undervolted_share": 0.5714285714285714,
+   "mean_arm_mhz": 707.0952380952381,
+   "max_temp_c": 58.0,
+   "bssids": [
+    "02:00:00:00:00:01"
+   ],
+   "mean_cpu_busy_pct": 16.038095238095238,
+   "max_cpu_busy_pct": 50.5
+  },
+  "bath7": {
+   "samples": 41,
+   "skipped_lines": 0,
+   "scope": "stream window",
+   "undervolted_share": 0.21951219512195122,
+   "mean_arm_mhz": 846.3170731707318,
+   "max_temp_c": 50.5,
+   "bssids": [
+    "02:00:00:00:00:01"
+   ],
+   "mean_cpu_busy_pct": 3.1609756097560973,
+   "max_cpu_busy_pct": 4.5
+  }
+ }
+}

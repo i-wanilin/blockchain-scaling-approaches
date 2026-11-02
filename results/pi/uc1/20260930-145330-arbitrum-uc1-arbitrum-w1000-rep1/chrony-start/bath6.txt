@@ -1,0 +1,14 @@
+1790772922.747196527
+Reference ID    : C0A8B2D3 (bath1.fritz.box)
+Stratum         : 4
+Ref time (UTC)  : Wed Sep 30 12:43:20 2026
+System time     : 0.000000063 seconds fast of NTP time
+Last offset     : -0.000531170 seconds
+RMS offset      : 0.000457162 seconds
+Frequency       : 4.097 ppm fast
+Residual freq   : -0.013 ppm
+Skew            : 0.275 ppm
+Root delay      : 0.043625224 seconds
+Root dispersion : 0.003208139 seconds
+Update interval : 519.3 seconds
+Leap status     : Normal

@@ -1,0 +1,58 @@
+# Ship the tank-arena code + prebuilt arm64 binaries, install systemd units.
+---
+- name: Create thesis directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: "0755"
+  loop:
+    - "{{ thesis_dir }}"
+    - "{{ thesis_dir }}/bin"
+    - "{{ thesis_dir }}/traces"
+
+- name: Rsync tank-arena code to the Pi
+  ansible.posix.synchronize:
+    src: "{{ playbook_dir }}/../../tank-arena/"
+    dest: "{{ thesis_dir }}/tank-arena/"
+    delete: true
+    rsync_opts:
+      - "--exclude=__pycache__"
+      - "--exclude=.git"
+  become: false
+
+- name: Copy cross-compiled arm64 binaries if present (deploy/build-arm64.sh)
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ thesis_dir }}/bin/"
+    mode: "0755"
+  with_fileglob:
+    - "{{ playbook_dir }}/../dist/arm64/*"
+
+- name: Build the full ordered arena peer list (host:port per arena_id order)
+  ansible.builtin.set_fact:
+    arena_peers: >-
+      {{ groups['pis']
+         | map('extract', hostvars)
+         | sort(attribute='arena_id')
+         | map(attribute='ansible_host')
+         | map('regex_replace', '$', ':' ~ arena_port)
+         | join(',') }}
+
+- name: Install arena-node@.service template unit
+  ansible.builtin.template:
+    src: arena-node@.service.j2
+    dest: /etc/systemd/system/arena-node@.service
+    mode: "0644"
+  notify: systemd daemon-reload
+
+- name: Install arena-relay.service (only used on the relay Pi, if any)
+  ansible.builtin.template:
+    src: arena-relay.service.j2
+    dest: /etc/systemd/system/arena-relay.service
+    mode: "0644"
+  notify: systemd daemon-reload
+
+# Units are installed but NOT enabled: experiments start them explicitly, e.g.
+#   ansible pis -a "systemctl start arena-node@{{ '{{' }} arena_id {{ '}}' }}"
+# or per Pi:  sudo systemctl start arena-node@0   (id = this Pi's arena_id)

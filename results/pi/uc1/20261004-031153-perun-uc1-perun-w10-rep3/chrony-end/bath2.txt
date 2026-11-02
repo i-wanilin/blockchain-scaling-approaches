@@ -1,0 +1,5 @@
+ssh: connect to host 192.168.178.212 port 22: No route to host
+ssh: connection to bath2 failed (exit 255), retry 1/2 in 2 s
+ssh: connect to host 192.168.178.212 port 22: No route to host
+ssh: connection to bath2 failed (exit 255), retry 2/2 in 5 s
+ssh: connect to host 192.168.178.212 port 22: No route to host

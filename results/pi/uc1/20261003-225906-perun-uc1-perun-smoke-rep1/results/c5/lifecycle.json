@@ -1,0 +1,50 @@
+{
+ "system": "perun",
+ "account": 105,
+ "complete": false,
+ "max_in_flight": 64,
+ "max_queue": 10000,
+ "drain_s": 60.0,
+ "duplicates": 0,
+ "late": 0,
+ "open": {
+  "op": "open",
+  "ok": true,
+  "t_start": 1791061471.6922202,
+  "t_funded": 1791061473.0084617,
+  "channel_id": "0xc764549e89d50cced9b99a89b8e3aa7d7ad3054d20dd07d42251a9a257da2cc0",
+  "l1_gas_used": 45801,
+  "l1_fee_wei": "45801000320607",
+  "txs": 1
+ },
+ "ready_at": 1791061473.041889,
+ "ended_at": 1791061552.9745293,
+ "quiesce": {
+  "dropped": 0,
+  "version": 31
+ },
+ "channel_before_close": {
+  "version": 31,
+  "balances_wei": [
+   "999969000000000000",
+   "31000000000000"
+  ],
+  "broken": false
+ },
+ "reconciliation": {
+  "succeeded_wei": 31000000000000,
+  "observed_wei": 31000000000000,
+  "difference_wei": 0,
+  "counts": {
+   "generated": 0,
+   "queued": 0,
+   "submitted": 0,
+   "succeeded": 31,
+   "failed": 0,
+   "unresolved": 0
+  },
+  "observed_source": "channel"
+ },
+ "error": "CancelledError: ",
+ "sidecar_rc": 0
+}

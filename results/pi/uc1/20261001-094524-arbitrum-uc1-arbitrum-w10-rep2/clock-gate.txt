@@ -1,0 +1,17 @@
+# clock-settle gate: every board except bath1 needs |offset| < 5 ms on 2 consecutive polls, waiting at most 600s (host offset_ms)
+# start: after 0s, 2026-10-01T07:46:57Z
+bath0 0.094
+bath2 0.261
+bath3 0.072
+bath4 0.039
+bath5 -0.000
+bath6 -0.107
+bath7 -0.000
+# end: after 30s, 2026-10-01T07:47:28Z, good polls in a row: 2
+bath0 0.094
+bath2 0.260
+bath3 0.071
+bath4 0.038
+bath5 -0.000
+bath6 -0.106
+bath7 -0.000

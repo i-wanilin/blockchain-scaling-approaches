@@ -1,0 +1,12 @@
+# Managed by ansible (roles/time-sync). Local-LAN time sync for the thesis
+# Pi cluster: the laptop ({{ laptop_ip }}) is the only time source.
+# Laptop-side counterpart config: see deploy/README.md "Time sync".
+
+server {{ laptop_ip }} iburst minpoll 4 maxpoll 6 prefer
+
+# Step the clock on boot / big offsets instead of slewing for hours.
+makestep 1.0 3
+
+driftfile /var/lib/chrony/chrony.drift
+rtcsync
+logdir /var/log/chrony

@@ -1,0 +1,5 @@
+sensor: dropped customer 1 at seq 6003: write failed (TimeoutError)
+sensor: dropped customer 5 at seq 10935: queue over 3600 frames
+sensor: dropped customer 3 at seq 8112: write failed (TimeoutError)
+sensor: dropped customer 2 at seq 13011: queue over 3600 frames
+sensor: dropped customer 4 at seq 13049: queue over 3600 frames

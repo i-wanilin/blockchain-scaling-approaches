@@ -1,0 +1,14 @@
+1790987692.205608875
+Reference ID    : B9FAFA3D (dnsbunker.org)
+Stratum         : 3
+Ref time (UTC)  : Sat Oct 03 00:31:44 2026
+System time     : 0.000414698 seconds slow of NTP time
+Last offset     : -0.000091054 seconds
+RMS offset      : 0.000302562 seconds
+Frequency       : 8.225 ppm fast
+Residual freq   : -0.001 ppm
+Skew            : 0.043 ppm
+Root delay      : 0.030018706 seconds
+Root dispersion : 0.001679215 seconds
+Update interval : 1032.2 seconds
+Leap status     : Normal

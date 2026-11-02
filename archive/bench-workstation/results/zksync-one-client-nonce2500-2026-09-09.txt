@@ -1,0 +1,20 @@
+# probe_ceiling  rpc=http://127.0.0.1:3050  chain=271  gasPrice=100000000
+# TEST A2: one client with max_nonce_ahead RAISED 200 -> 2500 (mainnet uses 20)
+# per-account tx=600  accounts=[1]  depths=[64, 128, 256, 512]  procs=1
+# gasPrice x1 headroom = 100000000 (base fee rises under load)
+# gas limit per tx = 160000
+# host: 16 cores, idle load 0.73, started 00:29:59
+
+# tps   = confirmed-in-a-block per second  (the throughput figure)
+# /act  = tps per account
+# inflt = A x D, total transactions outstanding at once
+# sub   = mean ms eth_sendRawTransaction blocks for (~1 block interval)
+# load  = 1-min load average at end of cell, on a 16-core host.
+#         PLATEAU + LOW LOAD  -> node saturated (a real ceiling)
+#         PLATEAU + ~P cores  -> generator saturated (raise --procs)
+ acct  depth   proc   inflt       ok/sent  span_s       tps     /act   sub_ms  e2e_mean   e2e_p90   load   err
+    1     64      1      64    599/599      19.59     30.57    30.57    115.9    1870.3    3351.9   3.53     1
+        ! {'code': 3, 'message': 'known transaction. transaction with hash 0x607a…cea5 is already in the syste
+    1    128      1     128    600/600      31.38     19.12    19.12    415.7    5793.8   10118.3  12.67     0
+    1    256      1     256    600/600      23.46     25.57    25.57    322.3    4590.7    6922.0  15.66     0
+    1    512      1     512    600/600      23.43     25.60    25.60    428.6    5864.9    9821.0  15.87     0

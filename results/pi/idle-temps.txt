@@ -1,0 +1,9 @@
+# idle temperatures, median of 3 samples 30 s apart, stack down; measured 2026-10-01T12:34:18Z
+bath0 46.7
+bath1 51.0
+bath2 48.3
+bath3 51.5
+bath4 58.0
+bath5 60.7
+bath6 58.0
+bath7 55.8

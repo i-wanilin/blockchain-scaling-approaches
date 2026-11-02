@@ -1,0 +1,291 @@
+postgres:
+  max_connections: 100
+  statement_timeout_sec: 300
+  test:
+    server_url: postgres://postgres:notsecurepassword@localhost:5433/zksync_local_test
+    prover_url: postgres://postgres:notsecurepassword@localhost:5433/prover_local_test
+db:
+  state_keeper_db_path: /home/i_wanilin/zksync-ecosystem/thesis_local/chains/thesis_chain/db/main/state_keeper
+  merkle_tree:
+    multi_get_chunk_size: 500
+    block_cache_size_mb: 128
+    memtable_capacity_mb: 256
+    stalled_writes_timeout_sec: 60
+    max_l1_batches_per_iter: 20
+    path: /home/i_wanilin/zksync-ecosystem/thesis_local/chains/thesis_chain/db/main/tree
+    mode: FULL
+  experimental:
+    state_keeper_db_block_cache_capacity_mb: 128
+api:
+  healthcheck:
+    port: 3071
+  merkle_tree:
+    port: 3072
+  web3_json_rpc:
+    http_port: 3050
+    http_url: http://127.0.0.1:3050
+    ws_port: 3051
+    ws_url: ws://127.0.0.1:3051
+    req_entities_limit: 10000
+    filters_disabled: false
+    filters_limit: 10000
+    subscriptions_limit: 10000
+    pubsub_polling_interval: 200
+    max_nonce_ahead: 2500
+    gas_price_scale_factor: 1.5
+    estimate_gas_scale_factor: 1.3
+    estimate_gas_acceptable_overestimation: 5000
+    max_tx_size: 1000000
+    api_namespaces:
+    - en
+    - eth
+    - net
+    - web3
+    - zks
+    - pubsub
+    - debug
+    - unstable
+state_keeper:
+  transaction_slots: 8192
+  max_allowed_l2_tx_gas_limit: 15000000000
+  block_commit_deadline_ms: 20000
+  miniblock_commit_deadline_ms: 1000
+  miniblock_seal_queue_capacity: 10
+  miniblock_max_payload_size: 1000000
+  max_single_tx_gas: 15000000
+  close_block_at_geometry_percentage: 0.95
+  close_block_at_eth_params_percentage: 0.95
+  close_block_at_gas_percentage: 0.95
+  reject_tx_at_geometry_percentage: 0.95
+  reject_tx_at_eth_params_percentage: 0.95
+  reject_tx_at_gas_percentage: 0.95
+  minimal_l2_gas_price: 100000000
+  compute_overhead_part: 0
+  pubdata_overhead_part: 1
+  batch_overhead_l1_gas: 800000
+  max_gas_per_batch: 200000000
+  max_pubdata_per_batch: 500000
+  configured_interop_fee: 1000000000
+  fee_model_version: V2
+  validation_computational_gas_limit: 300000
+  save_call_traces: true
+  max_circuits_per_batch: 27000
+  protective_reads_persistence_enabled: false
+mempool:
+  delay_interval: 100
+  sync_interval_ms: 10
+  sync_batch_size: 1000
+  capacity: 10000000
+  stuck_tx_timeout: 172800
+  remove_stuck_txs: true
+operations_manager:
+  delay_interval: 100
+contract_verifier:
+  compilation_timeout: 240
+  prometheus_port: 3318
+  port: 3070
+circuit_breaker:
+  sync_interval_ms: 120000
+  http_req_max_retry_number: 10
+  replication_lag_limit_sec: 100
+  http_req_retry_interval_sec: 2
+eth:
+  sender:
+    tx_poll_period: 300 ms
+    aggregate_tx_poll_period: 300 ms
+    max_txs_in_flight: 190
+    proof_sending_mode: SKIP_EVERY_PROOF
+    max_aggregated_blocks_to_commit: 1
+    max_aggregated_blocks_to_execute: 10
+    aggregated_block_commit_deadline: 1
+    aggregated_block_prove_deadline: 5
+    aggregated_block_execute_deadline: 5
+    timestamp_criteria_max_allowed_lag: 30
+    max_aggregated_tx_gas: 15000000
+    max_acceptable_priority_fee_in_gwei: 100000000000
+    pubdata_sending_mode: BLOBS
+    is_verifier_pre_fflonk: true
+    gas_limit_mode: CALCULATED
+    max_acceptable_base_fee_in_wei: 100000000000
+    use_fusaka_blob_format: true
+    fusaka_upgrade_block: 0
+    fusaka_upgrade_safety_margin: 0
+  gas_adjuster:
+    default_priority_fee_per_gas: 1000000000
+    max_base_fee_samples: 100
+    pricing_formula_parameter_a: 1.5
+    pricing_formula_parameter_b: 1.01
+    internal_l1_pricing_multiplier: 0.8
+    num_samples_for_blob_base_fee_estimate: 10
+    internal_pubdata_pricing_multiplier: 1.0
+    poll_period: 5
+    time_in_mempool_multiplier_cap: 10
+  watcher:
+    confirmations_for_eth_event: 0
+    eth_node_poll_interval: 300
+snapshot_creator:
+  object_store:
+    mode: FileBacked
+    file_backed_base_path: /home/i_wanilin/zksync-ecosystem/thesis_local/chains/thesis_chain/artifacts/
+    max_retries: 10
+  concurrent_queries_count: 25
+  storage_logs_chunk_size: 1000000
+prover:
+  prover_object_store:
+    mode: FileBacked
+    file_backed_base_path: /home/i_wanilin/zksync-ecosystem/thesis_local/chains/thesis_chain/artifacts/
+    max_retries: 10
+  setup_data_path: data/keys
+  prometheus_port: 3315
+  max_attempts: 10
+  generation_timeout_in_secs: 600
+witness_generator:
+  generation_timeout_in_secs: 900
+  max_attempts: 10
+  prometheus_listener_port: 3116
+  max_circuits_in_flight: 500
+data_handler:
+  http_port: 3320
+  proof_generation_timeout_in_secs: 18000
+  gateway_api_url: http://127.0.0.1:3322
+  proving_mode: PROVER_CLUSTER
+airbender_proof_data_handler:
+  http_port: 4320
+  proof_generation_timeout_in_secs: 3600
+prover_gateway:
+  api_url: http://127.0.0.1:3320
+  api_poll_duration_secs: 15
+  prometheus_listener_port: 3310
+  prometheus_pushgateway_url: http://127.0.0.1:9091
+  prometheus_push_interval_ms: 100
+  port: 3322
+proof_compressor:
+  compression_mode: 5
+  prometheus_listener_port: 3321
+  prometheus_pushgateway_url: http://127.0.0.1:9091
+  prometheus_push_interval_ms: 100
+  generation_timeout_in_secs: 3600
+  max_attempts: 5
+  universal_setup_path: keys/setup/setup_compact.key
+  universal_setup_download_url: https://storage.googleapis.com/matterlabs-setup-keys-us/setup-keys/setup_compact.key
+  verify_wrapper_proof: true
+prover_job_monitor:
+  prometheus_port: 3317
+  max_db_connections: 9
+  graceful_shutdown_timeout_ms: 5000
+  gpu_prover_archiver_run_interval_ms: 86400000
+  gpu_prover_archiver_archive_prover_after_ms: 172800000
+  prover_jobs_archiver_run_interval_ms: 1800000
+  prover_jobs_archiver_archive_jobs_after_ms: 172800000
+  proof_compressor_job_requeuer_run_interval_ms: 10000
+  prover_job_requeuer_run_interval_ms: 10000
+  witness_generator_job_requeuer_run_interval_ms: 10000
+  proof_compressor_queue_reporter_run_interval_ms: 10000
+  prover_queue_reporter_run_interval_ms: 10000
+  witness_generator_queue_reporter_run_interval_ms: 10000
+  witness_job_queuer_run_interval_ms: 10000
+  http_port: 3074
+base_token_adjuster:
+  price_polling_interval_ms: 30000
+  price_cache_update_interval_ms: 2000
+  max_tx_gas: 80000
+  default_priority_fee_per_gas: 1000000
+external_price_api_client:
+  source: forced
+  client_timeout_ms: 10000
+  forced_numerator: 314
+  forced_denominator: 1000
+house_keeper:
+  l1_batch_metrics_reporting_interval_ms: 10000
+prometheus:
+  listener_port: 3314
+  pushgateway_url: http://127.0.0.1:9091
+  push_interval_ms: 100
+observability:
+  log_format: plain
+  log_directives: warn,zksync=info,zksync_config=debug,zksync_commitment_generator=debug,zksync_server=debug,zksync_contract_verifier=debug,zksync_eth_watch=debug,zksync_state=debug,zksync_utils=debug,zksync_mempool=debug,zksync_web3_decl=debug,zksync_health_check=debug,vise_exporter=error,snapshots_creator=debug,zksync_base_token_adjuster=debug,zksync_external_price_api=debug
+protective_reads_writer:
+  db_path: /home/i_wanilin/zksync-ecosystem/thesis_local/chains/thesis_chain/db/main/protective_reads
+  window_size: 3
+  first_processed_batch: 0
+basic_witness_input_producer:
+  db_path: /home/i_wanilin/zksync-ecosystem/thesis_local/chains/thesis_chain/db/main/basic_witness_input_producer
+  window_size: 3
+  first_processed_batch: 0
+experimental_vm:
+  state_keeper_fast_vm_mode: OLD
+  playground:
+    db_path: ./db/main/vm_playground
+    fast_vm_mode: SHADOW
+    first_processed_batch: 0
+    window_size: 1
+snapshot_recovery:
+  enabled: false
+  object_store:
+    max_retries: 100
+    mode: FileBacked
+    file_backed_base_path: /home/i_wanilin/zksync-ecosystem/thesis_local/chains/thesis_chain/artifacts/
+  postgres:
+    max_concurrency: 10
+  tree:
+    chunk_size: 200000
+  experimental:
+    tree_recovery_parallel_persistence_buffer: 1
+    drop_storage_key_preimages: true
+pruning:
+  enabled: true
+  chunk_size: 10
+  removal_delay_sec: 60
+  data_retention_sec: 604800
+commitment_generator:
+  max_parallelism: 10
+core_object_store:
+  mode: FileBacked
+  file_backed_base_path: /home/i_wanilin/zksync-ecosystem/thesis_local/chains/thesis_chain/artifacts/
+  max_retries: 10
+da_dispatcher:
+  polling_interval_ms: 5000
+  max_rows_to_dispatch: 100
+  max_retries: 5
+external_proof_integration_api:
+  http_port: 3073
+timestamp_asserter:
+  min_time_till_end_sec: 60
+consensus:
+  port: 3054
+  server_addr: 127.0.0.1:3054
+  public_addr: 127.0.0.1:3054
+  max_payload_size: 2500000
+  gossip_dynamic_inbound_limit: 100
+  genesis_spec:
+    chain_id: 271
+    protocol_version: 1
+    validators:
+    - key: validator:public:bls12_381:842a4b4ba62eea96c1b5e0ae335ce6b0595caed95be1b0a25f2b8f874c08a9be6960047d865751a51d767be3c6f3b7cb09f1e0617796da1ab5bd7456bb2bc13b7df548dcddee99472c006f1008d477e97039d8122a18e4f6310abb9667b7431d
+      weight: 1
+    leader: validator:public:bls12_381:842a4b4ba62eea96c1b5e0ae335ce6b0595caed95be1b0a25f2b8f874c08a9be6960047d865751a51d767be3c6f3b7cb09f1e0617796da1ab5bd7456bb2bc13b7df548dcddee99472c006f1008d477e97039d8122a18e4f6310abb9667b7431d
+gateway_migrator:
+  eth_node_poll_interval: 300 ms
+eth_proof_manager:
+  http_rpc_url: http://127.0.0.1:3050
+  l2_chain_id: 271
+  object_store:
+    mode: FileBacked
+    file_backed_base_path: artifacts
+    max_retries: 100
+  event_poll_interval: 10000 ms
+  event_expiration_blocks: 1000000
+  request_sending_interval: 10000 ms
+  default_priority_fee_per_gas: 1000000
+  max_reward: 10
+  proof_request_timeout: 120000 ms
+  proof_generation_timeout: 7200000 ms
+  max_acceptable_priority_fee_in_gwei: 100000000000
+  max_tx_sending_attempts: 5
+  tx_sending_sleep: 1000 ms
+  tx_receipt_checking_max_attempts: 10
+  tx_receipt_checking_sleep: 1000 ms
+  max_tx_gas: 1000000
+  path_to_fflonk_verification_key: ./prover/data/keys/fflonk_verification_snark_key.json
+airbender_prover_gateway:
+  api_url: http://127.0.0.1:4320

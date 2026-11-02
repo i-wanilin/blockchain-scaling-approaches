@@ -1,0 +1,9 @@
+name: thesis_local
+l1_network: Localhost
+link_to_code: /home/i_wanilin/zksync-ecosystem/zksync-era
+chains: /home/i_wanilin/zksync-ecosystem/thesis_local/chains
+config: /home/i_wanilin/zksync-ecosystem/thesis_local/./configs/
+default_chain: thesis_chain
+era_chain_id: 270
+prover_version: NoProofs
+wallet_creation: Localhost

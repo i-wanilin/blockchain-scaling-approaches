@@ -1,0 +1,8 @@
+# deploy/reth-idle-cpu.sh on bath0, 2026-10-29 (no stack up before or after; reth from deploy/stack-config/zksync/docker-compose.yml, only the block time changed for the 1 s case)
+bath0 2026-10-29T18:27:23Z, reth image reth:v1.8.2, window 300s after 60s warm-up; temp=49.6'C
+idle (no containers): whole board 0.10 % CPU (all 4 cores)
+reth alone, block time 300ms: whole board 2.47 % CPU (all 4 cores); reth container 7.35 % of one core = 1.84 % of the board
+  blocks made in the window: 1002 (3.34 per s); memory 160.7MiB / 7.619GiB
+reth alone, block time 1s: whole board 0.89 % CPU (all 4 cores); reth container 2.41 % of one core = 0.60 % of the board
+  blocks made in the window: 301 (1.00 per s); memory 148.4MiB / 7.619GiB
+after: 0 containers running; temp=47.7'C; throttled throttled=0x80000

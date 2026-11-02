@@ -1,0 +1,55 @@
+{
+ "system": "zksync",
+ "account": 106,
+ "complete": true,
+ "max_in_flight": 20,
+ "max_queue": 10000,
+ "drain_s": 60.0,
+ "duplicates": 0,
+ "late": 0,
+ "receipt_timeout": 1200.0,
+ "open": {
+  "t_start": 1790858542.1071165,
+  "t_l1_confirmed": 1790858543.3431587,
+  "t_l2_credited": 1790858544.7069952,
+  "l1_gas_used": 291390,
+  "l1_fee_wei": 582780,
+  "l2_balance_wei": 1002789290150000000,
+  "mint_value_wei": 1002858560650000000,
+  "base_cost_wei": 2858560650000000,
+  "l2_gas_limit": 10394766
+ },
+ "start_nonce": 0,
+ "ready_at": 1790858544.8688617,
+ "ended_at": 1790858667.2183745,
+ "resyncs": 0,
+ "reconnects": 0,
+ "outage_seconds": 0.0,
+ "quiesce_timeouts": 0,
+ "reconciliation": {
+  "succeeded_wei": 60000000000000,
+  "observed_wei": 60000000000000,
+  "difference_wei": 0,
+  "counts": {
+   "generated": 0,
+   "queued": 0,
+   "submitted": 0,
+   "succeeded": 60,
+   "failed": 0,
+   "unresolved": 0
+  },
+  "observed_source": "client"
+ },
+ "payment_gas_limit": 400000,
+ "pending_before_close": 0,
+ "close": {
+  "t_start": 1790858667.448225,
+  "t_confirmed": 1790858670.350705,
+  "status": 1,
+  "nonce": 60,
+  "l2_gas_used": 125249,
+  "l2_fee_wei": 12524900000000
+ },
+ "close_nonce": 60,
+ "executed_onchain": 60
+}

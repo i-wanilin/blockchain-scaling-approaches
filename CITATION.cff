@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this software or its results, please cite the thesis."
+title: "Blockchain Scaling Approaches: Code, Runs and Analysis of This Thesis"
+authors:
+  - family-names: Ilin
+    given-names: Ivan
+version: thesis-data
+license:
+  - MIT
+  - CC-BY-4.0
+repository-code: "https://github.com/i-wanilin/blockchain-scaling-approaches"
+preferred-citation:
+  type: thesis
+  authors:
+    - family-names: Ilin
+      given-names: Ivan
+  title: "A Use-Case-Driven Comparison of Layer-2 Scaling Approaches for IoT Micropayments and On-Chain Gaming"
+  thesis-type: "Bachelor's thesis"
+  institution:
+    name: "Technische Universität Berlin, Open Distributed Systems"
+  year: 2026

@@ -1,0 +1,21 @@
+# probe_ceiling  rpc=http://127.0.0.1:8547  chain=412346  gasPrice=100000000
+# CEILING HUNT: 64 accounts, escalating in-flight, 8 OS processes (GIL escaped)
+# per-account tx=80  accounts=[64]  depths=[1, 2, 4, 8, 16]  procs=8
+# host: 16 cores, idle load 0.12, started 14:57:12
+
+# tps   = confirmed-in-a-block per second  (the throughput figure)
+# /act  = tps per account
+# inflt = A x D, total transactions outstanding at once
+# sub   = mean ms eth_sendRawTransaction blocks for (~1 block interval)
+# load  = 1-min load average at end of cell, on a 16-core host.
+#         PLATEAU + LOW LOAD  -> node saturated (a real ceiling)
+#         PLATEAU + ~P cores  -> generator saturated (raise --procs)
+ acct  depth   proc   inflt       ok/sent  span_s       tps     /act   sub_ms  e2e_mean   e2e_p90   load   err
+   64      1      8      64   5120/5120     20.09    254.89     3.98    233.1     250.6     263.1   2.59     0
+   64      2      8     128   5120/5120     10.10    507.09     7.92    216.9     251.4     276.9   6.48     0
+   64      4      8     256   4610/4610      4.69    982.62    15.35    187.8     255.0     312.0   6.04   510
+        ! {'code': -32000, 'message': 'max fee per gas less than block base fee: maxFeePerGas: 100000000 baseF
+   64      8      8     512      0/0         0.00      0.00     0.00      0.0       0.0       0.0   8.58  5120
+        ! {'code': -32000, 'message': 'max fee per gas less than block base fee: address 0x15d34AAf54267DB7D7c
+   64     16      8    1024      0/0         0.00      0.00     0.00      0.0       0.0       0.0   9.33  5120
+        ! {'code': -32000, 'message': 'max fee per gas less than block base fee: maxFeePerGas: 100000000 baseF

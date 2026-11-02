@@ -1,0 +1,1 @@
+payment client on bath3 failed:close_error: Web3RPCError: {'code': -32000, 'message': 'max fee per gas less than block base fee: maxFeePerGas: 200000001 baseFee: 200570000'}

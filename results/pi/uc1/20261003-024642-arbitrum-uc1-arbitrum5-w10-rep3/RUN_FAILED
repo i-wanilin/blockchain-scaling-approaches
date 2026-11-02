@@ -1,0 +1,1 @@
+payment client on bath4 failed:close_error: Web3RPCError: {'code': -32000, 'message': 'nonce too high: address 0xC4c81D5C1851702d27d602aA8ff830A7689F17cc, tx: 3906 state: 3895'}

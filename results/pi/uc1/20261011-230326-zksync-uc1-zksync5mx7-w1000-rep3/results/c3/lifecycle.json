@@ -1,0 +1,33 @@
+{
+ "system": "zksync",
+ "account": 103,
+ "complete": false,
+ "max_in_flight": 20,
+ "max_queue": 10000,
+ "drain_s": 60.0,
+ "duplicates": 0,
+ "late": 0,
+ "receipt_timeout": 1200.0,
+ "open": {
+  "t_start": 1791753636.2240894,
+  "t_l1_confirmed": 1791753637.4705584,
+  "t_l2_credited": 1791753638.836318,
+  "l1_gas_used": 341321,
+  "l1_fee_wei": 682642,
+  "l2_balance_wei": 1003828766750000000,
+  "mint_value_wei": 1003898037250000000,
+  "base_cost_wei": 3898037250000000,
+  "l2_gas_limit": 10394766
+ },
+ "fee_cap_wei": 1000000001,
+ "start_nonce": 0,
+ "ready_at": 1791753638.9431872,
+ "error": "CancelledError: ",
+ "resyncs": 0,
+ "reconnects": 0,
+ "outage_seconds": 0.0,
+ "quiesce_timeouts": 0,
+ "receipt_mode": "own",
+ "receipt_fallback": false,
+ "receipt_fallback_error": null
+}

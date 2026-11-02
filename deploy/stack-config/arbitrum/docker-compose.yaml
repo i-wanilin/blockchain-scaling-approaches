@@ -1,0 +1,73 @@
+name: arbitrum
+services:
+  geth:
+    image: ethereum/client-go:v1.16.4
+    ports:
+    - 0.0.0.0:8545:8545
+    - 127.0.0.1:8551:8551
+    - 127.0.0.1:8546:8546
+    - 127.0.0.1:30303:30303
+    volumes:
+    - l1data:/datadir
+    - l1keystore:/keystore
+    - config:/config
+    command:
+    - --keystore=/keystore
+    - --http
+    - --datadir=/datadir
+    - --http.addr=0.0.0.0
+    - --authrpc.vhosts=*
+    - --authrpc.port=8551
+    - --authrpc.addr=0.0.0.0
+    - --http.vhosts=*
+    - --http.api=eth,net,web3
+    - --ws
+    - --ws.addr=0.0.0.0
+    - --ws.api=personal,eth,net,web3,debug,txpool
+    - --allow-insecure-unlock
+    - --unlock=0x3f1Eae7D46d88F08fc2F8ed27FCb2AB183EB2d0E
+    - --password=/datadir/passphrase
+    - --authrpc.jwtsecret=/config/jwt.hex
+    - --nodiscover
+    - --syncmode=full
+    - --state.scheme=hash
+    - --dev
+    - --dev.period=1
+    - --mine
+    - --miner.etherbase=0x3f1Eae7D46d88F08fc2F8ed27FCb2AB183EB2d0E
+    - --gcmode=archive
+    - --rpc.allow-unprotected-txs
+  redis:
+    image: redis:6.2.6
+    ports:
+    - 127.0.0.1:6379:6379
+  sequencer:
+    pid: host
+    image: offchainlabs/nitro-node:v3.9.6-91bf578
+    entrypoint: /usr/local/bin/nitro
+    ports:
+    - 0.0.0.0:8547:8547
+    - 0.0.0.0:8548:8548
+    - 127.0.0.1:9642:9642
+    volumes:
+    - seqdata:/home/user/.arbitrum/local/nitro
+    - l1keystore:/home/user/l1keystore
+    - config:/config
+    - tokenbridge-data:/tokenbridge-data
+    command:
+    - --conf.file=/config/sequencer_config.json
+    - --node.feed.output.enable
+    - --node.feed.output.port=9642
+    - --http.api=net,web3,eth,txpool,debug,timeboost,auctioneer
+    - --node.seq-coordinator.my-url=http://sequencer:8547
+    - --graphql.enable
+    - --graphql.vhosts=*
+    - --graphql.corsdomain=*
+    depends_on:
+    - geth
+volumes:
+  config: null
+  seqdata: null
+  l1data: null
+  l1keystore: null
+  tokenbridge-data: null

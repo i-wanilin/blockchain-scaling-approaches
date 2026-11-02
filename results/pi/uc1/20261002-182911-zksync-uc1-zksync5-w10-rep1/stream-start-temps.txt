@@ -1,0 +1,9 @@
+# host temp_c at stream start (sensor listening), 2026-10-02T16:44:23Z
+bath0 63.7
+bath1 49.4
+bath2 49.4
+bath3 49.4
+bath4 55.8
+bath5 58.0
+bath6 55.8
+bath7 52.6

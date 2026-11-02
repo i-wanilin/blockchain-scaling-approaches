@@ -1,0 +1,29 @@
+# Managed by ansible (roles/player-node).
+# Start:  sudo systemctl start arena-node@<arena_id>
+# The instance number %i is the arena node id (0-based). On pi<k> the id is
+# normally k-1 (see inventory arena_id), but the template does not enforce it,
+# so a Pi can stand in for any node.
+[Unit]
+Description=tank-arena player node %i
+After=network-online.target chrony.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User={{ ansible_user }}
+WorkingDirectory={{ thesis_dir }}/tank-arena
+# Full ordered peer list (index = node id), identical on every Pi:
+Environment=ARENA_PEERS={{ arena_peers }}
+Environment=CHAIN_URL=ws://{{ laptop_ip }}:8545
+ExecStart=/usr/bin/python3 -m arena.node \
+    --id %i \
+    --peers ${ARENA_PEERS} \
+    --tickrate {{ arena_tickrate }} \
+    --duration {{ arena_duration }} \
+    --seed {{ arena_seed }} \
+    --out {{ thesis_dir }}/traces/trace-node%i-%t.jsonl
+# One experiment per start — no Restart=; collect traces, then start again.
+Restart=no
+
+[Install]
+WantedBy=multi-user.target

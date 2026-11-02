@@ -1,0 +1,11 @@
+pkg/test: using rootSeed 1791299620702300819
+contracts from /tmp/m-20261006-170734-perun-uc2-perun-smoke-rep1/contracts.json (deploy gas 4746046 in 5 txs, paid by uc2-deploy)
+hub ready: run=20261006T151341Z-e3f88c67 control=http://0.0.0.0:8091, p2p=192.168.178.211:9000, adjudicator=0x8A791620dd6260079BF849Dc5567aDC3F2FdC318, asset=points
+result written: /tmp/m-20261006-170734-perun-uc2-perun-smoke-rep1/hub/20261006T151341Z-e3f88c67-p3.json
+result written: /tmp/m-20261006-170734-perun-uc2-perun-smoke-rep1/hub/20261006T151341Z-e3f88c67-p1.json
+result written: /tmp/m-20261006-170734-perun-uc2-perun-smoke-rep1/hub/20261006T151341Z-e3f88c67-p5.json
+result written: /tmp/m-20261006-170734-perun-uc2-perun-smoke-rep1/hub/20261006T151341Z-e3f88c67-p4.json
+result written: /tmp/m-20261006-170734-perun-uc2-perun-smoke-rep1/hub/20261006T151341Z-e3f88c67-p0.json
+result written: /tmp/m-20261006-170734-perun-uc2-perun-smoke-rep1/hub/20261006T151341Z-e3f88c67-p2.json
+hub complete: run=20261006T151341Z-e3f88c67 all virtual and ledger channels settled
+hub gas: ledger_open=655704 gas / 12 tx (asset holder 396054, token 259650) ledger_settle=326824 gas / 6 tx (asset holder 326824)

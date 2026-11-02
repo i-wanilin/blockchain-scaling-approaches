@@ -1,0 +1,18 @@
+# probe_ceiling  rpc=http://127.0.0.1:8547  chain=412346  gasPrice=20000000000
+# CEILING HUNT 2: gas headroom x200 so a rising base fee cannot reject pre-signed txs
+# per-account tx=80  accounts=[64]  depths=[4, 8, 16, 32]  procs=8
+# gasPrice x200 headroom = 20000000000 (base fee rises under load)
+# host: 16 cores, idle load 5.32, started 14:58:47
+
+# tps   = confirmed-in-a-block per second  (the throughput figure)
+# /act  = tps per account
+# inflt = A x D, total transactions outstanding at once
+# sub   = mean ms eth_sendRawTransaction blocks for (~1 block interval)
+# load  = 1-min load average at end of cell, on a 16-core host.
+#         PLATEAU + LOW LOAD  -> node saturated (a real ceiling)
+#         PLATEAU + ~P cores  -> generator saturated (raise --procs)
+ acct  depth   proc   inflt       ok/sent  span_s       tps     /act   sub_ms  e2e_mean   e2e_p90   load   err
+   64      4      8     256   5120/5120      5.14    995.94    15.56    190.1     253.1     308.4   5.49     0
+   64      8      8     512   5120/5120      4.54   1128.86    17.64    285.0     412.6     559.9   6.67     0
+   64     16      8    1024   5120/5120      4.29   1194.35    18.66    440.1     652.6     940.0   7.34     0
+   64     32      8    2048   5120/5120      4.58   1117.65    17.46    395.5     579.5     969.3   9.04     0

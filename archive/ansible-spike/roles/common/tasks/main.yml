@@ -1,0 +1,57 @@
+# Base packages + measurement-friendly system settings.
+---
+- name: Update apt cache (daily at most)
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 86400
+
+- name: Install base packages
+  ansible.builtin.apt:
+    name:
+      - git
+      - python3
+      - python3-venv
+      - iproute2
+      - chrony
+      - rsync
+      - iperf3        # for measure-baseline.sh (server side)
+      - linux-cpupower
+    state: present
+
+- name: Enable memory cgroups in cmdline.txt (needed later for Docker/k3s)
+  # /boot/firmware/cmdline.txt is a single line on Raspberry Pi OS Bookworm.
+  ansible.builtin.replace:
+    path: /boot/firmware/cmdline.txt
+    regexp: '^(?!.*cgroup_enable=memory)(.*rootwait.*)$'
+    replace: '\1 cgroup_enable=memory cgroup_memory=1'
+  register: cmdline
+  notify: reboot required
+
+- name: Pin CPU governor to performance at boot (stable latency measurements)
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/cpu-performance.service
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Set CPU frequency governor to performance
+      After=multi-user.target
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/bin/cpupower frequency-set -g performance
+
+      [Install]
+      WantedBy=multi-user.target
+  register: govunit
+
+- name: Enable + start the governor unit
+  ansible.builtin.systemd:
+    name: cpu-performance.service
+    enabled: true
+    state: started
+    daemon_reload: "{{ govunit.changed }}"
+
+- name: Note pending reboot (cgroup change takes effect after reboot)
+  ansible.builtin.debug:
+    msg: "cmdline.txt changed — reboot this Pi before running experiments."
+  when: cmdline.changed

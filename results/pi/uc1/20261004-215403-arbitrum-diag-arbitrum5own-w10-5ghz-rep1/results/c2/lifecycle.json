@@ -1,0 +1,60 @@
+{
+ "system": "arbitrum",
+ "account": 102,
+ "complete": true,
+ "max_in_flight": 64,
+ "max_queue": 10000,
+ "drain_s": 60.0,
+ "duplicates": 0,
+ "late": 0,
+ "receipt_timeout": 120.0,
+ "open": {
+  "t_start": 1791144030.7534995,
+  "t_l1_confirmed": 1791144032.0114064,
+  "t_l2_credited": 1791144033.088832,
+  "l1_gas_used": 91067,
+  "l1_fee_wei": 728536,
+  "l2_balance_wei": 1000000000000000000
+ },
+ "start_nonce": 0,
+ "ready_at": 1791144033.265274,
+ "ended_at": 1791145044.4468675,
+ "submitted_nonce": 8630,
+ "resyncs": 0,
+ "reconnects": 0,
+ "outage_seconds": 0.0,
+ "quiesce_timeouts": 0,
+ "receipt_mode": "own",
+ "receipt_fallback": false,
+ "receipt_fallback_error": null,
+ "reconciliation": {
+  "succeeded_wei": 8566000000000000,
+  "observed_wei": 8566000000000000,
+  "difference_wei": 0,
+  "counts": {
+   "generated": 0,
+   "queued": 0,
+   "submitted": 0,
+   "succeeded": 8566,
+   "failed": 72330,
+   "unresolved": 9104
+  },
+  "observed_source": "client"
+ },
+ "payment_gas_limit": 31500,
+ "admission_wait_s": 0.03467700397595763,
+ "not_admitted": 0,
+ "pending_before_close": 0,
+ "close": {
+  "t_start": 1791145056.906816,
+  "t_confirmed": 1791145057.0934389,
+  "status": 1,
+  "l2_gas_used": 68359,
+  "l2_fee_wei": 6835900000000
+ },
+ "close_nonce": 8630,
+ "executed_onchain": 8630,
+ "final_nonce": 8631,
+ "executed_after_close": 0,
+ "settle_wait_s": 0.024768760020378977
+}

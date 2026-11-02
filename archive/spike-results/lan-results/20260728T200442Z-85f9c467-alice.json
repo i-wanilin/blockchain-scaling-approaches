@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "run_id": "20260728T200442Z-85f9c467",
+  "timestamp_utc": "2026-07-28T20:04:51.4435413Z",
+  "node": "alice",
+  "hostname": "laptop-g16",
+  "os": "windows",
+  "arch": "amd64",
+  "commit": "d7c374d63190df172f36cdfa96199a78f83c3abc",
+  "commit_dirty": false,
+  "payments": 600,
+  "payment_failures": 0,
+  "burst_ms": 2133.1872,
+  "payments_per_second": 281.2692669447857,
+  "payment_latency": {
+    "count": 600,
+    "mean_ms": 3.5544726666666664,
+    "p50_ms": 3.2462,
+    "p90_ms": 4.5428,
+    "p99_ms": 7.8977,
+    "max_ms": 20.531
+  },
+  "ledger_open_ms": 1064.2943,
+  "ledger_restored": false,
+  "virtual_open_ms": 32.9294,
+  "virtual_settle_ms": 397.1017,
+  "ledger_settle_ms": 2536.6338,
+  "completed": true,
+  "strict_payment_policy": true,
+  "trace": {
+    "path": "..\\..\\bench\\trace-ucb-1s-10hz-60s-tank.jsonl",
+    "mode": "closed-loop",
+    "events": 600,
+    "ok": 600,
+    "failed": 0,
+    "fire_ok": 0,
+    "hit_ok": 600,
+    "wall_ms": 2133.1872,
+    "payments_per_second": 281.2692669447857,
+    "latency": {
+      "count": 600,
+      "mean_ms": 3.5544726666666664,
+      "p50_ms": 3.2462,
+      "p90_ms": 4.5428,
+      "p99_ms": 7.8977,
+      "max_ms": 20.531
+    },
+    "hit_latency": {
+      "count": 600,
+      "mean_ms": 3.5544726666666664,
+      "p50_ms": 3.2462,
+      "p90_ms": 4.5428,
+      "p99_ms": 7.8977,
+      "max_ms": 20.531
+    }
+  }
+}

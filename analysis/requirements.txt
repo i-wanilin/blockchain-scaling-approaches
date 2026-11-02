@@ -1,0 +1,3 @@
+# analysis/: figures.py needs matplotlib (the table script only measure/requirements.txt).
+# Installed into .venv on 2026-10-16.
+matplotlib==3.11.2

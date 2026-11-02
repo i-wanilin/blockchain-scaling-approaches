@@ -1,0 +1,42 @@
+use_case,system,window,metric,board,unit,stat,n,mean,sd,min,max,rep1,rep2,rep3,saturated_runs,runs,source
+uc1,arbitrum,w100,stall_start_s,,s,value,1,420.432792425156,,,,,,,,20261011-190947,"first payment slower than 2.0 s, after the first payment"
+uc1,arbitrum,w100,stall_latency_p50_before,bath2,s,value,1,0.207861661911011,,,,,,,,20261011-190947,results/c1/ledger.csv.gz
+uc1,arbitrum,w100,stall_latency_p50_during,bath2,s,value,1,0.22101092338562,,,,,,,,20261011-190947,results/c1/ledger.csv.gz
+uc1,arbitrum,w100,stall_latency_p99_during,bath2,s,value,1,0.406410694122314,,,,,,,,20261011-190947,results/c1/ledger.csv.gz
+uc1,arbitrum,w100,stall_receive_lag_p99,bath2,s,value,1,0.00704718112945556,,,,,,,,20261011-190947,summary.json per_customer.c1.receive_lag_s.p99
+uc1,arbitrum,w100,stall_cpu_before,bath2,pct,value,1,13.5416666666667,,,,,,,,20261011-190947,recorder/bath2.csv cpu_busy_pct
+uc1,arbitrum,w100,stall_cpu_during,bath2,pct,value,1,12.5791666666667,,,,,,,,20261011-190947,recorder/bath2.csv cpu_busy_pct
+uc1,arbitrum,w100,stall_signal_min,bath2,dBm,value,1,-59,,,,,,,,20261011-190947,"recorder/bath2.csv signal_dbm, during the stall"
+uc1,arbitrum,w100,stall_signal_max,bath2,dBm,value,1,-53,,,,,,,,20261011-190947,"recorder/bath2.csv signal_dbm, during the stall"
+uc1,arbitrum,w100,stall_latency_p50_before,bath4,s,value,1,0.240919947624207,,,,,,,,20261011-190947,results/c2/ledger.csv.gz
+uc1,arbitrum,w100,stall_latency_p50_during,bath4,s,value,1,2.7623770236969,,,,,,,,20261011-190947,results/c2/ledger.csv.gz
+uc1,arbitrum,w100,stall_latency_p99_during,bath4,s,value,1,21.5819606781006,,,,,,,,20261011-190947,results/c2/ledger.csv.gz
+uc1,arbitrum,w100,stall_receive_lag_p99,bath4,s,value,1,3.50600751876831,,,,,,,,20261011-190947,summary.json per_customer.c2.receive_lag_s.p99
+uc1,arbitrum,w100,stall_cpu_before,bath4,pct,value,1,20.1988095238095,,,,,,,,20261011-190947,recorder/bath4.csv cpu_busy_pct
+uc1,arbitrum,w100,stall_cpu_during,bath4,pct,value,1,17.5114583333333,,,,,,,,20261011-190947,recorder/bath4.csv cpu_busy_pct
+uc1,arbitrum,w100,stall_signal_min,bath4,dBm,value,1,-56,,,,,,,,20261011-190947,"recorder/bath4.csv signal_dbm, during the stall"
+uc1,arbitrum,w100,stall_signal_max,bath4,dBm,value,1,-47,,,,,,,,20261011-190947,"recorder/bath4.csv signal_dbm, during the stall"
+uc1,arbitrum,w100,stall_latency_p50_before,bath5,s,value,1,0.229687213897705,,,,,,,,20261011-190947,results/c3/ledger.csv.gz
+uc1,arbitrum,w100,stall_latency_p50_during,bath5,s,value,1,0.259489297866821,,,,,,,,20261011-190947,results/c3/ledger.csv.gz
+uc1,arbitrum,w100,stall_latency_p99_during,bath5,s,value,1,0.464119434356689,,,,,,,,20261011-190947,results/c3/ledger.csv.gz
+uc1,arbitrum,w100,stall_receive_lag_p99,bath5,s,value,1,0.0300109934806823,,,,,,,,20261011-190947,summary.json per_customer.c3.receive_lag_s.p99
+uc1,arbitrum,w100,stall_cpu_before,bath5,pct,value,1,16.1892857142857,,,,,,,,20261011-190947,recorder/bath5.csv cpu_busy_pct
+uc1,arbitrum,w100,stall_cpu_during,bath5,pct,value,1,15.05,,,,,,,,20261011-190947,recorder/bath5.csv cpu_busy_pct
+uc1,arbitrum,w100,stall_signal_min,bath5,dBm,value,1,-57,,,,,,,,20261011-190947,"recorder/bath5.csv signal_dbm, during the stall"
+uc1,arbitrum,w100,stall_signal_max,bath5,dBm,value,1,-51,,,,,,,,20261011-190947,"recorder/bath5.csv signal_dbm, during the stall"
+uc1,arbitrum,w100,stall_latency_p50_before,bath6,s,value,1,0.236546277999878,,,,,,,,20261011-190947,results/c4/ledger.csv.gz
+uc1,arbitrum,w100,stall_latency_p50_during,bath6,s,value,1,15.3972063064575,,,,,,,,20261011-190947,results/c4/ledger.csv.gz
+uc1,arbitrum,w100,stall_latency_p99_during,bath6,s,value,1,67.4179859161377,,,,,,,,20261011-190947,results/c4/ledger.csv.gz
+uc1,arbitrum,w100,stall_receive_lag_p99,bath6,s,value,1,3.9895037651062,,,,,,,,20261011-190947,summary.json per_customer.c4.receive_lag_s.p99
+uc1,arbitrum,w100,stall_cpu_before,bath6,pct,value,1,19.6892857142857,,,,,,,,20261011-190947,recorder/bath6.csv cpu_busy_pct
+uc1,arbitrum,w100,stall_cpu_during,bath6,pct,value,1,17.0135416666667,,,,,,,,20261011-190947,recorder/bath6.csv cpu_busy_pct
+uc1,arbitrum,w100,stall_signal_min,bath6,dBm,value,1,-62,,,,,,,,20261011-190947,"recorder/bath6.csv signal_dbm, during the stall"
+uc1,arbitrum,w100,stall_signal_max,bath6,dBm,value,1,-55,,,,,,,,20261011-190947,"recorder/bath6.csv signal_dbm, during the stall"
+uc1,arbitrum,w100,stall_latency_p50_before,bath7,s,value,1,0.235080003738403,,,,,,,,20261011-190947,results/c5/ledger.csv.gz
+uc1,arbitrum,w100,stall_latency_p50_during,bath7,s,value,1,0.267005443572998,,,,,,,,20261011-190947,results/c5/ledger.csv.gz
+uc1,arbitrum,w100,stall_latency_p99_during,bath7,s,value,1,0.495345592498779,,,,,,,,20261011-190947,results/c5/ledger.csv.gz
+uc1,arbitrum,w100,stall_receive_lag_p99,bath7,s,value,1,0.0308500218391418,,,,,,,,20261011-190947,summary.json per_customer.c5.receive_lag_s.p99
+uc1,arbitrum,w100,stall_cpu_before,bath7,pct,value,1,19.9119047619048,,,,,,,,20261011-190947,recorder/bath7.csv cpu_busy_pct
+uc1,arbitrum,w100,stall_cpu_during,bath7,pct,value,1,18.0458333333333,,,,,,,,20261011-190947,recorder/bath7.csv cpu_busy_pct
+uc1,arbitrum,w100,stall_signal_min,bath7,dBm,value,1,-69,,,,,,,,20261011-190947,"recorder/bath7.csv signal_dbm, during the stall"
+uc1,arbitrum,w100,stall_signal_max,bath7,dBm,value,1,-60,,,,,,,,20261011-190947,"recorder/bath7.csv signal_dbm, during the stall"

@@ -1,0 +1,4 @@
+34:    max_nonce_ahead: 2500
+51:  block_commit_deadline_ms: 20000
+52:  miniblock_commit_deadline_ms: 1000
+106:    pubdata_sending_mode: BLOBS

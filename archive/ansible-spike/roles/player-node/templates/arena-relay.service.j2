@@ -1,0 +1,18 @@
+# Managed by ansible (roles/player-node).
+# The relay for the star/hub topology (ARENA_TOPOLOGY=relay experiments).
+# Started only on the Pi (or laptop) chosen as relay:
+#   sudo systemctl start arena-relay
+[Unit]
+Description=tank-arena relay (star topology hub)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User={{ ansible_user }}
+WorkingDirectory={{ thesis_dir }}/tank-arena
+ExecStart=/usr/bin/python3 -m net.relay --host 0.0.0.0 --port {{ arena_port }} --expect {{ groups['pis'] | length }}
+Restart=no
+
+[Install]
+WantedBy=multi-user.target

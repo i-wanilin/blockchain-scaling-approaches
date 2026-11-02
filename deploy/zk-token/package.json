@@ -1,0 +1,13 @@
+{
+  "name": "zk-token",
+  "version": "1.0.0",
+  "description": "Deploys the UC2 PointsToken (EraVM bytecode) on the zkSync chain, once per run",
+  "main": "deploy.js",
+  "private": true,
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "ethers": "6.17.0",
+    "zksync-ethers": "6.21.2"
+  }
+}

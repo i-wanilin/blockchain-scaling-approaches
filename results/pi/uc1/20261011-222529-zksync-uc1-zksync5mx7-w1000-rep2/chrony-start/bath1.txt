@@ -1,0 +1,14 @@
+1791751203.413565019
+Reference ID    : BCF5AA2E (static.46.170.245.188.clients.your-server.de)
+Stratum         : 5
+Ref time (UTC)  : Sun Oct 11 20:38:38 2026
+System time     : 0.001511573 seconds fast of NTP time
+Last offset     : +0.000233724 seconds
+RMS offset      : 0.000619307 seconds
+Frequency       : 7.988 ppm fast
+Residual freq   : +0.007 ppm
+Skew            : 0.142 ppm
+Root delay      : 0.032890376 seconds
+Root dispersion : 0.002726753 seconds
+Update interval : 1040.8 seconds
+Leap status     : Normal

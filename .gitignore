@@ -1,0 +1,39 @@
+# --- External frameworks: cloned, NOT vendored ---
+# Versions of the June workstation setup: archive/history/STATUS-2026-06-23-workstation-install.md.
+/perun/go-perun/
+/perun/perun-eth-backend/
+/perun/perun-examples/
+/nitro-testnode/
+
+# --- Local EVM node binary (downloaded release) ---
+/zksync/
+
+# --- Local notes (not committed) ---
+HISTORY-*.md
+
+# --- Deploy: cross-compiled binaries and fetched tarballs ---
+/deploy/dist/
+
+# --- Build / OS cruft ---
+*.log
+*.out
+# ...but run folders keep their logs if they are ever committed
+!results/pi/**/*.log
+!results/pi/**/*.out
+.DS_Store
+__pycache__/
+archive/bench-workstation/.venv/
+deploy/dist/
+
+# --- Distributed Perun benchmark: per-machine secrets and run artefacts ---
+/perun/hub-demo/config/cluster.local.json
+/perun/hub-demo/.state/
+/perun/hub-demo/results/
+/perun/hub-demo/bin/
+
+# --- UC1 dataset: GESL samples (downloaded from gesl.ornl.gov, not redistributed here) ---
+/data/
+/.venv/
+
+# --- UC2: npm dependencies of the zkSync token deployer (package-lock.json is committed) ---
+deploy/zk-token/node_modules/

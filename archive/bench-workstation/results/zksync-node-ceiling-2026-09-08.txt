@@ -1,0 +1,19 @@
+# probe_ceiling  rpc=http://127.0.0.1:3050  chain=271  gasPrice=100000000
+# TEST B: max throughput for ONE NODE (32 accounts, procs=2 after procs=8 saturated the host)
+# per-account tx=60  accounts=[32]  depths=[2, 4, 8, 16]  procs=2
+# gasPrice x1 headroom = 100000000 (base fee rises under load)
+# gas limit per tx = 160000
+# host: 16 cores, idle load 4.98, started 00:01:23
+
+# tps   = confirmed-in-a-block per second  (the throughput figure)
+# /act  = tps per account
+# inflt = A x D, total transactions outstanding at once
+# sub   = mean ms eth_sendRawTransaction blocks for (~1 block interval)
+# load  = 1-min load average at end of cell, on a 16-core host.
+#         PLATEAU + LOW LOAD  -> node saturated (a real ceiling)
+#         PLATEAU + ~P cores  -> generator saturated (raise --procs)
+ acct  depth   proc   inflt       ok/sent  span_s       tps     /act   sub_ms  e2e_mean   e2e_p90   load   err
+   32      2      2      64   1920/1920    131.17     14.64     0.46    191.6    4109.8    6909.7  23.43     0
+   32      4      2     128   1920/1920    114.68     16.74     0.52    284.8    6926.3   11992.3  31.77     0
+   32      8      2     256   1920/1920     94.90     20.23     0.63    377.8   11002.4   17378.9  45.65     0
+   32     16      2     512   1920/1920    127.47     15.06     0.47    741.6   28114.2   41440.0  57.88     0

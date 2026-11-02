@@ -1,0 +1,654 @@
+{
+ "use_case": "uc2",
+ "stack": "arbitrum",
+ "players": {
+  "p0": "bath1",
+  "p1": "bath2",
+  "p2": "bath7",
+  "p3": "bath4",
+  "p4": "bath5",
+  "p5": "bath6"
+ },
+ "host": "p0",
+ "complete": true,
+ "complete_checks": {
+  "missing": [],
+  "incomplete_payment_clients": [],
+  "incomplete_game_nodes": [],
+  "run_failed": false,
+  "hash_mismatch_file": false,
+  "ledger_rows_vs_emitted": {},
+  "late_executed_unknown": false,
+  "unparsed_ids": 0,
+  "ids_of_another_payer": []
+ },
+ "hash_ok": true,
+ "hash_mismatch": [],
+ "reference_sha256": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+ "hashes": {
+  "bath1": {
+   "player": "p0",
+   "node_result": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "file": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "ok": true
+  },
+  "bath2": {
+   "player": "p1",
+   "node_result": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "file": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "ok": true
+  },
+  "bath7": {
+   "player": "p2",
+   "node_result": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "file": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "ok": true
+  },
+  "bath4": {
+   "player": "p3",
+   "node_result": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "file": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "ok": true
+  },
+  "bath5": {
+   "player": "p4",
+   "node_result": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "file": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "ok": true
+  },
+  "bath6": {
+   "player": "p5",
+   "node_result": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "file": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "ok": true
+  }
+ },
+ "saturated": false,
+ "match": {
+  "duration_s": 60.02790789604187,
+  "nominal_s": 60.0,
+  "stretch": 1.0004651316006978,
+  "duration_s_per_board": {
+   "bath1": 60.027491855621335,
+   "bath2": 60.02790789604187,
+   "bath7": 60.0190990447998,
+   "bath4": 60.024787950515744,
+   "bath5": 60.02429203987121,
+   "bath6": 60.02692608833313
+  },
+  "ticks": {
+   "bath1": 1200,
+   "bath2": 1200,
+   "bath7": 1200,
+   "bath4": 1200,
+   "bath5": 1200,
+   "bath6": 1200
+  },
+  "tick_lag_ms": {
+   "bath1": {
+    "n": 1200,
+    "p50": 24.528026580810547,
+    "p99": 76.1057424545288,
+    "max": 130.88417053222656
+   },
+   "bath2": {
+    "n": 1200,
+    "p50": 25.197386741638184,
+    "p99": 77.90099382400511,
+    "max": 128.4768581390381
+   },
+   "bath7": {
+    "n": 1200,
+    "p50": 25.49600601196289,
+    "p99": 82.88034677505492,
+    "max": 126.27601623535156
+   },
+   "bath4": {
+    "n": 1200,
+    "p50": 26.386380195617676,
+    "p99": 83.94449710845947,
+    "max": 126.71589851379395
+   },
+   "bath5": {
+    "n": 1200,
+    "p50": 22.005081176757812,
+    "p99": 65.14829158782958,
+    "max": 101.61709785461426
+   },
+   "bath6": {
+    "n": 1200,
+    "p50": 25.60555934906006,
+    "p99": 85.3532290458679,
+    "max": 129.09984588623047
+   },
+   "pooled": {
+    "n": 7200,
+    "p50": 24.70707893371582,
+    "p99": 80.3958821296693,
+    "max": 130.88417053222656
+   }
+  }
+ },
+ "offered": {
+  "payments": 1070,
+  "fire": 813,
+  "hit": 257,
+  "per_s": 17.825042342855895,
+  "emitted": 1070
+ },
+ "outcomes": {
+  "succeeded": 1070,
+  "failed": 0,
+  "unresolved": 0,
+  "late": 0,
+  "queue_full": 0,
+  "mapped_to_unresolved": 0,
+  "shares": {
+   "succeeded": 1.0,
+   "failed": 0.0,
+   "unresolved": 0.0,
+   "late": 0.0
+  },
+  "by_group": {
+   "guests": {
+    "payments": 778,
+    "succeeded": 778,
+    "failed": 0,
+    "unresolved": 0,
+    "late": 0,
+    "shares": {
+     "succeeded": 1.0,
+     "failed": 0.0,
+     "unresolved": 0.0,
+     "late": 0.0
+    }
+   },
+   "host": {
+    "payments": 292,
+    "succeeded": 292,
+    "failed": 0,
+    "unresolved": 0,
+    "late": 0,
+    "shares": {
+     "succeeded": 1.0,
+     "failed": 0.0,
+     "unresolved": 0.0,
+     "late": 0.0
+    }
+   }
+  }
+ },
+ "late_executed": {
+  "p0": 0,
+  "p1": 0,
+  "p2": 0,
+  "p3": 0,
+  "p4": 0,
+  "p5": 0
+ },
+ "late_executed_total": 0,
+ "late_executed_points": 0,
+ "late_executed_reason": {},
+ "latency_ms": {
+  "guests": {
+   "fire": {
+    "generated_to_confirmed": {
+     "n": 575,
+     "p50": 192.45362281799316,
+     "p99": 339.84100341796875,
+     "max": 412.8119945526123
+    },
+    "submitted_to_confirmed": {
+     "n": 575,
+     "p50": 188.26794624328613,
+     "p99": 332.7712154388427,
+     "max": 407.9852104187012
+    }
+   },
+   "hit": {
+    "generated_to_confirmed": {
+     "n": 203,
+     "p50": 213.74917030334473,
+     "p99": 344.27764892578114,
+     "max": 364.3321990966797
+    },
+    "submitted_to_confirmed": {
+     "n": 203,
+     "p50": 207.02099800109863,
+     "p99": 337.7261447906493,
+     "max": 359.59625244140625
+    }
+   },
+   "all": {
+    "generated_to_confirmed": {
+     "n": 778,
+     "p50": 199.12219047546387,
+     "p99": 342.50785350799566,
+     "max": 412.8119945526123
+    },
+    "submitted_to_confirmed": {
+     "n": 778,
+     "p50": 194.67222690582275,
+     "p99": 335.61993837356573,
+     "max": 407.9852104187012
+    }
+   }
+  },
+  "host": {
+   "fire": {
+    "generated_to_confirmed": {
+     "n": 238,
+     "p50": 173.72357845306396,
+     "p99": 311.86957359313965,
+     "max": 320.0993537902832
+    },
+    "submitted_to_confirmed": {
+     "n": 238,
+     "p50": 169.69716548919678,
+     "p99": 308.29336166381836,
+     "max": 315.7782554626465
+    }
+   },
+   "hit": {
+    "generated_to_confirmed": {
+     "n": 54,
+     "p50": 203.73094081878662,
+     "p99": 317.8758907318115,
+     "max": 320.0993537902832
+    },
+    "submitted_to_confirmed": {
+     "n": 54,
+     "p50": 200.17731189727783,
+     "p99": 312.99206495285034,
+     "max": 313.51280212402344
+    }
+   },
+   "all": {
+    "generated_to_confirmed": {
+     "n": 292,
+     "p50": 178.1066656112671,
+     "p99": 316.0192394256591,
+     "max": 320.0993537902832
+    },
+    "submitted_to_confirmed": {
+     "n": 292,
+     "p50": 174.33536052703857,
+     "p99": 312.6187062263489,
+     "max": 315.7782554626465
+    }
+   }
+  }
+ },
+ "latency_lower_bound_ms": {
+  "guests": {
+   "n": 778,
+   "p50": 199.12219047546387,
+   "p99": 342.50785350799566,
+   "max": 412.8119945526123
+  },
+  "host": {
+   "n": 292,
+   "p50": 178.1066656112671,
+   "p99": 316.0192394256591,
+   "max": 320.0993537902832
+  }
+ },
+ "goodput_per_s": 17.889281981294143,
+ "goodput_per_s_by_group": {
+  "guests": 13.008177806700001,
+  "host": 4.925647430513637
+ },
+ "next_shot_miss_share": {
+  "guests": {
+   "misses": 345,
+   "shots": 570,
+   "share": 0.6052631578947368
+  },
+  "host": {
+   "misses": 148,
+   "shots": 237,
+   "share": 0.6244725738396625
+  },
+  "per_player": {
+   "p0": {
+    "misses": 148,
+    "shots": 237,
+    "share": 0.6244725738396625
+   },
+   "p1": {
+    "misses": 38,
+    "shots": 69,
+    "share": 0.5507246376811594
+   },
+   "p2": {
+    "misses": 108,
+    "shots": 160,
+    "share": 0.675
+   },
+   "p3": {
+    "misses": 28,
+    "shots": 72,
+    "share": 0.3888888888888889
+   },
+   "p4": {
+    "misses": 154,
+    "shots": 219,
+    "share": 0.7031963470319634
+   },
+   "p5": {
+    "misses": 17,
+    "shots": 50,
+    "share": 0.34
+   }
+  }
+ },
+ "reconciliation": {
+  "ok": true,
+  "ok_explained": true,
+  "ok_with_late": true,
+  "late_executed_points": 0,
+  "start_points": 10000,
+  "game_trace": "results/p0/game/trace.jsonl",
+  "players": {
+   "p0": {
+    "game": 9662,
+    "ledger": 9662,
+    "chain": 9662,
+    "diff": 0,
+    "explained": 0,
+    "explained_out": 0,
+    "explained_in": 0,
+    "ok": true,
+    "ok_explained": true,
+    "game_minus_chain": 0,
+    "late_out": 0,
+    "late_in": 0,
+    "ok_with_late": true
+   },
+   "p1": {
+    "game": 9925,
+    "ledger": 9925,
+    "chain": 9925,
+    "diff": 0,
+    "explained": 0,
+    "explained_out": 0,
+    "explained_in": 0,
+    "ok": true,
+    "ok_explained": true,
+    "game_minus_chain": 0,
+    "late_out": 0,
+    "late_in": 0,
+    "ok_with_late": true
+   },
+   "p2": {
+    "game": 9844,
+    "ledger": 9844,
+    "chain": 9844,
+    "diff": 0,
+    "explained": 0,
+    "explained_out": 0,
+    "explained_in": 0,
+    "ok": true,
+    "ok_explained": true,
+    "game_minus_chain": 0,
+    "late_out": 0,
+    "late_in": 0,
+    "ok_with_late": true
+   },
+   "p3": {
+    "game": 9837,
+    "ledger": 9837,
+    "chain": 9837,
+    "diff": 0,
+    "explained": 0,
+    "explained_out": 0,
+    "explained_in": 0,
+    "ok": true,
+    "ok_explained": true,
+    "game_minus_chain": 0,
+    "late_out": 0,
+    "late_in": 0,
+    "ok_with_late": true
+   },
+   "p4": {
+    "game": 10000,
+    "ledger": 10000,
+    "chain": 10000,
+    "diff": 0,
+    "explained": 0,
+    "explained_out": 0,
+    "explained_in": 0,
+    "ok": true,
+    "ok_explained": true,
+    "game_minus_chain": 0,
+    "late_out": 0,
+    "late_in": 0,
+    "ok_with_late": true
+   },
+   "p5": {
+    "game": 9919,
+    "ledger": 9919,
+    "chain": 9919,
+    "diff": 0,
+    "explained": 0,
+    "explained_out": 0,
+    "explained_in": 0,
+    "ok": true,
+    "ok_explained": true,
+    "game_minus_chain": 0,
+    "late_out": 0,
+    "late_in": 0,
+    "ok_with_late": true
+   }
+  },
+  "arena": {
+   "game": 813,
+   "ledger": 813,
+   "chain": 813,
+   "diff": 0,
+   "explained": 0,
+   "ok": true,
+   "ok_explained": true,
+   "late_in": 0,
+   "ok_with_late": true
+  }
+ },
+ "open": {
+  "p0": {
+   "s": 1.7722389698028564,
+   "gas": 91067,
+   "fee_wei": 728536
+  },
+  "p1": {
+   "s": 1.6163673400878906,
+   "gas": 91067,
+   "fee_wei": 728536
+  },
+  "p2": {
+   "s": 1.351273536682129,
+   "gas": 91067,
+   "fee_wei": 728536
+  },
+  "p3": {
+   "s": 2.0931520462036133,
+   "gas": 91067,
+   "fee_wei": 728536
+  },
+  "p4": {
+   "s": 1.6339693069458008,
+   "gas": 91067,
+   "fee_wei": 728536
+  },
+  "p5": {
+   "s": 1.9005959033966064,
+   "gas": 91067,
+   "fee_wei": 728536
+  }
+ },
+ "close": {
+  "p0": {
+   "s": 0.1873307228088379,
+   "gas": 75288,
+   "fee_wei": 7528800000000
+  },
+  "p1": {
+   "s": 0.18290042877197266,
+   "gas": 67571,
+   "fee_wei": 6757100000000
+  },
+  "p2": {
+   "s": 0.351184606552124,
+   "gas": 76088,
+   "fee_wei": 7608800000000
+  },
+  "p3": {
+   "s": 0.35315728187561035,
+   "gas": 68371,
+   "fee_wei": 6837100000000
+  },
+  "p4": {
+   "s": 0.37664794921875,
+   "gas": 68371,
+   "fee_wei": 6837100000000
+  },
+  "p5": {
+   "s": 0.36961913108825684,
+   "gas": 82993,
+   "fee_wei": 8299300000000
+  }
+ },
+ "gas": {
+  "per_fire": 34398,
+  "per_hit": 34398,
+  "open_median": 91067.0,
+  "close_median": 71829.5
+ },
+ "cpu": {
+  "bath0": {
+   "mean_cpu_busy_pct": 19.354545454545455,
+   "max_cpu_busy_pct": 28.5,
+   "samples": 11,
+   "scope": "stream window"
+  },
+  "bath1": {
+   "mean_cpu_busy_pct": 14.916666666666666,
+   "max_cpu_busy_pct": 25.4,
+   "samples": 12,
+   "scope": "stream window"
+  },
+  "bath2": {
+   "mean_cpu_busy_pct": 14.191666666666668,
+   "max_cpu_busy_pct": 25.2,
+   "samples": 12,
+   "scope": "stream window"
+  },
+  "bath4": {
+   "mean_cpu_busy_pct": 19.425,
+   "max_cpu_busy_pct": 44.6,
+   "samples": 12,
+   "scope": "stream window"
+  },
+  "bath5": {
+   "mean_cpu_busy_pct": 15.958333333333334,
+   "max_cpu_busy_pct": 36.9,
+   "samples": 12,
+   "scope": "stream window"
+  },
+  "bath6": {
+   "mean_cpu_busy_pct": 18.941666666666666,
+   "max_cpu_busy_pct": 38.2,
+   "samples": 12,
+   "scope": "stream window"
+  },
+  "bath7": {
+   "mean_cpu_busy_pct": 20.458333333333332,
+   "max_cpu_busy_pct": 44.0,
+   "samples": 12,
+   "scope": "stream window"
+  }
+ },
+ "throttle": {
+  "bath0": {
+   "throttled_share": 0.0,
+   "undervolted_share": 0.0,
+   "max_temp_c": 51.1,
+   "mean_arm_mhz": 1645.4545454545455
+  },
+  "bath1": {
+   "throttled_share": 0.0,
+   "undervolted_share": 0.0,
+   "max_temp_c": 51.5,
+   "mean_arm_mhz": 1175.0
+  },
+  "bath2": {
+   "throttled_share": 0.0,
+   "undervolted_share": 0.0,
+   "max_temp_c": 49.4,
+   "mean_arm_mhz": 1233.3333333333333
+  },
+  "bath4": {
+   "throttled_share": 0.4166666666666667,
+   "undervolted_share": 0.4166666666666667,
+   "max_temp_c": 60.1,
+   "mean_arm_mhz": 600.0
+  },
+  "bath5": {
+   "throttled_share": 0.0,
+   "undervolted_share": 0.0,
+   "max_temp_c": 62.8,
+   "mean_arm_mhz": 1058.25
+  },
+  "bath6": {
+   "throttled_share": 0.5,
+   "undervolted_share": 0.5,
+   "max_temp_c": 58.0,
+   "mean_arm_mhz": 600.0
+  },
+  "bath7": {
+   "throttled_share": 0.5,
+   "undervolted_share": 0.5,
+   "max_temp_c": 54.2,
+   "mean_arm_mhz": 641.6666666666666
+  }
+ },
+ "diagnostics": {
+  "p0": {
+   "duplicates": 0,
+   "late": 0,
+   "not_admitted": 0,
+   "executed_after_close": 0
+  },
+  "p1": {
+   "duplicates": 0,
+   "late": 0,
+   "not_admitted": 0,
+   "executed_after_close": 0
+  },
+  "p2": {
+   "duplicates": 0,
+   "late": 0,
+   "not_admitted": 0,
+   "executed_after_close": 0
+  },
+  "p3": {
+   "duplicates": 0,
+   "late": 0,
+   "not_admitted": 0,
+   "executed_after_close": 0
+  },
+  "p4": {
+   "duplicates": 0,
+   "late": 0,
+   "not_admitted": 0,
+   "executed_after_close": 0
+  },
+  "p5": {
+   "duplicates": 0,
+   "late": 0,
+   "not_admitted": 0,
+   "executed_after_close": 0
+  }
+ },
+ "analysis_commit": "708b09000669874f6769c57e5f4653628163841f",
+ "analysis_measure_dirty": false
+}

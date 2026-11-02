@@ -1,0 +1,26 @@
+# ==============================================================================
+# HEADLINE: ONE account reaches 113.80 tx/s at 32 concurrent in-flight,
+#   perfectly linear, zero errors. This DISPROVES the 'per-account 4 tx/s limit'
+#   from the earlier run. throughput = concurrency / submission latency.
+#
+# Full explanation, latency definitions and scope: see README.md in this folder.
+# ==============================================================================
+# probe_ceiling  rpc=http://127.0.0.1:8547  chain=412346  gasPrice=100000000
+# SINGLE ACCOUNT: does concurrency lift the 4 tx/s per-account figure?
+# per-account tx=60  accounts=[1]  depths=[1, 2, 3, 4, 8, 16, 32]
+# started 2026-09-08 14:08:17   idle load=0.40
+
+# tps  = confirmed-in-a-block per second (the throughput figure)
+# /act = tps divided by account count
+# sub  = mean ms that eth_sendRawTransaction blocks for
+# e2e  = mean ms from starting the send to holding the receipt
+# load = 1-min load average AT END OF CELL. A plateau with high load means
+#        the GENERATOR saturated, not the node. 16 cores on this host.
+ acct  depth  thread       ok/sent  span_s       tps      /act   sub_ms  e2e_mean  e2e_p90   load   err
+    1      1       1     60/60       14.54      4.13      4.13    240.6     242.4    251.5   0.31     0
+    1      2       2     60/60        7.27      8.26      8.26    239.5     242.3    252.3   0.28     0
+    1      3       3     60/60        5.01     11.97     11.97    241.7     246.3    252.3   0.26     0
+    1      4       4     60/60        3.75     15.99     15.99    235.6     241.9    253.4   0.24     0
+    1      8       8     60/60        2.00     30.04     30.04    233.6     245.6    256.5   0.22     0
+    1     16      16     60/60        1.01     59.52     59.52    221.7     244.9    260.4   0.22     0
+    1     32      32     60/60        0.53    113.80    113.80    202.9     245.1    281.6   0.22     0

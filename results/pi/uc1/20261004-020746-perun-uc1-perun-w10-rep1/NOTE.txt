@@ -1,0 +1,10 @@
+Collection gap (final review I3, noted 2026-10-04; deploy/cluster before the COLLECT_INCOMPLETE check).
+
+results/c1 (bath2): the copy of the board's pc/ directory hit its 300 s timeout
+silently (scp -q under timeout, || true), so
+  - c1/ledger.log.jsonl.gz is truncated: 4961280 bytes / 27322 lines uncompressed,
+    ending mid-line (the other customers' logs are whole and end with a newline);
+  - c1/sidecar.log is missing.
+c1/ledger.csv.gz is complete (90000 rows, outcome counts equal lifecycle.json's
+reconciliation.counts), as are c1/lifecycle.json, c1/rows_received.csv.gz and
+c2..c5. The analysis reads ledger.csv, so summary.json is unaffected.

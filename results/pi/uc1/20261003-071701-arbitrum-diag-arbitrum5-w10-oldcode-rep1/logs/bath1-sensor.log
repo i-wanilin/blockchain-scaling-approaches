@@ -1,0 +1,5 @@
+sensor: dropped customer 1 at seq 7361: queue over 240 frames
+sensor: dropped customer 5 at seq 8069: queue over 240 frames
+sensor: dropped customer 2 at seq 8071: queue over 240 frames
+sensor: dropped customer 4 at seq 8163: queue over 240 frames
+sensor: dropped customer 3 at seq 8374: queue over 240 frames

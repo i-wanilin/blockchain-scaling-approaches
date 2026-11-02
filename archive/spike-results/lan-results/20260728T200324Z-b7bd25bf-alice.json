@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "run_id": "20260728T200324Z-b7bd25bf",
+  "timestamp_utc": "2026-07-28T20:03:32.8000965Z",
+  "node": "alice",
+  "hostname": "laptop-g16",
+  "os": "windows",
+  "arch": "amd64",
+  "commit": "d7c374d63190df172f36cdfa96199a78f83c3abc",
+  "commit_dirty": false,
+  "payments": 379,
+  "payment_failures": 0,
+  "burst_ms": 1399.573,
+  "payments_per_second": 270.7968787623082,
+  "payment_latency": {
+    "count": 379,
+    "mean_ms": 3.6928047493403695,
+    "p50_ms": 3.2479,
+    "p90_ms": 4.9523,
+    "p99_ms": 14.0481,
+    "max_ms": 19.154
+  },
+  "ledger_open_ms": 1059.3898,
+  "ledger_restored": false,
+  "virtual_open_ms": 23.6243,
+  "virtual_settle_ms": 374.6508,
+  "ledger_settle_ms": 2562.8106,
+  "completed": true,
+  "strict_payment_policy": true
+}

@@ -1,0 +1,654 @@
+{
+ "use_case": "uc2",
+ "stack": "zksync",
+ "players": {
+  "p0": "bath1",
+  "p1": "bath2",
+  "p2": "bath7",
+  "p3": "bath4",
+  "p4": "bath5",
+  "p5": "bath6"
+ },
+ "host": "p0",
+ "complete": true,
+ "complete_checks": {
+  "missing": [],
+  "incomplete_payment_clients": [],
+  "incomplete_game_nodes": [],
+  "run_failed": false,
+  "hash_mismatch_file": false,
+  "ledger_rows_vs_emitted": {},
+  "late_executed_unknown": false,
+  "unparsed_ids": 0,
+  "ids_of_another_payer": []
+ },
+ "hash_ok": true,
+ "hash_mismatch": [],
+ "reference_sha256": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+ "hashes": {
+  "bath1": {
+   "player": "p0",
+   "node_result": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "file": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "ok": true
+  },
+  "bath2": {
+   "player": "p1",
+   "node_result": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "file": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "ok": true
+  },
+  "bath7": {
+   "player": "p2",
+   "node_result": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "file": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "ok": true
+  },
+  "bath4": {
+   "player": "p3",
+   "node_result": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "file": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "ok": true
+  },
+  "bath5": {
+   "player": "p4",
+   "node_result": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "file": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "ok": true
+  },
+  "bath6": {
+   "player": "p5",
+   "node_result": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "file": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7",
+   "ok": true
+  }
+ },
+ "saturated": false,
+ "match": {
+  "duration_s": 60.029315042495725,
+  "nominal_s": 60.0,
+  "stretch": 1.0004885840415954,
+  "duration_s_per_board": {
+   "bath1": 60.01496319770813,
+   "bath2": 60.01709108352661,
+   "bath7": 60.011543083190915,
+   "bath4": 60.029315042495725,
+   "bath5": 60.02116208076477,
+   "bath6": 60.01592307090759
+  },
+  "ticks": {
+   "bath1": 1200,
+   "bath2": 1200,
+   "bath7": 1200,
+   "bath4": 1200,
+   "bath5": 1200,
+   "bath6": 1200
+  },
+  "tick_lag_ms": {
+   "bath1": {
+    "n": 1200,
+    "p50": 19.681453704833984,
+    "p99": 40.04139900207519,
+    "max": 66.12110137939453
+   },
+   "bath2": {
+    "n": 1200,
+    "p50": 20.876646041870117,
+    "p99": 44.507136344909654,
+    "max": 66.57099723815918
+   },
+   "bath7": {
+    "n": 1200,
+    "p50": 13.184547424316406,
+    "p99": 41.7560076713562,
+    "max": 68.04299354553223
+   },
+   "bath4": {
+    "n": 1200,
+    "p50": 31.79299831390381,
+    "p99": 58.78559350967407,
+    "max": 82.64493942260742
+   },
+   "bath5": {
+    "n": 1200,
+    "p50": 21.5834379196167,
+    "p99": 43.6734414100647,
+    "max": 66.59412384033203
+   },
+   "bath6": {
+    "n": 1200,
+    "p50": 18.75460147857666,
+    "p99": 42.54116773605347,
+    "max": 67.48104095458984
+   },
+   "pooled": {
+    "n": 7200,
+    "p50": 21.3165283203125,
+    "p99": 51.35451793670655,
+    "max": 82.64493942260742
+   }
+  }
+ },
+ "offered": {
+  "payments": 1070,
+  "fire": 813,
+  "hit": 257,
+  "per_s": 17.82462450625215,
+  "emitted": 1070
+ },
+ "outcomes": {
+  "succeeded": 971,
+  "failed": 0,
+  "unresolved": 99,
+  "late": 40,
+  "queue_full": 0,
+  "mapped_to_unresolved": 0,
+  "shares": {
+   "succeeded": 0.9074766355140187,
+   "failed": 0.0,
+   "unresolved": 0.09252336448598131,
+   "late": 0.037383177570093455
+  },
+  "by_group": {
+   "guests": {
+    "payments": 778,
+    "succeeded": 746,
+    "failed": 0,
+    "unresolved": 32,
+    "late": 20,
+    "shares": {
+     "succeeded": 0.9588688946015425,
+     "failed": 0.0,
+     "unresolved": 0.04113110539845758,
+     "late": 0.02570694087403599
+    }
+   },
+   "host": {
+    "payments": 292,
+    "succeeded": 225,
+    "failed": 0,
+    "unresolved": 67,
+    "late": 20,
+    "shares": {
+     "succeeded": 0.7705479452054794,
+     "failed": 0.0,
+     "unresolved": 0.22945205479452055,
+     "late": 0.0684931506849315
+    }
+   }
+  }
+ },
+ "late_executed": {
+  "p0": 20,
+  "p1": 0,
+  "p2": 0,
+  "p3": 0,
+  "p4": 20,
+  "p5": 0
+ },
+ "late_executed_total": 40,
+ "late_executed_points": 76,
+ "late_executed_reason": {},
+ "latency_ms": {
+  "guests": {
+   "fire": {
+    "generated_to_confirmed": {
+     "n": 551,
+     "p50": 21622.539043426514,
+     "p99": 69012.39323616028,
+     "max": 71388.03720474243
+    },
+    "submitted_to_confirmed": {
+     "n": 551,
+     "p50": 6791.134357452393,
+     "p99": 32131.127953529358,
+     "max": 33001.57332420349
+    }
+   },
+   "hit": {
+    "generated_to_confirmed": {
+     "n": 195,
+     "p50": 13142.63653755188,
+     "p99": 70904.20101165771,
+     "max": 71439.92519378662
+    },
+    "submitted_to_confirmed": {
+     "n": 195,
+     "p50": 6415.173530578613,
+     "p99": 31373.415088653568,
+     "max": 32601.998567581177
+    }
+   },
+   "all": {
+    "generated_to_confirmed": {
+     "n": 746,
+     "p50": 20089.12467956543,
+     "p99": 70723.5043168068,
+     "max": 71439.92519378662
+    },
+    "submitted_to_confirmed": {
+     "n": 746,
+     "p50": 6544.580578804016,
+     "p99": 32138.14595937728,
+     "max": 33001.57332420349
+    }
+   }
+  },
+  "host": {
+   "fire": {
+    "generated_to_confirmed": {
+     "n": 192,
+     "p50": 44202.255845069885,
+     "p99": 72385.64570426941,
+     "max": 72575.10566711426
+    },
+    "submitted_to_confirmed": {
+     "n": 192,
+     "p50": 7303.294539451599,
+     "p99": 29211.447896957397,
+     "max": 30409.809112548828
+    }
+   },
+   "hit": {
+    "generated_to_confirmed": {
+     "n": 33,
+     "p50": 48427.04153060913,
+     "p99": 64186.34488105773,
+     "max": 69380.29217720032
+    },
+    "submitted_to_confirmed": {
+     "n": 33,
+     "p50": 5015.477418899536,
+     "p99": 22054.45531845092,
+     "max": 27960.477352142334
+    }
+   },
+   "all": {
+    "generated_to_confirmed": {
+     "n": 225,
+     "p50": 44798.06113243103,
+     "p99": 72352.83646583557,
+     "max": 72575.10566711426
+    },
+    "submitted_to_confirmed": {
+     "n": 225,
+     "p50": 6519.441604614258,
+     "p99": 29210.518436431885,
+     "max": 30409.809112548828
+    }
+   }
+  }
+ },
+ "latency_lower_bound_ms": {
+  "guests": {
+   "n": 778,
+   "p50": 21246.901512145996,
+   "p99": 70676.06085062027,
+   "max": 71439.92519378662
+  },
+  "host": {
+   "n": 292,
+   "p50": 46438.891887664795,
+   "p99": 72286.31016016006,
+   "max": 72575.10566711426
+  }
+ },
+ "goodput_per_s": 8.511844411929145,
+ "goodput_per_s_by_group": {
+  "guests": 6.539480876724142,
+  "host": 1.999569121066918
+ },
+ "next_shot_miss_share": {
+  "guests": {
+   "misses": 568,
+   "shots": 570,
+   "share": 0.9964912280701754
+  },
+  "host": {
+   "misses": 237,
+   "shots": 237,
+   "share": 1.0
+  },
+  "per_player": {
+   "p0": {
+    "misses": 237,
+    "shots": 237,
+    "share": 1.0
+   },
+   "p1": {
+    "misses": 68,
+    "shots": 69,
+    "share": 0.9855072463768116
+   },
+   "p2": {
+    "misses": 160,
+    "shots": 160,
+    "share": 1.0
+   },
+   "p3": {
+    "misses": 72,
+    "shots": 72,
+    "share": 1.0
+   },
+   "p4": {
+    "misses": 219,
+    "shots": 219,
+    "share": 1.0
+   },
+   "p5": {
+    "misses": 49,
+    "shots": 50,
+    "share": 0.98
+   }
+  }
+ },
+ "reconciliation": {
+  "ok": false,
+  "ok_explained": true,
+  "ok_with_late": true,
+  "late_executed_points": 76,
+  "start_points": 10000,
+  "game_trace": "results/p0/game/trace.jsonl",
+  "players": {
+   "p0": {
+    "game": 9662,
+    "ledger": 9788,
+    "chain": 9767,
+    "diff": -21,
+    "explained": 51,
+    "explained_out": 36,
+    "explained_in": 15,
+    "ok": false,
+    "ok_explained": true,
+    "game_minus_chain": -105,
+    "late_out": 36,
+    "late_in": 15,
+    "ok_with_late": true
+   },
+   "p1": {
+    "game": 9925,
+    "ledger": 9915,
+    "chain": 9915,
+    "diff": 0,
+    "explained": 0,
+    "explained_out": 0,
+    "explained_in": 0,
+    "ok": true,
+    "ok_explained": true,
+    "game_minus_chain": 10,
+    "late_out": 0,
+    "late_in": 0,
+    "ok_with_late": true
+   },
+   "p2": {
+    "game": 9844,
+    "ledger": 9834,
+    "chain": 9844,
+    "diff": 10,
+    "explained": 10,
+    "explained_out": 0,
+    "explained_in": 10,
+    "ok": false,
+    "ok_explained": true,
+    "game_minus_chain": 0,
+    "late_out": 0,
+    "late_in": 10,
+    "ok_with_late": true
+   },
+   "p3": {
+    "game": 9837,
+    "ledger": 9817,
+    "chain": 9827,
+    "diff": 10,
+    "explained": 10,
+    "explained_out": 0,
+    "explained_in": 10,
+    "ok": false,
+    "ok_explained": true,
+    "game_minus_chain": 10,
+    "late_out": 0,
+    "late_in": 10,
+    "ok_with_late": true
+   },
+   "p4": {
+    "game": 10000,
+    "ledger": 9984,
+    "chain": 9954,
+    "diff": -30,
+    "explained": 50,
+    "explained_out": 40,
+    "explained_in": 10,
+    "ok": false,
+    "ok_explained": true,
+    "game_minus_chain": 46,
+    "late_out": 40,
+    "late_in": 10,
+    "ok_with_late": true
+   },
+   "p5": {
+    "game": 9919,
+    "ledger": 9919,
+    "chain": 9919,
+    "diff": 0,
+    "explained": 0,
+    "explained_out": 0,
+    "explained_in": 0,
+    "ok": true,
+    "ok_explained": true,
+    "game_minus_chain": 0,
+    "late_out": 0,
+    "late_in": 0,
+    "ok_with_late": true
+   }
+  },
+  "arena": {
+   "game": 813,
+   "ledger": 743,
+   "chain": 774,
+   "diff": 31,
+   "explained": 31,
+   "ok": false,
+   "ok_explained": true,
+   "late_in": 31,
+   "ok_with_late": true
+  }
+ },
+ "open": {
+  "p0": {
+   "s": 2.622764825820923,
+   "gas": 341321,
+   "fee_wei": 682642
+  },
+  "p1": {
+   "s": 2.622075319290161,
+   "gas": 291390,
+   "fee_wei": 582780
+  },
+  "p2": {
+   "s": 2.5010039806365967,
+   "gas": 291390,
+   "fee_wei": 582780
+  },
+  "p3": {
+   "s": 3.027466297149658,
+   "gas": 291391,
+   "fee_wei": 582782
+  },
+  "p4": {
+   "s": 2.6597065925598145,
+   "gas": 291390,
+   "fee_wei": 582780
+  },
+  "p5": {
+   "s": 3.0602798461914062,
+   "gas": 291367,
+   "fee_wei": 582734
+  }
+ },
+ "close": {
+  "p0": {
+   "s": 17.45128631591797,
+   "gas": 138810,
+   "fee_wei": 13881000000000
+  },
+  "p1": {
+   "s": 31.643993139266968,
+   "gas": 138262,
+   "fee_wei": 13826200000000
+  },
+  "p2": {
+   "s": 20.002743005752563,
+   "gas": 217878,
+   "fee_wei": 21787800000000
+  },
+  "p3": {
+   "s": 33.169352769851685,
+   "gas": 217878,
+   "fee_wei": 21787800000000
+  },
+  "p4": {
+   "s": 17.47860813140869,
+   "gas": 125803,
+   "fee_wei": 12580300000000
+  },
+  "p5": {
+   "s": 8.853013038635254,
+   "gas": 217689,
+   "fee_wei": 21768900000000
+  }
+ },
+ "gas": {
+  "per_fire": 85549,
+  "per_hit": 85549.0,
+  "open_median": 291390.0,
+  "close_median": 178249.5
+ },
+ "cpu": {
+  "bath0": {
+   "mean_cpu_busy_pct": 97.51666666666667,
+   "max_cpu_busy_pct": 99.9,
+   "samples": 12,
+   "scope": "stream window"
+  },
+  "bath1": {
+   "mean_cpu_busy_pct": 14.200000000000001,
+   "max_cpu_busy_pct": 22.4,
+   "samples": 12,
+   "scope": "stream window"
+  },
+  "bath2": {
+   "mean_cpu_busy_pct": 13.9,
+   "max_cpu_busy_pct": 22.0,
+   "samples": 12,
+   "scope": "stream window"
+  },
+  "bath4": {
+   "mean_cpu_busy_pct": 16.933333333333334,
+   "max_cpu_busy_pct": 28.2,
+   "samples": 12,
+   "scope": "stream window"
+  },
+  "bath5": {
+   "mean_cpu_busy_pct": 14.216666666666667,
+   "max_cpu_busy_pct": 25.4,
+   "samples": 12,
+   "scope": "stream window"
+  },
+  "bath6": {
+   "mean_cpu_busy_pct": 16.12727272727273,
+   "max_cpu_busy_pct": 19.1,
+   "samples": 11,
+   "scope": "stream window"
+  },
+  "bath7": {
+   "mean_cpu_busy_pct": 18.0,
+   "max_cpu_busy_pct": 25.1,
+   "samples": 12,
+   "scope": "stream window"
+  }
+ },
+ "throttle": {
+  "bath0": {
+   "throttled_share": 0.0,
+   "undervolted_share": 0.0,
+   "max_temp_c": 73.5,
+   "mean_arm_mhz": 1800.0
+  },
+  "bath1": {
+   "throttled_share": 0.0,
+   "undervolted_share": 0.0,
+   "max_temp_c": 52.1,
+   "mean_arm_mhz": 1266.5
+  },
+  "bath2": {
+   "throttled_share": 0.0,
+   "undervolted_share": 0.0,
+   "max_temp_c": 50.5,
+   "mean_arm_mhz": 1250.0
+  },
+  "bath4": {
+   "throttled_share": 0.3333333333333333,
+   "undervolted_share": 0.3333333333333333,
+   "max_temp_c": 59.1,
+   "mean_arm_mhz": 683.3333333333334
+  },
+  "bath5": {
+   "throttled_share": 0.0,
+   "undervolted_share": 0.0,
+   "max_temp_c": 60.1,
+   "mean_arm_mhz": 1108.3333333333333
+  },
+  "bath6": {
+   "throttled_share": 0.18181818181818182,
+   "undervolted_share": 0.18181818181818182,
+   "max_temp_c": 56.9,
+   "mean_arm_mhz": 681.8181818181819
+  },
+  "bath7": {
+   "throttled_share": 0.75,
+   "undervolted_share": 0.75,
+   "max_temp_c": 53.7,
+   "mean_arm_mhz": 600.0
+  }
+ },
+ "diagnostics": {
+  "p0": {
+   "duplicates": 0,
+   "late": 0,
+   "not_admitted": 0,
+   "executed_after_close": 0
+  },
+  "p1": {
+   "duplicates": 0,
+   "late": 0,
+   "not_admitted": 0,
+   "executed_after_close": 0
+  },
+  "p2": {
+   "duplicates": 0,
+   "late": 0,
+   "not_admitted": 0,
+   "executed_after_close": 0
+  },
+  "p3": {
+   "duplicates": 0,
+   "late": 0,
+   "not_admitted": 0,
+   "executed_after_close": 0
+  },
+  "p4": {
+   "duplicates": 0,
+   "late": 0,
+   "not_admitted": 0,
+   "executed_after_close": 0
+  },
+  "p5": {
+   "duplicates": 0,
+   "late": 0,
+   "not_admitted": 0,
+   "executed_after_close": 0
+  }
+ },
+ "analysis_commit": "708b09000669874f6769c57e5f4653628163841f",
+ "analysis_measure_dirty": false
+}

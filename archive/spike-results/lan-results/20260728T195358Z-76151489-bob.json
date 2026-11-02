@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "run_id": "20260728T195358Z-76151489",
+  "timestamp_utc": "2026-07-28T19:54:07.431768983Z",
+  "node": "bob",
+  "hostname": "laptop",
+  "os": "linux",
+  "arch": "amd64",
+  "commit": "2cfd5eca2527828ca2156f36857921ac38d473af",
+  "commit_dirty": true,
+  "payments": 0,
+  "payment_failures": 0,
+  "burst_ms": 0,
+  "payments_per_second": 0,
+  "payment_latency": {
+    "count": 0,
+    "mean_ms": 0,
+    "p50_ms": 0,
+    "p90_ms": 0,
+    "p99_ms": 0,
+    "max_ms": 0
+  },
+  "ledger_open_ms": 1074.444858,
+  "ledger_restored": false,
+  "virtual_open_ms": 0,
+  "virtual_settle_ms": 11.32672,
+  "ledger_settle_ms": 2925.012687,
+  "completed": true,
+  "strict_payment_policy": true
+}

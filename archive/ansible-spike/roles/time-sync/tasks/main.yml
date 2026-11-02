@@ -1,0 +1,46 @@
+# Chrony against the workstation as the single local NTP source.
+#
+# WHY THIS MATTERS: cross-node latency measurements compare timestamps taken
+# on different machines. Public-pool NTP over the internet leaves each Pi
+# a few ms off in unknown directions — the same order of magnitude as the
+# effect being measured. Syncing every Pi against ONE local server on the
+# same Wi-Fi network removes the WAN from the sync path.
+#
+# Expected accuracy — NOT YET MEASURED ON WI-FI.
+#   The former figure (tens of microseconds on a quiet 1 GbE LAN) was derived
+#   for Ethernet and does NOT carry over. NTP assumes a roughly symmetric,
+#   stable path delay; a contended radio violates both, so expect
+#   millisecond-scale offsets. Establish the real number before relying on it:
+#   `chronyc tracking` RMS offset over a sustained run with all nodes active,
+#   after >=15 min of settling. measure-baseline.sh records it.
+#
+#   Until that exists: do NOT difference timestamps across nodes. Derive
+#   one-way latency as RTT/2 from a single clock. See deploy/README.md §5.
+---
+- name: Configure chrony to use the laptop as sole NTP source
+  ansible.builtin.template:
+    src: chrony.conf.j2
+    dest: /etc/chrony/chrony.conf
+    mode: "0644"
+  notify: restart chrony
+
+- name: Ensure chrony is enabled and running
+  ansible.builtin.systemd:
+    name: chrony
+    enabled: true
+    state: started
+
+- name: Flush handlers so tracking check sees the new config
+  ansible.builtin.meta: flush_handlers
+
+- name: Wait briefly, then report tracking state
+  ansible.builtin.command: chronyc tracking
+  register: tracking
+  changed_when: false
+  retries: 3
+  delay: 5
+  until: tracking.rc == 0
+
+- name: Show chrony tracking
+  ansible.builtin.debug:
+    var: tracking.stdout_lines

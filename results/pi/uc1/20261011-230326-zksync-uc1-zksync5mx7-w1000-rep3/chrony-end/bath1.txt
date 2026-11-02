@@ -1,0 +1,14 @@
+1791754665.300624767
+Reference ID    : 8AC975C1 (mailrelay.b-ite.net)
+Stratum         : 3
+Ref time (UTC)  : Sun Oct 11 21:37:35 2026
+System time     : 0.000134656 seconds slow of NTP time
+Last offset     : +0.000159277 seconds
+RMS offset      : 0.002067802 seconds
+Frequency       : 8.042 ppm fast
+Residual freq   : -0.128 ppm
+Skew            : 0.568 ppm
+Root delay      : 0.039094895 seconds
+Root dispersion : 0.005071714 seconds
+Update interval : 64.6 seconds
+Leap status     : Normal

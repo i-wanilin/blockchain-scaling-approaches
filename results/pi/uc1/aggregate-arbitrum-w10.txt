@@ -1,0 +1,13 @@
+# UC1 Arbitrum w10, complete runs only (n=2: 190714 excluded, sensor dropped customer 5); refused without --include-incomplete; regenerated 2026-09-30 with analysis commit a7ac8ad. SATURATED: latency is of admitted payments only, set by MAX_QUEUE=10000 and DRAIN_S=60; read goodput, shares and confirmation
+saturated                2 of 2  runs [True, True]
+payment_latency_p50_s    135.3 ± 18  (min 122.8, max 147.9, n=2)  runs [122.80308675765991, 147.88974797725677]  [2 of 2 runs saturated: set by MAX_QUEUE=10000 and DRAIN_S=60]
+payment_latency_p99_s    610.8 ± 1.3e+02  (min 518.4, max 703.3, n=2)  runs [703.310144610405, 518.3528950691223]  [2 of 2 runs saturated: set by MAX_QUEUE=10000 and DRAIN_S=60]
+deadline_miss_share      1 ± 0  (min 1, max 1, n=2)  runs [1.0, 1.0]
+open_s_median            1.633 ± 0.096  (min 1.565, max 1.701, n=2)  runs [1.7010976076126099, 1.565309762954712]
+close_s_median           0.2153 ± 0.0037  (min 0.2127, max 0.218, n=2)  runs [0.21796023845672607, 0.21271979808807373]
+payment_fees_eth         0.5013 ± 0.02  (min 0.487, max 0.5157, n=2)  runs [0.4869543, 0.5157012]
+goodput_per_s            248.5 ± 10  (min 241.3, max 255.6, n=2)  runs [241.3098109871087, 255.60833591847788]
+succeeded_share          0.4421 ± 0.018  (min 0.4294, max 0.4548, n=2)  runs [0.42941296296296294, 0.454762962962963]
+dropped_share            0.5001 ± 0.019  (min 0.4864, max 0.5137, n=2)  runs [0.5137203703703703, 0.4864351851851852]
+confirmation_p50_s       1.154 ± 0.068  (min 1.106, max 1.202, n=2)  runs [1.1057395935058594, 1.2017642259597778]
+receive_lag_p99_s        4.635 ± 3  (min 2.526, max 6.744, n=2)  runs [6.743529837131505, 2.525850105285646]

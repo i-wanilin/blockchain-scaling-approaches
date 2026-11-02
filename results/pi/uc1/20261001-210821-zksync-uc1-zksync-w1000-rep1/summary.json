@@ -1,0 +1,451 @@
+{
+ "complete": false,
+ "saturated": false,
+ "headline": {
+  "saturated": false,
+  "offered": 702,
+  "succeeded_share": 1.0,
+  "admitted_share": 1.0,
+  "dropped_share": 0.0,
+  "unresolved_share": 0.0,
+  "goodput_per_s": 3.4194816547231266,
+  "confirmation_s": {
+   "n": 702,
+   "p50": 5.136986970901489,
+   "p90": 17.934893083572387,
+   "p99": 27.337065391540534,
+   "max": 39.41417121887207
+  },
+  "payment_latency_s": {
+   "n": 702,
+   "p50": 5.3939584493637085,
+   "p90": 17.940433359146116,
+   "p99": 29.677806050777438,
+   "max": 39.41944241523743
+  },
+  "latency_note": null,
+  "max_queue": "10000",
+  "drain_s": "60"
+ },
+ "complete_checks": {
+  "customers_found": 6,
+  "customers_expected": 6,
+  "incomplete_customers": [],
+  "run_failed": false,
+  "missing": [],
+  "dropped_customers": [],
+  "short_customers": {
+   "c1": [
+    118,
+    900
+   ],
+   "c2": [
+    114,
+    900
+   ],
+   "c3": [
+    119,
+    900
+   ],
+   "c4": [
+    113,
+    900
+   ],
+   "c5": [
+    111,
+    900
+   ],
+   "c6": [
+    127,
+    900
+   ]
+  },
+  "stream_incomplete_customers": [
+   "bath2",
+   "bath3",
+   "bath4",
+   "bath5",
+   "bath6",
+   "bath7"
+  ],
+  "unreadable_logs": [
+   "logs/bath1-sensor.log"
+  ]
+ },
+ "open_s": {
+  "c1": 2.865764617919922,
+  "c2": 2.6006877422332764,
+  "c3": 2.408816337585449,
+  "c4": 2.1914737224578857,
+  "c5": 3.5097391605377197,
+  "c6": 2.753772020339966
+ },
+ "close_s": {
+  "c1": 3.1126391887664795,
+  "c2": 4.866223573684692,
+  "c3": 3.3445208072662354,
+  "c4": 5.598340272903442,
+  "c5": 6.536370754241943,
+  "c6": 3.3102176189422607
+ },
+ "close_pending": {
+  "c1": 0,
+  "c2": 0,
+  "c3": 0,
+  "c4": 0,
+  "c5": 0,
+  "c6": 0
+ },
+ "offered_rate_per_s": 6.0,
+ "confirmed_per_10s": [
+  51,
+  57,
+  14,
+  106,
+  31,
+  1,
+  142,
+  16,
+  1,
+  130,
+  43,
+  13,
+  12,
+  20,
+  5,
+  8,
+  14,
+  0,
+  20,
+  8,
+  10
+ ],
+ "backlog_max": 133,
+ "late_executed": {
+  "c1": 0,
+  "c2": 0,
+  "c3": 0,
+  "c4": 0,
+  "c5": 0,
+  "c6": 0
+ },
+ "late_executed_total": 0,
+ "payment_latency_s": {
+  "n": 702,
+  "p50": 5.3939584493637085,
+  "p90": 17.940433359146116,
+  "p99": 29.677806050777438,
+  "max": 39.41944241523743
+ },
+ "queueing_s": {
+  "n": 702,
+  "p50": 0.0038962364196777344,
+  "p90": 0.005076289176940918,
+  "p99": 4.125537130832672,
+  "max": 12.648800134658813
+ },
+ "confirmation_s": {
+  "n": 702,
+  "p50": 5.136986970901489,
+  "p90": 17.934893083572387,
+  "p99": 27.337065391540534,
+  "max": 39.41417121887207
+ },
+ "deadline_miss_share": 0.9700854700854701,
+ "deadline_miss_share_by_window_ms": {
+  "1000": 0.9700854700854701
+ },
+ "receive_lag_s": {
+  "n": 84498,
+  "p50": 0.021389007568359375,
+  "p90": 26.74485847949982,
+  "p99": 77.60178311109543,
+  "max": 80.08571338653564
+ },
+ "per_customer": {
+  "c1": {
+   "board": "bath2",
+   "board_model": "Raspberry Pi 3 Model B Plus Rev 1.4",
+   "offered": 118,
+   "succeeded": 118,
+   "queue_full": 0,
+   "confirmation_span_s": 203.59470462799072,
+   "goodput_per_s": 0.5795828541592484,
+   "confirmation_p50_s": 4.322423577308655,
+   "backlog_max": 22,
+   "late_executed": 0,
+   "receive_lag_s": {
+    "n": 14277,
+    "p50": 0.018509864807128906,
+    "p99": 68.03388101577758,
+    "max": 71.79056286811829
+   }
+  },
+  "c2": {
+   "board": "bath3",
+   "board_model": "Raspberry Pi 3 Model B Rev 1.2",
+   "offered": 114,
+   "succeeded": 114,
+   "queue_full": 0,
+   "confirmation_span_s": 182.33490204811096,
+   "goodput_per_s": 0.6252231400542279,
+   "confirmation_p50_s": 4.269015073776245,
+   "backlog_max": 21,
+   "late_executed": 0,
+   "receive_lag_s": {
+    "n": 13698,
+    "p50": 0.017371535301208496,
+    "p99": 51.16349128246313,
+    "max": 59.35262584686279
+   }
+  },
+  "c3": {
+   "board": "bath4",
+   "board_model": "Raspberry Pi 3 Model B Rev 1.2",
+   "offered": 119,
+   "succeeded": 119,
+   "queue_full": 0,
+   "confirmation_span_s": 204.99987030029297,
+   "goodput_per_s": 0.580488172142175,
+   "confirmation_p50_s": 4.3116614818573,
+   "backlog_max": 22,
+   "late_executed": 0,
+   "receive_lag_s": {
+    "n": 14308,
+    "p50": 0.02122962474822998,
+    "p99": 76.37918220043183,
+    "max": 78.97816920280457
+   }
+  },
+  "c4": {
+   "board": "bath5",
+   "board_model": "Raspberry Pi 3 Model B Rev 1.2",
+   "offered": 113,
+   "succeeded": 113,
+   "queue_full": 0,
+   "confirmation_span_s": 182.99782633781433,
+   "goodput_per_s": 0.6174936733478014,
+   "confirmation_p50_s": 4.489135503768921,
+   "backlog_max": 22,
+   "late_executed": 0,
+   "receive_lag_s": {
+    "n": 13597,
+    "p50": 0.01588726043701172,
+    "p99": 53.0869296169281,
+    "max": 55.95790648460388
+   }
+  },
+  "c5": {
+   "board": "bath6",
+   "board_model": "Raspberry Pi 3 Model B Rev 1.2",
+   "offered": 111,
+   "succeeded": 111,
+   "queue_full": 0,
+   "confirmation_span_s": 179.91862440109253,
+   "goodput_per_s": 0.616945579533488,
+   "confirmation_p50_s": 4.012794733047485,
+   "backlog_max": 22,
+   "late_executed": 0,
+   "receive_lag_s": {
+    "n": 13368,
+    "p50": 0.018147945404052734,
+    "p99": 46.28788107872009,
+    "max": 52.46695637702942
+   }
+  },
+  "c6": {
+   "board": "bath7",
+   "board_model": "Raspberry Pi 3 Model B Rev 1.2",
+   "offered": 127,
+   "succeeded": 127,
+   "queue_full": 0,
+   "confirmation_span_s": 204.55021715164185,
+   "goodput_per_s": 0.6208744325401985,
+   "confirmation_p50_s": 10.196574449539185,
+   "backlog_max": 31,
+   "late_executed": 0,
+   "receive_lag_s": {
+    "n": 15250,
+    "p50": 0.32040905952453613,
+    "p99": 78.8454887843132,
+    "max": 80.08571338653564
+   }
+  }
+ },
+ "windows": {
+  "ledger_rows": 702,
+  "expected_per_customer": 900,
+  "per_customer": {
+   "c1": {
+    "ledger_rows": 118,
+    "windows_expected": 900
+   },
+   "c2": {
+    "ledger_rows": 114,
+    "windows_expected": 900
+   },
+   "c3": {
+    "ledger_rows": 119,
+    "windows_expected": 900
+   },
+   "c4": {
+    "ledger_rows": 113,
+    "windows_expected": 900
+   },
+   "c5": {
+    "ledger_rows": 111,
+    "windows_expected": 900
+   },
+   "c6": {
+    "ledger_rows": 127,
+    "windows_expected": 900
+   }
+  }
+ },
+ "outcomes": {
+  "succeeded": 702
+ },
+ "mapped_to_unresolved": 0,
+ "reconciliation": {
+  "succeeded_wei": 702000000000000,
+  "sensor_received_wei": 702000000000000,
+  "difference_wei": 0,
+  "ok": true,
+  "explained_wei": 0,
+  "ok_explained": true,
+  "late_executed_wei": 0,
+  "ok_with_late": true
+ },
+ "gas": {
+  "deposit_l1_median": 291390.0,
+  "payment_l2_median": 87200.0,
+  "withdraw_l2_median": 125255.0
+ },
+ "fees_eth": {
+  "deposit_l1": 3.5812e-12,
+  "payments_l2": 0.006215936,
+  "payments_l2_reverted": 0.0,
+  "withdraw_l2": 9.1e-05
+ },
+ "fees_unpriced_submitted_rows": 0,
+ "diagnostics": {
+  "customers": {
+   "c1": {
+    "resyncs": 0,
+    "reconnects": 0,
+    "outage_seconds": 0.0,
+    "quiesce_timeouts": 0,
+    "late": 0,
+    "duplicates": 0
+   },
+   "c2": {
+    "resyncs": 0,
+    "reconnects": 0,
+    "outage_seconds": 0.0,
+    "quiesce_timeouts": 0,
+    "late": 0,
+    "duplicates": 0
+   },
+   "c3": {
+    "resyncs": 0,
+    "reconnects": 0,
+    "outage_seconds": 0.0,
+    "quiesce_timeouts": 0,
+    "late": 0,
+    "duplicates": 0
+   },
+   "c4": {
+    "resyncs": 0,
+    "reconnects": 0,
+    "outage_seconds": 0.0,
+    "quiesce_timeouts": 0,
+    "late": 0,
+    "duplicates": 0
+   },
+   "c5": {
+    "resyncs": 0,
+    "reconnects": 0,
+    "outage_seconds": 0.0,
+    "quiesce_timeouts": 0,
+    "late": 0,
+    "duplicates": 0
+   },
+   "c6": {
+    "resyncs": 0,
+    "reconnects": 0,
+    "outage_seconds": 0.0,
+    "quiesce_timeouts": 0,
+    "late": 0,
+    "duplicates": 0
+   }
+  },
+  "recorder": {
+   "bath0": {
+    "undervolted_share": 0.0,
+    "max_temp_c": 76.9,
+    "samples": 56,
+    "skipped_lines": 0,
+    "scope": "stream window",
+    "mean_cpu_busy_pct": 97.47678571428571
+   },
+   "bath1": {
+    "undervolted_share": 0.0,
+    "max_temp_c": 53.2,
+    "samples": 55,
+    "skipped_lines": 0,
+    "scope": "stream window",
+    "mean_cpu_busy_pct": 10.047272727272727
+   },
+   "bath2": {
+    "undervolted_share": 0.0,
+    "max_temp_c": 48.3,
+    "samples": 56,
+    "skipped_lines": 0,
+    "scope": "stream window",
+    "mean_cpu_busy_pct": 5.982142857142857
+   },
+   "bath3": {
+    "undervolted_share": 0.5272727272727272,
+    "max_temp_c": 52.1,
+    "samples": 55,
+    "skipped_lines": 0,
+    "scope": "stream window",
+    "mean_cpu_busy_pct": 9.872727272727273
+   },
+   "bath4": {
+    "undervolted_share": 0.19642857142857142,
+    "max_temp_c": 57.5,
+    "samples": 56,
+    "skipped_lines": 0,
+    "scope": "stream window",
+    "mean_cpu_busy_pct": 8.935714285714285
+   },
+   "bath5": {
+    "undervolted_share": 0.0,
+    "max_temp_c": 60.1,
+    "samples": 56,
+    "skipped_lines": 0,
+    "scope": "stream window",
+    "mean_cpu_busy_pct": 6.628571428571428
+   },
+   "bath6": {
+    "undervolted_share": 0.2857142857142857,
+    "max_temp_c": 56.9,
+    "samples": 56,
+    "skipped_lines": 0,
+    "scope": "stream window",
+    "mean_cpu_busy_pct": 9.862499999999999
+   },
+   "bath7": {
+    "undervolted_share": 0.5535714285714286,
+    "max_temp_c": 54.2,
+    "samples": 56,
+    "skipped_lines": 0,
+    "scope": "stream window",
+    "mean_cpu_busy_pct": 10.335714285714285
+   }
+  }
+ },
+ "analysis_commit": "bf27c81edfe9ffeda0fe785faee7f0fcf6d6effb",
+ "analysis_measure_dirty": false
+}

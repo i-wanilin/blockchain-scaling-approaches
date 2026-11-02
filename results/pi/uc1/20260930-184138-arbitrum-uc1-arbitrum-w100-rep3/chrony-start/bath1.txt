@@ -1,0 +1,14 @@
+1790786639.712741133
+Reference ID    : 55CAA337 (vps-dus1.orleans.ddnss.de)
+Stratum         : 3
+Ref time (UTC)  : Wed Sep 30 16:35:36 2026
+System time     : 0.000632203 seconds slow of NTP time
+Last offset     : -0.000025894 seconds
+RMS offset      : 0.000279936 seconds
+Frequency       : 7.931 ppm fast
+Residual freq   : -0.001 ppm
+Skew            : 0.042 ppm
+Root delay      : 0.031421587 seconds
+Root dispersion : 0.002934734 seconds
+Update interval : 1030.7 seconds
+Leap status     : Normal

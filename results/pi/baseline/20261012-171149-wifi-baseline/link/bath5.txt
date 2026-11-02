@@ -1,0 +1,11 @@
+Connected to 02:00:00:00:00:01 (on wlan0)
+	SSID: home-wifi
+	freq: 2462.0
+	RX: 3560154309 bytes (5980695 packets)
+	TX: 938863048 bytes (5505832 packets)
+	signal: -48 dBm
+	rx bitrate: 72.2 MBit/s
+	tx bitrate: 19.5 MBit/s
+	bss flags: short-preamble short-slot-time
+	dtim period: 2
+	beacon int: 100

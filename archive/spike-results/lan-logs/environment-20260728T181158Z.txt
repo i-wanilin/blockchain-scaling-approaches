@@ -1,0 +1,71 @@
+### captured 2026-07-28T18:11:58Z
+
+## laptop / bob (laptop)
+CPU(s):                                  8
+Model name:                              Intel(R) Core(TM) i5-8250U CPU @ 1.60GHz
+Thread(s) per core:                      2
+Core(s) per socket:                      4
+CPU(s) scaling MHz:                      100%
+CPU max MHz:                             3400,0000
+CPU min MHz:                             400,0000
+L1d cache:                               128 KiB (4 instances)
+L1i cache:                               128 KiB (4 instances)
+L2 cache:                                1 MiB (4 instances)
+L3 cache:                                6 MiB (1 instance)
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       4,6Gi       898Mi       317Mi        10Gi        10Gi
+yes:home-wifi:60:270 Mbit/s:5600 MHz
+governor: powersave
+commit: d7c374d63190df172f36cdfa96199a78f83c3abc
+-- ping 192.168.178.22 (50) --
+50 packets transmitted, 50 received, 0% packet loss, time 9848ms
+rtt min/avg/max/mdev = 1.471/5.233/49.017/8.926 ms
+-- ping 192.168.178.35 (50) --
+50 packets transmitted, 50 received, 0% packet loss, time 9840ms
+rtt min/avg/max/mdev = 1.517/4.852/126.153/17.338 ms
+
+## PC
+
+
+Name                      : Intel(R) Core(TM) i7-10700K CPU @ 3.80GHz
+NumberOfCores             : 8
+NumberOfLogicalProcessors : 16
+MaxClockSpeed             : 3792
+
+
+
+34185216000
+d7c374d63190df172f36cdfa96199a78f83c3abc
+
+    SSID                   : home-wifi
+    AP BSSID               : 02:00:00:00:00:02
+    Band                   : 5 GHz
+    Channel                : 120
+    Receive rate (Mbps)    : 1922
+    Transmit rate (Mbps)   : 2402
+    Signal                 : 95% 
+
+
+
+## G16
+
+
+Name                      : Intel(R) Core(TM) Ultra 7 155H
+NumberOfCores             : 16
+NumberOfLogicalProcessors : 22
+MaxClockSpeed             : 3800
+
+
+
+16556097536
+d7c374d63190df172f36cdfa96199a78f83c3abc
+
+    SSID                   : home-wifi
+    AP BSSID               : 02:00:00:00:00:02
+    Band                   : 5 GHz
+    Channel                : 120
+    Receive rate (Mbps)    : 1729
+    Transmit rate (Mbps)   : 1201
+    Signal                 : 94% 
+
+

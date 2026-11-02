@@ -1,0 +1,88 @@
+{
+  "schema_version": 3,
+  "run_id": "20261006T170821Z-6d422170",
+  "timestamp_utc": "2026-10-06T17:10:55.851635688Z",
+  "node": "p0",
+  "hostname": "bath1",
+  "os": "linux",
+  "arch": "arm64",
+  "commit_dirty": false,
+  "payments": 0,
+  "payment_failures": 0,
+  "burst_ms": 0,
+  "payments_per_second": 0,
+  "payment_latency": {
+    "count": 0,
+    "mean_ms": 0,
+    "p50_ms": 0,
+    "p90_ms": 0,
+    "p99_ms": 0,
+    "max_ms": 0
+  },
+  "collisions": 0,
+  "virtual_final": [
+    {
+      "channel": "109f284e15618319a684457e76fe76a4925fcde58e171590e0fee16464d7e268",
+      "version": 11,
+      "balances": [
+        "1735",
+        "1625"
+      ]
+    },
+    {
+      "channel": "12290ab1ec8915e6ae9f3f6f68d87f7603e7f501dd27b3dbc4c5d026db4d2a94",
+      "version": 10,
+      "balances": [
+        "1640",
+        "1720"
+      ]
+    },
+    {
+      "channel": "14767460b59a34a62af4871ee4e6b8cb80bd7f1b161c39a4c1ccdde511bcb813",
+      "version": 21,
+      "balances": [
+        "1625",
+        "1735"
+      ]
+    },
+    {
+      "channel": "7309564e42c9b10e8877949a6df9d52634eaf0db1e9735f7ba47ebc3332e1817",
+      "version": 26,
+      "balances": [
+        "1700",
+        "1660"
+      ]
+    },
+    {
+      "channel": "d023278f6c9f04a39bb9de4eb0c1f3c19c6cf45e68ef15f75e52cca5b11655ac",
+      "version": 20,
+      "balances": [
+        "1600",
+        "1760"
+      ]
+    }
+  ],
+  "ledger_open_ms": 0,
+  "ledger_restored": false,
+  "virtual_open_ms": 0,
+  "virtual_settle_ms": 405.046347,
+  "ledger_settle_ms": 2889.311117,
+  "completed": true,
+  "strict_payment_policy": true,
+  "asset": "points",
+  "ledger_settle_gas": {
+    "gas": 222457,
+    "txs": 2,
+    "fee_wei": "222457001557199",
+    "by_contract": {
+      "adjudicator": {
+        "gas": 153743,
+        "txs": 1
+      },
+      "asset holder": {
+        "gas": 68714,
+        "txs": 1
+      }
+    }
+  }
+}

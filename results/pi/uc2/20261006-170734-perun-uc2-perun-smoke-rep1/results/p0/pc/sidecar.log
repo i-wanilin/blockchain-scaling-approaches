@@ -1,0 +1,2 @@
+pkg/test: using rootSeed 1791299652409302982
+time="2026-10-06T17:15:12+02:00" level=warning msg="invalid update received: expected version 6, got version 5: invalid state transition (ID: 49178765ee57b2de95e3e06cf0e20ae997d6dc34987bd476e4621df17583eb67)" channel=49178765ee57b2de95e3e06cf0e20ae997d6dc34987bd476e4621df17583eb67 id="map[1:p0]" peerIdx=1

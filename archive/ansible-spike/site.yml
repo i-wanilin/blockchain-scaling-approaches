@@ -1,0 +1,19 @@
+# Full Pi provisioning. Run:
+#   ansible-playbook site.yml                      # provision everything
+#   ansible-playbook site.yml --tags time-sync     # just one role
+#   ansible-playbook site.yml --tags netem \
+#       -e netem_delay=25ms -e netem_jitter=5ms    # optional WAN emulation
+#
+# Design note: plain systemd + rsync, no k3s. Kubernetes is a means, not a
+# goal (methodology note) — for 6 Pis and one operator, ansible + systemd
+# template units are simpler to reason about and to debug. k3s can be layered
+# on later without invalidating any of this.
+- name: Provision thesis Pi cluster
+  hosts: pis
+  become: true
+  roles:
+    - { role: common,      tags: [common] }
+    - { role: time-sync,   tags: [time-sync] }
+    - { role: golang,      tags: [golang] }
+    - { role: player-node, tags: [player-node] }
+    - { role: netem,       tags: [netem, never] }  # opt-in: --tags netem

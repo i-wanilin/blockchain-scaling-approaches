@@ -1,0 +1,46 @@
+{
+ "system": "arbitrum",
+ "account": 103,
+ "complete": true,
+ "max_in_flight": 64,
+ "max_queue": 10000,
+ "drain_s": 60.0,
+ "duplicates": 0,
+ "late": 0,
+ "open": {
+  "t_start": 1790780555.5807145,
+  "t_l1_confirmed": 1790780556.2407005,
+  "t_l2_credited": 1790780557.2784743,
+  "l1_gas_used": 91067,
+  "l1_fee_wei": 728536,
+  "l2_balance_wei": 1000000000000000000
+ },
+ "ready_at": 1790780557.4512765,
+ "ended_at": 1790781591.2403588,
+ "resyncs": 0,
+ "reconnects": 0,
+ "outage_seconds": 0.0,
+ "quiesce_timeouts": 0,
+ "reconciliation": {
+  "succeeded_wei": 23072000000000000,
+  "observed_wei": 23072000000000000,
+  "difference_wei": 0,
+  "counts": {
+   "generated": 0,
+   "queued": 0,
+   "submitted": 0,
+   "succeeded": 23072,
+   "failed": 60065,
+   "unresolved": 6863
+  },
+  "observed_source": "client"
+ },
+ "payment_gas_limit": 31500,
+ "close": {
+  "t_start": 1790781601.5512083,
+  "t_confirmed": 1790781601.7266982,
+  "status": 1,
+  "l2_gas_used": 83005,
+  "l2_fee_wei": 8300500000000
+ }
+}

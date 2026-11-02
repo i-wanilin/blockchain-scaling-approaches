@@ -1,0 +1,49 @@
+{
+ "system": "arbitrum",
+ "account": 104,
+ "complete": false,
+ "max_in_flight": 64,
+ "max_queue": 10000,
+ "drain_s": 60.0,
+ "duplicates": 0,
+ "late": 0,
+ "receipt_timeout": 120.0,
+ "open": {
+  "t_start": 1791146105.3264148,
+  "t_l1_confirmed": 1791146106.3557334,
+  "t_l2_credited": 1791146107.4077554,
+  "l1_gas_used": 91067,
+  "l1_fee_wei": 728536,
+  "l2_balance_wei": 1000000000000000000
+ },
+ "start_nonce": 0,
+ "ready_at": 1791146107.532063,
+ "ended_at": 1791147117.4895496,
+ "submitted_nonce": 42751,
+ "resyncs": 23093,
+ "reconnects": 0,
+ "outage_seconds": 0.0,
+ "quiesce_timeouts": 0,
+ "receipt_mode": "own",
+ "receipt_fallback": false,
+ "receipt_fallback_error": null,
+ "reconciliation": {
+  "succeeded_wei": 42751000000000000,
+  "observed_wei": 42751000000000000,
+  "difference_wei": 0,
+  "counts": {
+   "generated": 0,
+   "queued": 0,
+   "submitted": 0,
+   "succeeded": 42751,
+   "failed": 41226,
+   "unresolved": 6023
+  },
+  "observed_source": "client"
+ },
+ "payment_gas_limit": 31500,
+ "admission_wait_s": 0.03694561100564897,
+ "not_admitted": 0,
+ "pending_before_close": 0,
+ "close_error": "Web3RPCError: {'code': -32000, 'message': 'max fee per gas less than block base fee: maxFeePerGas: 200000001 baseFee: 200570000'}"
+}

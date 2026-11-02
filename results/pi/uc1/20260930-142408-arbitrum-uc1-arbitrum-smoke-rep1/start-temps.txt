@@ -1,0 +1,10 @@
+# host idle_c start_c (gate: start <= idle + 3); idle temperatures, median of 3 samples 30 s apart, stack down; measured 2026-09-30T12:22:51Z
+# checked 2026-09-30T12:24:59Z after 0s
+bath0 49.6 50.6
+bath1 52.1 51.5
+bath2 51.0 50.5
+bath3 51.5 52.6
+bath4 56.4 58.0
+bath5 58.0 58.5
+bath6 55.3 55.3
+bath7 54.2 53.7

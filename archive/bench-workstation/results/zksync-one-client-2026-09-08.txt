@@ -1,0 +1,23 @@
+# probe_ceiling  rpc=http://127.0.0.1:3050  chain=271  gasPrice=100000000
+# TEST A rerun: max throughput for ONE client (single account). Funding fixed.
+# per-account tx=500  accounts=[1]  depths=[8, 32, 64, 128, 192, 256]  procs=1
+# gasPrice x1 headroom = 100000000 (base fee rises under load)
+# gas limit per tx = 160000
+# host: 16 cores, idle load 1.36, started 23:16:25
+
+# tps   = confirmed-in-a-block per second  (the throughput figure)
+# /act  = tps per account
+# inflt = A x D, total transactions outstanding at once
+# sub   = mean ms eth_sendRawTransaction blocks for (~1 block interval)
+# load  = 1-min load average at end of cell, on a 16-core host.
+#         PLATEAU + LOW LOAD  -> node saturated (a real ceiling)
+#         PLATEAU + ~P cores  -> generator saturated (raise --procs)
+ acct  depth   proc   inflt       ok/sent  span_s       tps     /act   sub_ms  e2e_mean   e2e_p90   load   err
+    1      8      1       8    437/437     132.73      3.29     3.29     72.4    2417.5    3383.6  13.68    63
+        ! {'code': 3, 'message': 'nonce too low. allowed nonce range: 2333 - 2533, actual: 2270', 'data': '0x'
+    1     32      1      32    500/500      55.61      8.99     8.99    156.5    3496.0    6032.0  17.45     0
+    1     64      1      64    500/500      28.34     17.64    17.64    258.1    3355.5    5009.0  16.08     0
+    1    128      1     128    500/500      29.44     16.98    16.98    507.4    5675.2    9508.7  14.86     0
+    1    192      1     192    500/500      31.16     16.05    16.05    399.0    5138.5    8847.3  19.80     0
+    1    256      1     256    342/342      21.13     16.19    16.19    541.8    7258.3   12703.4  19.50   158
+        ! {'code': 3, 'message': 'nonce too high. allowed nonce range: 4903 - 5103, actual: 5125', 'data': '0x

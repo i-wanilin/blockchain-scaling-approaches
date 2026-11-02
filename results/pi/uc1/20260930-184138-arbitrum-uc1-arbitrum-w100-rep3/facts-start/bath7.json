@@ -1,0 +1,1 @@
+{"host": "bath7", "model": "Raspberry Pi 3 Model B Rev 1.2", "serial": "3d270082", "wifi_mac": "b8:27:eb:72:55:d7", "kernel": "6.8.0-1065-raspi", "bssid": "02:00:00:00:00:01", "freq_mhz": 2462, "power_save": "off", "throttled": "0x50000", "chrony_source": "192.168.178.211", "chrony_offset_ms": 0.206904, "netem": false, "disk_free_gb": 24.6, "temp_c": 52.1, "docker_up": "0"}

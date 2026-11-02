@@ -1,0 +1,18 @@
+# probe_ceiling  rpc=http://127.0.0.1:8547  chain=412346  gasPrice=23038000000
+# ONE DEVICE at GESL rate: can a single account sustain 120 Hz?
+# per-account tx=200  accounts=[1]  depths=[32, 48, 64, 96]  procs=1
+# gasPrice x200 headroom = 23038000000 (base fee rises under load)
+# host: 16 cores, idle load 6.88, started 14:59:47
+
+# tps   = confirmed-in-a-block per second  (the throughput figure)
+# /act  = tps per account
+# inflt = A x D, total transactions outstanding at once
+# sub   = mean ms eth_sendRawTransaction blocks for (~1 block interval)
+# load  = 1-min load average at end of cell, on a 16-core host.
+#         PLATEAU + LOW LOAD  -> node saturated (a real ceiling)
+#         PLATEAU + ~P cores  -> generator saturated (raise --procs)
+ acct  depth   proc   inflt       ok/sent  span_s       tps     /act   sub_ms  e2e_mean   e2e_p90   load   err
+    1     32      1      32    200/200       1.77    112.90   112.90    203.5     251.3     283.9   6.41     0
+    1     48      1      48    200/200       1.27    157.46   157.46    187.3     258.1     322.2   6.41     0
+    1     64      1      64    200/200       1.02    195.42   195.42    168.1     260.6     359.8   6.30     0
+    1     96      1      96    200/200       0.87    229.92   229.92    208.3     319.6     435.0   6.30     0

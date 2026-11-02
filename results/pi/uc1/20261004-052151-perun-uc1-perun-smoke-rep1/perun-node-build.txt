@@ -1,0 +1,7 @@
+sha256 1afb81aa1bfba51ae263063aee72faf65d363fa07328eab77fd253937d634c16
+toolchain go version go1.26.4 linux/amd64
+binary_toolchain go1.26.4
+perun_tree 37aa2ccb330a8e574f2f324aa4206b6ccdb5e404
+commit 853f90b1108423579b8ef817fac16187434df0f5
+flags CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -buildvcs=false -ldflags "-s -w"
+built 2026-10-04T03:19:00Z

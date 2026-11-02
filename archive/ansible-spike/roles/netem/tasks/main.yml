@@ -1,0 +1,32 @@
+# Opt-in role (tags: [netem, never]) — apply or clear tc netem on real Pis.
+#
+#   apply:  ansible-playbook site.yml --tags netem \
+#             -e netem_delay=25ms -e netem_jitter=5ms -e netem_loss=0%
+#   clear:  ansible-playbook site.yml --tags netem     (no vars -> clears)
+#
+# NOTE: netem is NOT persistent across reboots — that is a feature here
+# (a rebooted Pi always comes back with a clean link).
+---
+- name: Apply netem egress profile on {{ netem_iface }}
+  ansible.builtin.command: >-
+    tc qdisc replace dev {{ netem_iface }} root netem
+    delay {{ netem_delay }}
+    {% if netem_jitter %}{{ netem_jitter }} distribution normal{% endif %}
+    {% if netem_loss and netem_loss != '0%' %}loss {{ netem_loss }}{% endif %}
+  when: netem_delay | length > 0
+  changed_when: true
+
+- name: Clear netem qdisc on {{ netem_iface }}
+  ansible.builtin.command: tc qdisc del dev {{ netem_iface }} root
+  when: netem_delay | length == 0
+  changed_when: true
+  failed_when: false   # no qdisc installed -> already clean
+
+- name: Show resulting qdisc
+  ansible.builtin.command: tc qdisc show dev {{ netem_iface }}
+  register: qdisc
+  changed_when: false
+
+- name: Report
+  ansible.builtin.debug:
+    var: qdisc.stdout
