@@ -1,3 +1,6 @@
+# No line-ending conversion on checkout (Git for Windows converts by default): the
+# configuration files must keep the bytes whose SHA-256 the runs recorded.
+* -text
 /perun/hub-demo/scripts/*.sh text eol=lf
 /perun/hub-demo/scripts/*.ps1 text eol=crlf
 deploy/*.sh text eol=lf

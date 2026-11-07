@@ -5,7 +5,7 @@ Universität Berlin, Open Distributed Systems (ODS), 2026.
 
 ## Summary
 
-Ethereum processes around 15 to 30 transactions per second and charges a fee for each of
+Ethereum can process around 15 to 30 transactions per second and charges a fee for each of
 them. For devices in the Internet of Things (IoT) and for games that pay small amounts many
 times per second, the main chain is too slow and too expensive. Layer-2 protocols move such payments
 off the main chain. The thesis compares one system from each of the main Layer-2 families
@@ -92,7 +92,7 @@ framed the metrics; the final list is [`analysis/metrics.md`](analysis/metrics.m
 | [`contracts/points/`](contracts/points/) | `PointsToken`, the ERC-20 token for the UC2 points on the rollups, with its EraVM build. |
 | [`zksync-setup/`](zksync-setup/) | How the zkSync Era ecosystem was set up (`zkstack`), and notes on the arm64 build of `zksync_server` ([`ARM64.md`](zksync-setup/ARM64.md)). |
 | [`results/pi/`](results/pi/) | Every run folder and the aggregates: the final series (`uc1/*5mx7*` with `aggregate-*5mx7-*.txt`, and `uc2/` with `aggregate-uc2-*.txt`), the earlier series (smoke tests, diagnostics, the 2.4 GHz runs that broke off), and the Wi-Fi baseline (`baseline/`). Index: [`results/pi/README.md`](results/pi/README.md). |
-| [`analysis/`](analysis/) | The result numbers and figures of the thesis. Three scripts write the three tables the thesis reads: `results_table.py` turns the 36 final runs (27 for UC1, 9 for UC2) into [`analysis/data/results.csv`](analysis/data/results.csv) (metric list: [`analysis/metrics.md`](analysis/metrics.md)); `cost_eur.py` converts the measured gas into euros at reference prices of the public networks (`analysis/data/cost_eur.csv`; the prices were collected by `reference_prices.py`); `stall.py` breaks down the stalled Arbitrum run (`analysis/data/stall.csv`). The figure scripts write `analysis/figures/`: `figures.py` (F1 to F4), `figures_timeline.py` (F5), `figures_prices.py` (F6), `figures_persecond.py` (F7), `figures_deadline.py` (F8), `figures_breakeven.py` (F10) and `figures_match.py` (F11). Further frames of the UC2 match, not used in the thesis, are in `analysis/figures/uc2-match/` (from the game's viewer, `tank-arena/viz`). Tests in `analysis/tests/`. |
+| [`analysis/`](analysis/) | The result numbers and figures of the thesis. Six scripts write the six tables the thesis reads: `results_table.py` turns the 36 final runs (27 for UC1, 9 for UC2) into [`analysis/data/results.csv`](analysis/data/results.csv) (metric list: [`analysis/metrics.md`](analysis/metrics.md)); `cost_eur.py` converts the measured gas into euros at reference prices of the public networks (`analysis/data/cost_eur.csv`; the prices were collected by `reference_prices.py`); `stall.py` breaks down the stalled Arbitrum run (`analysis/data/stall.csv`); `zksync_batches.py` times zkSync's batches from the server log (`analysis/data/zksync_batches.csv`); `pi4_heat.py` reads the Pi 4's temperature in every final run (`analysis/data/pi4_heat.csv`); `perun_sensor_close.py` times the sensor's own withdrawal in Perun's UC1 runs (`analysis/data/perun_sensor.csv`). The figure scripts write `analysis/figures/`: `figures.py` (F1 to F4), `figures_timeline.py` (F5), `figures_prices.py` (F6), `figures_persecond.py` (F7), `figures_deadline.py` (F8), `figures_breakeven.py` (F10) and `figures_match.py` (F11). Further frames of the UC2 match, not used in the thesis, are in `analysis/figures/uc2-match/` (from the game's viewer, `tank-arena/viz`). Tests in `analysis/tests/`. |
 | [`docs/`](docs/) | The design specs (`docs/superpowers/specs/`) and the thesis proposal (`docs/proposal.pdf`). |
 | [`archive/`](archive/) | Material no longer in the measurement path: the unused ansible spike, legacy deploy scripts, the June workstation setup (`Makefile`, `setup.sh`) and its status log, the executed implementation plans, the June to August 2026 spike results ([`archive/spike-results/`](archive/spike-results/), not thesis results) and the September workstation probes (`archive/bench-workstation/`). See [`archive/README.md`](archive/README.md). |
 
@@ -126,6 +126,12 @@ git checkout -- results
 .venv/bin/python analysis/cost_eur.py
 # the stalled Arbitrum run -> analysis/data/stall.csv
 .venv/bin/python analysis/stall.py
+# zkSync's batches -> analysis/data/zksync_batches.csv
+.venv/bin/python analysis/zksync_batches.py
+# the Pi 4's temperature -> analysis/data/pi4_heat.csv
+.venv/bin/python analysis/pi4_heat.py
+# the sensor's withdrawal on Perun (UC1) -> analysis/data/perun_sensor.csv
+.venv/bin/python analysis/perun_sensor_close.py
 
 # the figures -> analysis/figures/
 .venv/bin/python analysis/figures.py            # F1 to F4, from results.csv
@@ -217,7 +223,11 @@ series for every run, so that every number in the thesis can be traced to its ru
 The public copy, <https://github.com/i-wanilin/blockchain-scaling-approaches>, is a
 snapshot of the tag that the thesis cites, without the history. It leaves out the Docker
 logs of the stacks (`logs/bath0-docker.log` and `.log.gz` in the run folders, 0.8 GB),
-which no analysis reads. In the recorded data, the name and the hardware addresses of the
+which no analysis reads. It also leaves out what a new measurement on the cluster needs but
+the analysis does not: the chain snapshots that every rollup run restores (several GB of
+`.tgz` files on `bath0`) and the arm64 `zksync_server` binary. Their SHA-256 hashes are in
+[`deploy/stack-config/`](deploy/stack-config/), so `sha256sum -c` on its `SHA256SUMS` files
+reports them as missing. In the recorded data, the name and the hardware addresses of the
 Wi-Fi network and the host names of the author's computers are replaced with placeholders;
 nothing else is changed. The public copy is about 1.8 GB.
 
