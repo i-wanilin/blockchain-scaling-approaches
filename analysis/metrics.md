@@ -85,6 +85,9 @@ Latency is generated → confirmed. Guests are p1–p5, the host is p0 on `bath1
 | `open_s` | Open per player, median | s | `open.p0` … `p5` `.s` | median of the 6 players |
 | `open_ledger_s` | Perun Open, ledger part, 1.4–2.5 (*range*, Perun only) | s | `open.p0` … `p5` `.ledger_s` | every player's value |
 | `open_virtual_s` | Perun Open, virtual part, 0.6–3.1 (*range*, Perun only) | s | `open.p0` … `p5` `.virtual_s` | every player's value |
+| `open_common_start_s` | Perun Open per player when all six players begin their Open at the same moment, 8.3 (Perun only; three extra runs of 2026-11-02, `deploy/experiments/probe-uc2-perun-openat.env`, `--open-at`) | s | `open` `t_virtual_open − t_start` in each player's `lifecycle.json` | median over the six players, then mean ± sd of the three runs |
+| `goodput_inflight200`, `confirmation_p50_inflight200` | zkSync at the 100 ms window with 200 payments in flight per customer instead of 20: throughput 3.1 and median confirmation 297 (one run, 2026-10-04, spec U9; `deploy/experiments/archive/probe-zksync5-w100-if200.env`) | 1/s, s | `headline.goodput_per_s`, `headline.confirmation_s.p50` of that run | the run's value, n = 1 |
+| `receive_lag_p99_inflight200` | the same run: 99th percentile of the sensor stream's delay at the customers (the shared 2.4 GHz band was not overloaded) | s | `receive_lag_s.p99` of that run | the run's value, n = 1 |
 | `close_s` | Close per player, median | s | `close.p0` … `p5` `.s` | median of the 6 players |
 | `close_s_range` | zkSync Close "range 2.0–39.7" (*range*; all three systems, it costs nothing) | s | `close.p0` … `p5` `.s` | every player's value |
 | `close_virtual_settle_s` | Perun Close, virtual settles (*range*, Perun only; added 2026-10-16 for F3) | s | `close.p0` … `p5` `.virtual_settle_s` | every player's value |
@@ -229,3 +232,13 @@ windows still misses:
   `deadline_for_miss_*` is left out (and `rep` is empty for such a run).
 - Read from the raw ledgers like F, so `--verify` does not cover it. `results_table.py`
   checks that the same ledgers give each run's `deadline_miss_share` at the window.
+
+## H. When the sensor's earnings reach the L1 (Perun, UC1; added 2026-11-07)
+
+Not in results.csv: `analysis/perun_sensor_close.py` writes `analysis/data/perun_sensor.csv`
+(same columns), which the thesis's macro script reads as well.
+
+| Metric | Meaning | Unit | Source | Per run |
+|---|---|---|---|---|
+| `sensor_withdraw_s` | the sensor's own withdrawal from a customer's channel, one L1 transaction after the customer's Close | s | `results/sensor/sensor-result.json`: `t_settle_end − t_settle_start` | median over the 5 channels |
+| `sensor_money_back_s` | from the start of the customer's Close to the end of the sensor's withdrawal from that channel (includes the sensor's gas scan of the run's L1 blocks before the withdrawal) | s | `cN/lifecycle.json` `close.t_start` → `t_settle_end` | median over the 5 channels |

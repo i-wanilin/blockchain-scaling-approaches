@@ -1,0 +1,14 @@
+1793645488.923270250
+Reference ID    : AEFE422C (time1.panq.nl)
+Stratum         : 3
+Ref time (UTC)  : Mon Nov 02 18:51:14 2026
+System time     : 0.000442516 seconds slow of NTP time
+Last offset     : +0.000222575 seconds
+RMS offset      : 0.001057586 seconds
+Frequency       : 7.478 ppm fast
+Residual freq   : -0.199 ppm
+Skew            : 2.213 ppm
+Root delay      : 0.032218721 seconds
+Root dispersion : 0.001057032 seconds
+Update interval : 65.0 seconds
+Leap status     : Normal

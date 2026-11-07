@@ -13,7 +13,10 @@ where the stall was, from the run's raw logs:
   customer over the whole run (summary.json per_customer.cN.receive_lag_s.p99); the mean
   CPU load and the range of the Wi-Fi signal of the customer's board before and during
   the stall (recorder/<board>.csv, one sample every 5 s);
-- the start of the stall in seconds after the first payment.
+- the start of the stall in seconds after the first payment;
+- per customer that had any payment slower than STALL_S: the intended time of its first and
+  its last such payment, in seconds after the first payment (the stall window above is
+  defined, not measured: it runs to the end of the stream for every customer).
 
 Output: analysis/data/stall.csv, with the columns of results.csv (use_case uc1, system
 arbitrum, window w100, metric stall_*, the board in "board", the number in "mean"), so
@@ -80,6 +83,12 @@ def main():
             row("stall_signal_min", min(sig), "dBm", f"recorder/{b}.csv signal_dbm, during the stall", b),
             row("stall_signal_max", max(sig), "dBm", f"recorder/{b}.csv signal_dbm, during the stall", b),
         ]
+        own = [t for t, lat in v if lat > STALL_S]
+        if own:
+            out += [
+                row("stall_slow_first_s", own[0] - t0, "s", f"results/{c}/ledger.csv.gz, first payment slower than {STALL_S} s", b),
+                row("stall_slow_last_s", own[-1] - t0, "s", f"results/{c}/ledger.csv.gz, last payment slower than {STALL_S} s", b),
+            ]
     with open(OUT, "w", newline="") as f:
         w = csv.DictWriter(f, COLUMNS)
         w.writeheader()

@@ -38,7 +38,6 @@ MARKER = {"perun": "o", "arbitrum": "s", "zksync": "^"}
 INK, INK2, GRID = "#0b0b0b", "#52514e", "#e2e1dc"
 WINDOWS = ("w1000", "w100", "w10")
 OFFERED = {"w1000": 5, "w100": 50, "w10": 500}       # UC1 payments per second (metrics.md)
-F1_PT = 11.0                                          # pt, F1's text size in the drawing (see f1_uc1_latency)
 LANDSCAPE = 8.3                                       # inches, a landscape page's text width (F3, F5)
 WIDTH = 6.3                                           # inches, about an A4 text width
 
@@ -88,16 +87,14 @@ def save(fig, name):
 
 
 def f1_uc1_latency(rows):
-    # every text at the body size of the thesis (11 pt) at the scale the thesis includes the figure
-    with plt.rc_context({"font.size": F1_PT, "axes.labelsize": F1_PT, "xtick.labelsize": F1_PT,
-                         "ytick.labelsize": F1_PT, "legend.fontsize": F1_PT}):
-        _f1(rows)
+    # drawn at F2's size and text size, so that both appear at the same scale in the thesis
+    # (both are included at 0.75 of the text width)
+    _f1(rows)
 
 
 def _f1(rows):
-    # no title (the caption gives it); the marker legend sits below the plot. Drawn large and
-    # included at the full text width
-    fig, ax = plt.subplots(figsize=(6.75, 3.7))   # bbox 6.035 in = the thesis's text width, so 11 pt stays 11 pt
+    # no title (the caption gives it); the marker legend sits below the plot
+    fig, ax = plt.subplots(figsize=(WIDTH * 0.62, 2.9))   # F2's width; a little taller for the legend
     for s in SYSTEMS:
         xs = [OFFERED[w] for w in WINDOWS]
         p50 = [rows[("uc1", s, w, "latency_p50", "")] for w in WINDOWS]
@@ -125,9 +122,9 @@ def _f1(rows):
     ax.set_ylabel("payment latency p50 (s)")
     # the marker legend below the axis label, outside the data
     ax.legend(handles=[
-        Line2D([], [], marker="o", ls="", ms=5, color=INK2, mfc=INK2, label="succeeded"),
-        Line2D([], [], marker="o", ls="", ms=5, color=INK2, mfc="white", mew=1.1, label="saturated (queue full)"),
-    ], loc="upper center", bbox_to_anchor=(0.5, -0.24), ncol=3, handletextpad=0.3, columnspacing=0.9, fontsize=9,
+        Line2D([], [], marker="o", ls="", ms=5, color=INK2, mfc=INK2, label="queue never full"),
+        Line2D([], [], marker="o", ls="", ms=5, color=INK2, mfc="white", mew=1.1, label="queue full (saturated)"),
+    ], loc="upper center", bbox_to_anchor=(0.5, -0.30), ncol=3, handletextpad=0.3, columnspacing=0.9,
         handlelength=1.6)
     save(fig, "f1_uc1_latency")
 
@@ -177,6 +174,9 @@ def _bars(ax, groups, values, errors, hatched):
     ax.grid(axis="x", visible=False)
 
 
+PERUN_COMMON = "#9a4a00"   # Perun's Open with all players starting at once (Figure F3): a darker orange
+
+
 def _dots(ax, groups, values, errors, hollow, positions=None):
     """Dots with ± sd (on a log axis a bar's length means nothing, so the time panels use dots)."""
     w = 0.22
@@ -222,6 +222,11 @@ def f3_open_close(rows, scale="log"):
     t = {s: [rows[("uc2", s, "", m, "")] for m in ("open_s", "close_s")] for s in SYSTEMS}
     _dots(ax, ["Open", "Close"], {s: [r["mean"] for r in t[s]] for s in SYSTEMS},
           {s: [r["sd"] for r in t[s]] for s in SYSTEMS}, rollup_close, positions=[pos["Open"], pos["Close"]])
+    # Perun's Open in the three extra runs with a common start (open_common_start_s): a dot in a darker
+    # orange on Perun's column, so that its ± sd shows like the others'
+    r = rows[("uc2", "perun", "", "open_common_start_s", "")]
+    ax.errorbar(pos["Open"] - 0.22, r["mean"], yerr=r["sd"], color=PERUN_COMMON, lw=1, capsize=2, zorder=3)
+    ax.plot(pos["Open"] - 0.22, r["mean"], "o", ms=3.6, color=PERUN_COMMON, zorder=4)
     steps = ((0.72, "open_ledger_s"), (1.22, "open_virtual_s"),
              (2.72, "close_virtual_settle_s"), (3.22, "close_ledger_settle_s"))
     for x, metric in steps:
@@ -265,6 +270,9 @@ def f3_open_close(rows, scale="log"):
                                                   "Perun's own steps: min–max, 6 players × 3 runs"],
                handler_map={tuple: HandlerTuple(ndivide=None, pad=0.6)}, loc="upper center", ncol=2,
                bbox_to_anchor=(0.5, -0.045), columnspacing=1.6, handletextpad=0.5, fontsize=8)
+    common = Line2D([], [], marker="o", ls="", ms=4, color=PERUN_COMMON)
+    fig.legend(handles=[common], labels=["Perun's Open with all players starting at once (3 extra runs)"],
+               loc="upper center", bbox_to_anchor=(0.5, -0.09), handletextpad=0.5, fontsize=8)
     fig.tight_layout()
     save(fig, "f3_open_close" if scale == "log" else "f3_open_close_linear")
 

@@ -1,0 +1,69 @@
+{
+ "chain_url": "ws://192.168.178.210:8545",
+ "chain_id": 31337,
+ "asset": "points",
+ "state_root": "/tmp/m-20261102-193735-perun-probe-uc2-perun-openat-rep1/perun-state",
+ "result_dir": "/tmp/m-20261102-193735-perun-probe-uc2-perun-openat-rep1/hub",
+ "ledger_deposit": 10000,
+ "virtual_stake": 1680,
+ "hub_deposit": 8400,
+ "ammo_reserve": 336,
+ "challenge_seconds": 10,
+ "update_timeout_seconds": 10,
+ "yield_timeout_ms": 200,
+ "max_collision_retries": 10,
+ "disable_strict_payment_policy": false,
+ "contracts_file": "/tmp/m-20261102-193735-perun-probe-uc2-perun-openat-rep1/contracts.json",
+ "hub_key_file": "/tmp/m-20261102-193735-perun-probe-uc2-perun-openat-rep1/hub.key",
+ "hub": {
+  "name": "arena",
+  "bind": "0.0.0.0:9000",
+  "endpoint": "192.168.178.211:9000",
+  "control": "0.0.0.0:8091",
+  "ethereum": "0x51953940F874eFa94F92EB2d6Aed023617A07222"
+ },
+ "clients": [
+  {
+   "name": "p0",
+   "bind": "0.0.0.0:9001",
+   "endpoint": "192.168.178.211:9001",
+   "control": "http://192.168.178.211:8091",
+   "ethereum": "0x6813ae1FC15E995230C05D4480d50219Bb635F15"
+  },
+  {
+   "name": "p1",
+   "bind": "0.0.0.0:9001",
+   "endpoint": "192.168.178.212:9001",
+   "control": "http://192.168.178.211:8091",
+   "ethereum": "0x11c9CFEc77102a7C903a2D2319c79E7b0BBC9235"
+  },
+  {
+   "name": "p2",
+   "bind": "0.0.0.0:9001",
+   "endpoint": "192.168.178.217:9001",
+   "control": "http://192.168.178.211:8091",
+   "ethereum": "0xBE9086f1A38740F297F6347B531732541289b220"
+  },
+  {
+   "name": "p3",
+   "bind": "0.0.0.0:9001",
+   "endpoint": "192.168.178.214:9001",
+   "control": "http://192.168.178.211:8091",
+   "ethereum": "0xD4Db664B707353422b1Ffc94038cDD0a7D074D51"
+  },
+  {
+   "name": "p4",
+   "bind": "0.0.0.0:9001",
+   "endpoint": "192.168.178.215:9001",
+   "control": "http://192.168.178.211:8091",
+   "ethereum": "0x11Ba29fE987adDFa480FfEcf3d98B26630917a78"
+  },
+  {
+   "name": "p5",
+   "bind": "0.0.0.0:9001",
+   "endpoint": "192.168.178.216:9001",
+   "control": "http://192.168.178.211:8091",
+   "ethereum": "0xFFd57510605b4F47A58576ccC059aB8882C7eA00"
+  }
+ ]
+}

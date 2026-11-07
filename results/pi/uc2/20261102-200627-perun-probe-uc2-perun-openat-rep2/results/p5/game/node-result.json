@@ -1,0 +1,15 @@
+{
+ "complete": true,
+ "aborted": null,
+ "ticks": 1200,
+ "t_start": 1793646877.6013176,
+ "t_end": 1793646937.6098228,
+ "emitted": 78,
+ "counts": {
+  "move": 6322,
+  "fire": 813,
+  "hit": 257,
+  "break": 41
+ },
+ "trace_sha256": "bc1d68746004756ffcdea0f53266ef9c2f3e56ad28c544a1aea014fe854368f7"
+}

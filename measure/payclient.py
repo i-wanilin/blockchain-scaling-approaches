@@ -541,6 +541,8 @@ def parse_args(argv=None):
     ap.add_argument("--use-case", choices=("uc1", "uc2"), default="uc1",
                     help="perun: uc2 drives the uc2-player sidecar (needs --perun-config)")
     ap.add_argument("--perun-config", help="perun uc2: the cluster config JSON of the run")
+    ap.add_argument("--open-at", type=float, default=None,
+                    help="perun uc2: begin the Open at this Unix time (all players at once), not at start")
     ap.add_argument("--account", type=int, required=True)
     ap.add_argument("--asset", choices=("eth", "points"), default="eth",
                     help="eth: native payments to --pay-to (UC1). points: PointsToken.transfer to the "

@@ -51,7 +51,8 @@ class MetricList(unittest.TestCase):
     def test_code_extracts_exactly_the_reviewed_list(self):
         code = ({m[0] for m in tt.UC1_METRICS + tt.UC2_METRICS} | {tt.UC1_PER_BOARD[0]}
                 | {m[0] for m in tt.UC2_HUB_METRICS} | {tt.UC1_BLOCK_METRIC[0]}
-                | {m[0] for m in tt.UC1_DEADLINE_METRICS} | {tt.UC1_FLOOR_METRIC[0]})
+                | {m[0] for m in tt.UC1_DEADLINE_METRICS} | {tt.UC1_FLOOR_METRIC[0]}
+                | {tt.open_common_row()["metric"]} | {m[0] for m in tt.INFLIGHT200_METRICS})
         self.assertEqual(code, ids_in_metrics_md())
 
 

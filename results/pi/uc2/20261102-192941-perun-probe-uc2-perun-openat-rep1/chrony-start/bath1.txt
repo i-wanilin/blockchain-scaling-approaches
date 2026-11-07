@@ -1,0 +1,14 @@
+1793644337.103595393
+Reference ID    : 55D65397 (mail2.light-speed.de)
+Stratum         : 3
+Ref time (UTC)  : Mon Nov 02 18:19:46 2026
+System time     : 0.000280429 seconds slow of NTP time
+Last offset     : +0.000050198 seconds
+RMS offset      : 0.000138072 seconds
+Frequency       : 8.193 ppm fast
+Residual freq   : +0.001 ppm
+Skew            : 0.024 ppm
+Root delay      : 0.039520618 seconds
+Root dispersion : 0.001386990 seconds
+Update interval : 1025.0 seconds
+Leap status     : Normal

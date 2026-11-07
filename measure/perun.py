@@ -496,6 +496,9 @@ async def run_lifecycle(a, lc: Lifecycle) -> int:
             if err:
                 life["open_error"] = err
                 return 1
+            if getattr(a, "open_at", None):              # --open-at: every player begins its Open at
+                life["open_at"] = a.open_at               # the same agreed time (board clocks in sync)
+                await asyncio.sleep(max(0.0, a.open_at - time.time()))
             rep, err = await call(sidecar, lc.open_request(), lc.open_timeout())   # never retried
             if err:
                 life["open_error"] = err

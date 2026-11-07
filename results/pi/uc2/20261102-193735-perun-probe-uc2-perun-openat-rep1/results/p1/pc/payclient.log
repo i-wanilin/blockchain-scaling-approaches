@@ -1,0 +1,2 @@
+2026-11-02 19:47:58,033 ERROR sidecar did not answer 'exit' within 15.0 s; killing it
+2026-11-02 19:47:58,035 WARNING sidecar did not stop cleanly: TimeoutError: sidecar did not answer 'exit' within 15.0 s (killed)

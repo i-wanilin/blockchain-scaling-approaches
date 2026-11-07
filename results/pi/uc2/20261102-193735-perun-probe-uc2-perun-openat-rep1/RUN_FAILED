@@ -1,0 +1,1 @@
+payment client on bath5 failed:close_error: close: channel broken: p3: gave way at version 47 but no update from the peer arrived within 10s: the peer may have accepted the abandoned proposal, so the channel is desynchronised (yield timeout too

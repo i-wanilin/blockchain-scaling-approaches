@@ -1,0 +1,1 @@
+2026-11-02 19:47:21,861 ERROR Close failed: close: channel broken: p3: gave way at version 47 but no update from the peer arrived within 10s: the peer may have accepted the abandoned proposal, so the channel is desynchronised (yield timeout too short for this link?)

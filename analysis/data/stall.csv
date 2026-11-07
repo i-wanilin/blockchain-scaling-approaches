@@ -16,6 +16,8 @@ uc1,arbitrum,w100,stall_cpu_before,bath4,pct,value,1,20.1988095238095,,,,,,,,202
 uc1,arbitrum,w100,stall_cpu_during,bath4,pct,value,1,17.5114583333333,,,,,,,,20261011-190947,recorder/bath4.csv cpu_busy_pct
 uc1,arbitrum,w100,stall_signal_min,bath4,dBm,value,1,-56,,,,,,,,20261011-190947,"recorder/bath4.csv signal_dbm, during the stall"
 uc1,arbitrum,w100,stall_signal_max,bath4,dBm,value,1,-47,,,,,,,,20261011-190947,"recorder/bath4.csv signal_dbm, during the stall"
+uc1,arbitrum,w100,stall_slow_first_s,bath4,s,value,1,616.994911670685,,,,,,,,20261011-190947,"results/c2/ledger.csv.gz, first payment slower than 2.0 s"
+uc1,arbitrum,w100,stall_slow_last_s,bath4,s,value,1,865.744017839432,,,,,,,,20261011-190947,"results/c2/ledger.csv.gz, last payment slower than 2.0 s"
 uc1,arbitrum,w100,stall_latency_p50_before,bath5,s,value,1,0.229687213897705,,,,,,,,20261011-190947,results/c3/ledger.csv.gz
 uc1,arbitrum,w100,stall_latency_p50_during,bath5,s,value,1,0.259489297866821,,,,,,,,20261011-190947,results/c3/ledger.csv.gz
 uc1,arbitrum,w100,stall_latency_p99_during,bath5,s,value,1,0.464119434356689,,,,,,,,20261011-190947,results/c3/ledger.csv.gz
@@ -32,6 +34,8 @@ uc1,arbitrum,w100,stall_cpu_before,bath6,pct,value,1,19.6892857142857,,,,,,,,202
 uc1,arbitrum,w100,stall_cpu_during,bath6,pct,value,1,17.0135416666667,,,,,,,,20261011-190947,recorder/bath6.csv cpu_busy_pct
 uc1,arbitrum,w100,stall_signal_min,bath6,dBm,value,1,-62,,,,,,,,20261011-190947,"recorder/bath6.csv signal_dbm, during the stall"
 uc1,arbitrum,w100,stall_signal_max,bath6,dBm,value,1,-55,,,,,,,,20261011-190947,"recorder/bath6.csv signal_dbm, during the stall"
+uc1,arbitrum,w100,stall_slow_first_s,bath6,s,value,1,420.432792425156,,,,,,,,20261011-190947,"results/c4/ledger.csv.gz, first payment slower than 2.0 s"
+uc1,arbitrum,w100,stall_slow_last_s,bath6,s,value,1,892.5329413414,,,,,,,,20261011-190947,"results/c4/ledger.csv.gz, last payment slower than 2.0 s"
 uc1,arbitrum,w100,stall_latency_p50_before,bath7,s,value,1,0.235080003738403,,,,,,,,20261011-190947,results/c5/ledger.csv.gz
 uc1,arbitrum,w100,stall_latency_p50_during,bath7,s,value,1,0.267005443572998,,,,,,,,20261011-190947,results/c5/ledger.csv.gz
 uc1,arbitrum,w100,stall_latency_p99_during,bath7,s,value,1,0.495345592498779,,,,,,,,20261011-190947,results/c5/ledger.csv.gz

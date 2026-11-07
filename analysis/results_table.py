@@ -467,6 +467,59 @@ def build_rows(all_cells):
     return rows
 
 
+# The extra Perun UC2 runs of 2026-11-02 (deploy/experiments/probe-uc2-perun-openat.env): every player
+# began its Open at one agreed time (--open-at), so the Open does not include waiting for players that
+# the launcher started later. Only their Open is used. The first attempt of the day stopped in the
+# pre-flight check and has no Open; these three have all six players' Opens.
+OPEN_COMMON_RUNS = ("20261102-193735", "20261102-195210", "20261102-200627")
+OPEN_COMMON_SOURCE = ("probe-uc2-perun-openat: open t_virtual_open - t_start (as open.p0..p5.s), "
+                      "median over the six players")
+
+
+def open_common_row():
+    """uc2 perun open_common_start_s: the Open per player when all players start at the same moment."""
+    values, ids = [], []
+    for run_id in OPEN_COMMON_RUNS:
+        hits = glob.glob(os.path.join(REPO, "results", "pi", "uc2", run_id + "-perun-probe-uc2-perun-openat-*"))
+        if len(hits) != 1:
+            raise ValueError(f"open_common_start_s: run {run_id} found {len(hits)} times")
+        opens = []
+        for f in sorted(glob.glob(os.path.join(hits[0], "results", "p*", "pc", "lifecycle.json"))):
+            o = _load(os.path.dirname(f), "lifecycle.json")["open"]
+            opens.append(o["t_virtual_open"] - o["t_start"])
+        if len(opens) != 6:
+            raise ValueError(f"open_common_start_s: {run_id} has {len(opens)} player Opens, not 6")
+        values.append(statistics.median(opens))
+        ids.append(run_id)
+    return _row("uc2", "perun", "", "open_common_start_s", "s", OPEN_COMMON_SOURCE, "mean_sd", values, ids, 0)
+
+
+# The capacity test of 2026-10-04 (spec U9): zkSync at the 100 ms window with 200 payments in flight per
+# customer instead of 20, one run. It shows whether the in-flight limit or the stack sets zkSync's rate.
+INFLIGHT200_RUN = "20261004-102456-zksync-probe-zksync5-w100-if200-rep1"
+INFLIGHT200_METRICS = (("goodput_inflight200", "1/s", "headline.goodput_per_s", lambda s: s["headline"]["goodput_per_s"]),
+                       ("confirmation_p50_inflight200", "s", "headline.confirmation_s.p50",
+                        lambda s: s["headline"]["confirmation_s"]["p50"]),
+                       # the sensor's stream kept up in this test (the shared 2.4 GHz band was not overloaded)
+                       ("receive_lag_p99_inflight200", "s", "receive_lag_s.p99",
+                        lambda s: s["receive_lag_s"]["p99"]))
+
+
+def inflight200_rows():
+    """uc1 zksync w100: the two values of the one run with 200 payments in flight per customer (n = 1)."""
+    d = os.path.join(REPO, "results", "pi", "uc1", INFLIGHT200_RUN)
+    summ = _load(d)
+    rows = []
+    for metric, unit, source, f in INFLIGHT200_METRICS:
+        r = dict.fromkeys(CSV_FIELDS, "")
+        v = f(summ)
+        r.update(use_case="uc1", system="zksync", window="w100", metric=metric, unit=unit, stat="value", n=1,
+                 mean=v, min=v, max=v, rep1=v, source=f"{INFLIGHT200_RUN}: {source}",
+                 runs="-".join(INFLIGHT200_RUN.split("-")[:2]), saturated_runs=0)
+        rows.append(r)
+    return rows
+
+
 def _count_row(uc, system, window, sums, run_ids, saturated):
     """How many runs reconcile (check_runs already stopped if any did not): '3 of 3' per cell."""
     r = dict.fromkeys(CSV_FIELDS, "")
@@ -534,6 +587,8 @@ def main():
         verify(all_cells)
         print(f"all {n_runs} summaries reproduced from the raw logs")
     rows = build_rows(all_cells)
+    rows.append(open_common_row())
+    rows += inflight200_rows()
     compared = check_against_aggregates(rows)
     print(f"{compared} metric rows equal to their aggregate, run by run")
     write_csv(rows)

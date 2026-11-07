@@ -1397,13 +1397,22 @@ one_run_uc2() {
       || die "no token address in results/token.json"
     [ -z "${RECEIPT_MODE:-}" ] || rm_flag="--receipt-mode $RECEIPT_MODE"
   fi
+  # OPEN_AT_DELAY_S (probe): every Perun player begins its Open at one agreed time, read from
+  # bath1's clock (the clock gate keeps every board within 5 ms of it), not when ssh started it
+  open_flag=""
+  if [ "$STACK" = perun ] && [ -n "${OPEN_AT_DELAY_S:-}" ]; then
+    open_at=$(timeout 30 ssh "${SSH_OPTS[@]}" "$HUB_BOARD" "python3 -c 'import time; print(time.time() + $OPEN_AT_DELAY_S)'") \
+      || die "reading $HUB_BOARD's clock for --open-at failed"
+    open_flag="--open-at $open_at"
+    echo "every player opens at $open_at ($OPEN_AT_DELAY_S s after now on $HUB_BOARD)" >&2
+  fi
   k=0
   for h in "${PLAYERS[@]}"; do
     if [ "$STACK" = perun ]; then
       bg "$h" "$rd/payclient.out" "$RPY -m measure.payclient --system perun --use-case uc2 --perun-config $rd/cluster.json \
         --sidecar $PERUN_BIN_REMOTE --deposit-wei 0 --update-timeout $UPDATE_TIMEOUT_S --persist $PERSIST \
         --account $((111 + k)) --max-in-flight $MAX_IN_FLIGHT --max-queue $MAX_QUEUE --drain $DRAIN_S \
-        --socket $rd/pay.sock --out $rd/pc" || die "starting the payment client on $h failed"
+        $open_flag --socket $rd/pay.sock --out $rd/pc" || die "starting the payment client on $h failed"
     else
       bg "$h" "$rd/payclient.out" "$RPY -m measure.payclient --system $STACK --asset points --token $token \
         --recipients $rd/recipients.json --players $N_PLAYERS --l1 $L1 --l2 $L2_WS --deposit-wei $DEPOSIT_WEI \

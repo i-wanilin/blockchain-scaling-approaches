@@ -1,0 +1,14 @@
+1793644816.319195415
+Reference ID    : B23F4338 (sambuca.psychonet.co.uk)
+Stratum         : 3
+Ref time (UTC)  : Mon Nov 02 18:39:21 2026
+System time     : 0.002054291 seconds slow of NTP time
+Last offset     : -0.004204614 seconds
+RMS offset      : 0.001842007 seconds
+Frequency       : 8.193 ppm fast
+Residual freq   : -10.946 ppm
+Skew            : 0.030 ppm
+Root delay      : 0.054475579 seconds
+Root dispersion : 0.003393033 seconds
+Update interval : 64.1 seconds
+Leap status     : Normal

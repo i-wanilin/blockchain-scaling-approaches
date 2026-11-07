@@ -1,0 +1,149 @@
+{
+ "system": "perun",
+ "account": 115,
+ "complete": false,
+ "max_in_flight": 64,
+ "max_queue": 10000,
+ "drain_s": 60.0,
+ "duplicates": 0,
+ "late": 0,
+ "use_case": "uc2",
+ "player": "p4",
+ "init": {
+  "address": "0x11Ba29fE987adDFa480FfEcf3d98B26630917a78",
+  "index": 4
+ },
+ "open_at": 1793645129.0958405,
+ "open": {
+  "op": "open",
+  "ok": true,
+  "t_start": 1793645129.179835,
+  "t_ledger_funded": 1793645132.9899285,
+  "t_virtual_start": 1793645136.4848742,
+  "t_virtual_open": 1793645137.27669,
+  "ledger_channel_id": "0xa5ae8cfe1f5f190c83838a41680c421864b824e021ab161f68aadd2d1dcc2f4e",
+  "virtual": {
+   "p0": "0xbbe7f977708efa8ee70e14105d0b97557c73d1628038449a8013385789a53bd4",
+   "p1": "0x04b3f447c0ee26e74344874e81a7686cebd9b4dda6b04447f998046942158652",
+   "p2": "0xbd1f398b38f11dc4615fea91a2286403d6b3d0d4b452d5f4f511fa7a191c1198",
+   "p3": "0x9c95093f448d24e4a22bada1195856276eaeb73fad0c84a0f727b3d12bfcabec",
+   "p5": "0xc1ff87861ab2319fa48025d0c4038f218f95c07c233922a9433a57262e9199f7"
+  },
+  "l1_gas_used": 103684,
+  "l1_fee_wei": "103684000725788",
+  "txs": 2
+ },
+ "ready_at": 1793645137.7211277,
+ "quiesce_sent_at": 1793645241.8286395,
+ "ended_at": 1793645241.831167,
+ "quiesce": {
+  "dropped": 0,
+  "versions": {
+   "hub": 225,
+   "p0": 21,
+   "p1": 27,
+   "p2": 0,
+   "p3": 47,
+   "p5": 0
+  }
+ },
+ "channels_before_close": {
+  "hub": {
+   "version": 225,
+   "balances_wei": [
+    "1380",
+    "220"
+   ],
+   "broken": false
+  },
+  "p0": {
+   "version": 21,
+   "balances_wei": [
+    "1735",
+    "1625"
+   ],
+   "broken": false
+  },
+  "p1": {
+   "version": 27,
+   "balances_wei": [
+    "1815",
+    "1545"
+   ],
+   "broken": false
+  },
+  "p2": {
+   "version": 0,
+   "balances_wei": [
+    "1680",
+    "1680"
+   ],
+   "broken": false
+  },
+  "p3": {
+   "version": 47,
+   "balances_wei": [
+    "1725",
+    "1635"
+   ],
+   "broken": true
+  },
+  "p5": {
+   "version": 0,
+   "balances_wei": [
+    "1680",
+    "1680"
+   ],
+   "broken": false
+  }
+ },
+ "broken_channels": [
+  "p3"
+ ],
+ "reconciliation": {
+  "hub": {
+   "out_succeeded_wei": 220,
+   "out_succeeded_count": 220,
+   "free_balance_wei": 1380,
+   "version": 225,
+   "broken": false
+  },
+  "p0": {
+   "out_succeeded_wei": 25,
+   "out_succeeded_count": 5,
+   "free_balance_wei": 1735,
+   "version": 21,
+   "broken": false
+  },
+  "p1": {
+   "out_succeeded_wei": 0,
+   "out_succeeded_count": 0,
+   "free_balance_wei": 1815,
+   "version": 27,
+   "broken": false
+  },
+  "p2": {
+   "out_succeeded_wei": 0,
+   "out_succeeded_count": 0,
+   "free_balance_wei": 1680,
+   "version": 0,
+   "broken": false
+  },
+  "p3": {
+   "out_succeeded_wei": 95,
+   "out_succeeded_count": 19,
+   "free_balance_wei": 1725,
+   "version": 47,
+   "broken": true
+  },
+  "p5": {
+   "out_succeeded_wei": 0,
+   "out_succeeded_count": 0,
+   "free_balance_wei": 1680,
+   "version": 0,
+   "broken": false
+  }
+ },
+ "close_error": "close: channel broken: p3: gave way at version 47 but no update from the peer arrived within 10s: the peer may have accepted the abandoned proposal, so the channel is desynchronised (yield timeout too short for this link?)",
+ "sidecar_rc": 0
+}

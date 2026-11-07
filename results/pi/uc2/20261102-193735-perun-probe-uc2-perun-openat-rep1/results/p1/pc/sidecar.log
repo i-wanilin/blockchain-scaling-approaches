@@ -1,0 +1,2 @@
+pkg/test: using rootSeed 1793645084019451088
+time="2026-11-02T19:46:52+01:00" level=warning msg="invalid update received: expected version 19, got version 18: invalid state transition (ID: 64bebb789884c89b00563178c134b8e9160ddb424cc0fa2291a062e1ab1c48cc)" channel=64bebb789884c89b00563178c134b8e9160ddb424cc0fa2291a062e1ab1c48cc id="map[1:p1]" peerIdx=1

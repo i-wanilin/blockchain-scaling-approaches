@@ -1,0 +1,147 @@
+{
+ "system": "perun",
+ "account": 112,
+ "complete": false,
+ "max_in_flight": 64,
+ "max_queue": 10000,
+ "drain_s": 60.0,
+ "duplicates": 0,
+ "late": 0,
+ "use_case": "uc2",
+ "player": "p1",
+ "init": {
+  "address": "0x11c9CFEc77102a7C903a2D2319c79E7b0BBC9235",
+  "index": 1
+ },
+ "open_at": 1793645129.0958405,
+ "open": {
+  "op": "open",
+  "ok": true,
+  "t_start": 1793645129.1743922,
+  "t_ledger_funded": 1793645131.9924912,
+  "t_virtual_start": 1793645136.3305724,
+  "t_virtual_open": 1793645137.3091037,
+  "ledger_channel_id": "0x857539eea0c982dfeba21fee9fe8a3912fdf0d3316d07edf9a9353d58919eb41",
+  "virtual": {
+   "p0": "0xc79723e85e363b9af6b5eea0457f22d6aff1e717b7d5e953bdefd4b00e289996",
+   "p2": "0x44de12fb25cb81b070e1d3c9a5221cee23204405adb523b1ef041aad7208a671",
+   "p3": "0xb3bd3054756b690797406f2cd6a2bd8c827c3989923c14e6810a720793cb49fe",
+   "p4": "0x04b3f447c0ee26e74344874e81a7686cebd9b4dda6b04447f998046942158652",
+   "p5": "0x64bebb789884c89b00563178c134b8e9160ddb424cc0fa2291a062e1ab1c48cc"
+  },
+  "l1_gas_used": 103684,
+  "l1_fee_wei": "103684000725788",
+  "txs": 2
+ },
+ "ready_at": 1793645137.7401912,
+ "quiesce_sent_at": 1793645235.5115104,
+ "ended_at": 1793645235.5138688,
+ "quiesce": {
+  "dropped": 0,
+  "versions": {
+   "hub": 75,
+   "p0": 10,
+   "p2": 19,
+   "p3": 30,
+   "p4": 27,
+   "p5": 21
+  }
+ },
+ "channels_before_close": {
+  "hub": {
+   "version": 75,
+   "balances_wei": [
+    "1530",
+    "70"
+   ],
+   "broken": false
+  },
+  "p0": {
+   "version": 10,
+   "balances_wei": [
+    "1720",
+    "1640"
+   ],
+   "broken": false
+  },
+  "p2": {
+   "version": 19,
+   "balances_wei": [
+    "1615",
+    "1745"
+   ],
+   "broken": false
+  },
+  "p3": {
+   "version": 30,
+   "balances_wei": [
+    "1810",
+    "1550"
+   ],
+   "broken": false
+  },
+  "p4": {
+   "version": 27,
+   "balances_wei": [
+    "1545",
+    "1815"
+   ],
+   "broken": false
+  },
+  "p5": {
+   "version": 21,
+   "balances_wei": [
+    "1705",
+    "1655"
+   ],
+   "broken": false
+  }
+ },
+ "broken_channels": [],
+ "reconciliation": {
+  "hub": {
+   "out_succeeded_wei": 70,
+   "out_succeeded_count": 70,
+   "free_balance_wei": 1530,
+   "version": 75,
+   "broken": false
+  },
+  "p0": {
+   "out_succeeded_wei": 5,
+   "out_succeeded_count": 1,
+   "free_balance_wei": 1720,
+   "version": 10,
+   "broken": false
+  },
+  "p2": {
+   "out_succeeded_wei": 80,
+   "out_succeeded_count": 16,
+   "free_balance_wei": 1615,
+   "version": 19,
+   "broken": false
+  },
+  "p3": {
+   "out_succeeded_wei": 10,
+   "out_succeeded_count": 2,
+   "free_balance_wei": 1810,
+   "version": 30,
+   "broken": false
+  },
+  "p4": {
+   "out_succeeded_wei": 135,
+   "out_succeeded_count": 27,
+   "free_balance_wei": 1545,
+   "version": 27,
+   "broken": false
+  },
+  "p5": {
+   "out_succeeded_wei": 40,
+   "out_succeeded_count": 8,
+   "free_balance_wei": 1705,
+   "version": 21,
+   "broken": false
+  }
+ },
+ "error": "CancelledError: ",
+ "sidecar_rc": -9
+}
